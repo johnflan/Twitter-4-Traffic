@@ -1,0 +1,20 @@
+
+#Android application files + dex vm
+*.apk
+*.ap_
+*.dex
+*.class
+*.log
+
+#Local configuration (sdk path etc)
+local.properties
+
+#Latex intermediate files
+*.pdf
+*.aux
+
+#Project data
+#data for the project should be kept external to the source repo
+*.xml
+*.sqlite
+*.db
