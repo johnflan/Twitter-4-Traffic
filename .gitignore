@@ -1,3 +1,5 @@
+#Credentials File
+t4t_credentials.txt
 
 #Android application files + dex vm
 *.apk
