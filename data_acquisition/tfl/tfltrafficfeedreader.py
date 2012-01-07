@@ -27,7 +27,7 @@ DT_FORMAT_UPDATE = '%Y-%m-%dT%H%M'
 # my timestamp format
 DT_FORMAT_TIMESTAMP = '%Y%m%d%H%M%S'
 
-FEED_LOCATION
+FEED_LOCATION = ""
 
 # reading and writing datetime objects from/to strings
 def strptime(dtstr,format=DT_FORMAT_CANON):
@@ -235,6 +235,8 @@ def periodically_sample_feed(*args,**kwds):
     verbosity = kwds['verbosity']
     datadir = kwds['datadir']
     tries = kwds['tries']
+    feed_location = kwds['feed_location']
+    print "[debug] in periodically sample feed: " + feed_location
     # this is the feed address
     #XXX This loc no longer points to a real feed. YOu will need to register an email address and ip address foryour own machine.
     #loc = 'http://www.tfl.gov.uk/tfl/businessandpartners/syndication/feed.aspx?email=youremail and id goes here'
@@ -251,7 +253,7 @@ def periodically_sample_feed(*args,**kwds):
                 print "...trying again."
             # Get the newly published feed
             if verbosity <= INFO:   print "Requesting new feed..."
-            req = urllib2.Request(FEED_LOCATION)
+            req = urllib2.Request(feed_location)
             f = urllib2.urlopen(req)
             tmpfname = os.path.join(datadir,'tempdisruptions.xml')
             tmpfile = open(tmpfname,'w')
@@ -290,11 +292,12 @@ def periodically_sample_feed(*args,**kwds):
 def main(*args,**kwds):
 	Config = ConfigParser.ConfigParser()
 	Config.read("../t4t_credentials.txt")
-	FEED_LOCATION = Config.get("Transport for London", "tfl_traffic_disruptions")
-	if not FEED_LOCATION == null:
+	feed_location = Config.get("Transport for London", "tfl_traffic_disruptions")
+	if feed_location == "":
 		print "Could not load disruptions feed from config file"
 		sys.exit(0)
-    periodically_sample_feed(*args,**kwds)
+	kwds['feed_location'] = feed_location
+	periodically_sample_feed(*args,**kwds)
 
 if __name__ == '__main__':
     from optparse import OptionParser
