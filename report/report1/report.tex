@@ -1,4 +1,5 @@
-\documentclass[pdftex,11pt,a4paper]{article}
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=2cm]{geometry}
 \usepackage{anysize}
 \usepackage[pdftex]{graphicx}
 \usepackage{url}
@@ -7,35 +8,44 @@
 \usepackage{wrapfig}
 \usepackage{color}
 \usepackage{fancyhdr}
+\usepackage[nodayofweek]{datetime}
+\longdate
 
-\marginsize{2.0cm}{2.0cm}{2.0cm}{2.0cm}
 
 
-\lhead{\footnotesize {Twitter 4 traffic} }
-\rhead{\footnotesize {Report 1} }
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{\fancyplain{}{M.Sc.\ Group Project Report}}
+\rhead{\fancyplain{}{\today}}
+\cfoot{\fancyplain{}{\thepage}}
 
-\renewcommand\headheight{24pt}
-\renewcommand\footrulewidth{0.4pt}
+
+\title{Twitter for traffic\\\Large{--- Report One ---}}
+\author{Porfyrios Vasileiou, Marianna Polatoglou, Afxentios Hadjiminas,\\
+        Panagiotis Tsirigotis, Hanguang Zhou, John Flanagan.\\
+       \{pv311, mp1911, ah2411, tp1111, hz511, jf311.\}@doc.ic.ac.uk\\ \\
+       \small{Supervisor: Dr.\ Emil Lupo, Dr.\ Alessandra Russo, Luke Dickens}\\
+       \small{Course: CO533, Imperial College London}
+}
+
+
 
 %Report details http://www.doc.ic.ac.uk/~cristic/teaching/MScGroupProj/
 
 \begin{document}
+\maketitle
 
 \section{Introduction}
 	\input{introduction.tex}
-	\pagebreak
 
 \section{Requirements}
 	\input{requirements.tex}
-	\pagebreak
 
 \section{Development Methodology}
 	\input{methodology.tex}
-	\pagebreak
 
 \section{Revision Control}
 	\input{revision_control.tex}
-	\pagebreak
 
 \section{References}
 	\def\refname{}

@@ -1,0 +1,48 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{anysize}
+\usepackage[pdftex]{graphicx}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{wrapfig}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage[nodayofweek]{datetime}
+\longdate
+
+
+
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{\fancyplain{}{M.Sc.\ Group Project Report}}
+\rhead{\fancyplain{}{\today}}
+\cfoot{\fancyplain{}{\thepage}}
+
+
+\title{Twitter for traffic\\\Large{--- Report Two ---}}
+\author{Porfyrios Vasileiou, Marianna Polatoglou, Afxentios Hadjiminas,\\
+        Panagiotis Tsirigotis, Hanguang Zhou, John Flanagan.\\
+       \{pv311, mp1911, ah2411, tp1111, hz511, jf311.\}@doc.ic.ac.uk\\ \\
+       \small{Supervisor: Dr.\ Emil Lupo, Dr.\ Alessandra Russo, Luke Dickens}\\
+       \small{Course: CO533, Imperial College London}
+}
+
+
+
+%Report details http://www.doc.ic.ac.uk/~cristic/teaching/MScGroupProj/
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+	\input{introduction.tex}
+
+
+
+\section{References}
+	\def\refname{}
+	\bibliography{references}
+	\bibliographystyle{plain}
+
+\end{document}
