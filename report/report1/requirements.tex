@@ -4,7 +4,7 @@ The project will consist of two separate development efforts, consisting of a ho
 
 \begin{figure}[here]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{images/draft_architecture.jpg}
+\includegraphics[width=0.5\textwidth]{images/draft_architecture.jpg}
 \end{center}
 \caption{Application Architecture}
 \end{figure}
@@ -16,13 +16,13 @@ The mobile application must provide the commuter with a mechanism for discoverin
 Below there are tables for every feature and its priority, feasibility and expected completion date. The smaller number in priority means more important to finish fast (1-10) and in feasibility the smaller number means more achievable (1-10).
 
 \begin{center}
-\begin{tabular}{ | p{6cm} | c | c | c | }
+\begin{tabular}{ | p{8cm} | c | c | c | }
 \hline
 \multicolumn{4}{|c|}{\textbf{Server Hosted Application}} \\ \hline
 \textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Expected completion} \\ \hline
 \textbf{Store current disruptions from TfL} \newline
 Create a geographic database of live events from TfL. Evolve these database events with data from the feed, in order to have a current representation of the event. & 1 & 3 & \\ \hline
-\textbf{Classify tweets from Twitter with a simple classifier}
+\textbf{Classify tweets from Twitter with a simple classifier} \newline
 Identify traffic related tweets with a simple classifier and store those tweets, using their geographic representation as a key. & 2 & 3 & \\ \hline
 \textbf{Store tweets} \newline
 Store relevant tweets using their geographical representation as a key. & 2 & 2 & \\ \hline
@@ -36,15 +36,15 @@ Take twitter messages reported from the mobile client and process these in a sep
 \end{center}
 
 \begin{center}
-\begin{tabular}{ | p{6cm} | c | c | c | }
+\begin{tabular}{ | p{8cm} | c | c | c | }
 \hline
 \multicolumn{4}{|c|}{\textbf{Mobile Application}} \\ \hline
 \textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Expected completion} \\ \hline
-\textbf{Report events}
+\textbf{Report events}\newline
 Report traffic disruption through the mobile application on Twitter, using a hash tag. & 1 & 2 & \\ \hline
-\textbf{Show local disruption map}
+\textbf{Show local disruption map}\newline
 Show positions of known disruptions a map. Enabling the user to click on a particular event for further information. & 1 & 2 & \\ \hline
-\textbf{Stored Routes}
+\textbf{Stored Routes}\newline
 Find and show disruptions for user defined stored routes. & 3 & 5 & \\ \hline
 \end{tabular}
 \end{center}
