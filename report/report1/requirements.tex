@@ -7,7 +7,7 @@ The project will consist of two separate development efforts, consisting of a ho
 \includegraphics[width=0.5\textwidth]{images/draft_architecture.jpg}
 \end{center}
 \vspace{-20pt}
-\caption{Application Architecture}
+\caption{Data flow}
 \end{figure}
 
 The hosted application will retrieve traffic events from a Transport for London (TfL) data feed and correlate each event with relevant tweets harvested from Twitter. The server based application gathers data from TfL and Twitter periodically. TfL provides a curated feed of ongoing traffic disruptions in a structured format. Twitter provides us with a torrent of unsorted tweets, from which relevant tweets must be extracted. In addition traffic disruptions reported from the mobile application can be identified through the use of a hash tag, enabling these messages to be processed separately. The server gathers the TfL data and then tries to match tweets about these traffic disruptions. To discover tweets that discuss traffic concepts, document classification techniques must be utilised. Two points we can improve on the server is the classification algorithm, and adding the functionality to generate traffic disruptions that are reported only from Twitter, and not yet on TfL.
