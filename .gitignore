@@ -1,6 +1,8 @@
 #Credentials File
 t4t_credentials.txt
 
+*~
+
 #Android application files + dex vm
 *.apk
 *.ap_
@@ -14,6 +16,9 @@ local.properties
 #Latex intermediate files
 *.pdf
 *.aux
+*.bbl
+*.out
+*.blg
 
 #python 
 *.mo
