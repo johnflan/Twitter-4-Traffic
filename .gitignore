@@ -15,6 +15,25 @@ local.properties
 *.pdf
 *.aux
 
+#python 
+*.mo
+*.egg-info
+*.egg
+*.EGG
+*.EGG-INFO
+bin
+build
+develop-eggs
+downloads
+eggs
+fake-eggs
+parts
+dist
+.installed.cfg
+*.pyc
+*.pyo
+*.tmp*
+
 #Project data
 #data for the project should be kept external to the source repo
 *.xml
