@@ -2,20 +2,31 @@ Management of source-code, documentation and binary files can be tedious for an 
 
 While many different approaches are used to track files, most revision control systems offer
 similar basic functionality. This main functionality could be described under
-the title ‘collaboration’, enabling multiple individuals to work on as set of
+the title of ‘collaboration’, enabling multiple individuals to work on as set of
 files while ensuring changes don’t get lost and enabling tracking of versions.
 Modern systems offer powerful features such as verifiable histories, ability to integrate with deployment, test and code review systems and the ability to add rules to enforce corporate policy and process.
 
-Of the options available, the chosen system had to satisfy a number of requirements. The system had to be free and preferably open-source, work well in a disconnected environment, have good documentation and also beneficial if this tool is in common use. Git\cite{website:git_scm}, the open-source distributed revision control system used by many major projects including the Linux Kernel, Google’s Android, Eclipse and Ruby on Rails seemed to meet the teams requirements. Additionally a number of team members have previous experience using the tool, which will lessen the initial learning curve.
+The chosen revision control system needs to be free and preferably open-source,
+work well in a disconnected environment, have good documentation and also
+beneficial if this tool is in common use. Git\cite{website:git_scm}, the
+open-source distributed revision control system used by many major projects
+including the Linux Kernel, Google’s Androida and Eclipse seemed to meet the
+teams requirements. Additionally, members of the team have previous experience using the tool, which will lessen the initial learning curve.
 
-The distributed nature of Git means a centralised ‘server’ is not necessary, but for convenience Github\cite{website:github} an online hosting service for git is being utilised. In addition to simply hosting the repository, Github offers a simple user interface for browsing the history, project bug-tracking and wiki for documentation, and is free for public projects with less the 300mb of history. There is however a downside to using Github, we lose the ability to write scripts to interface with the git hooks framework (on the server). 
+The distributed nature of Git means a centralised ‘server’ is not necessary,
+but for convenience Github\cite{website:github} an online hosting service for
+git is to be utilised. In addition to hosting the repository, Github offers a
+simple user interface for browsing the history, project bug-tracking, wiki, and
+is free for public projects with less the 300mb of history. However, using
+Github means we lose the ability to interface with git hooks on the server. 
 
-From the beginning of the project it was agreed that all data will exist outside of the repository. This was enforced initially by creating a defined directory structure for the repository and secondly by creating a ‘.gitignore’ file in the root of the repository to list file types to be not tracked by default.  
+From the beginning of the project it was agreed that all data will exist
+outside of the repository. This was enforced by policy and by using a ‘.gitignore’ file in the root of the repository to list file types to be not tracked.  
 
 To extract as much value as possible from revision control it is important to
 make commit messages as concise and descriptive as possible. The book Pro
-Git\cite{website:pro_git_ch2} describes a good commit as the following; break
-the message into a brief 50 character summary, a new line and a more detailed
+Git\cite{website:pro_git_ch2} describes a good commit as having the folloing
+structure; break the message into a brief 50 character summary insert a new line and a more detailed
 description. Enforcing good commit messages will help any team member to
 quickly look at the commit log and understand the current state of development.
 It is also important not get too wrapped up in these aspects, and keep the development somewhat agile.
