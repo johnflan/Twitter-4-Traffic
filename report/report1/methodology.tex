@@ -21,8 +21,7 @@ To make the production more effective and faster, an online collaboration tool c
 \caption[Caption for LOF]{Scrum Board and Trello\footnotemark}
 \end{minipage} 
 \end{figure}
-\footnotetext{Left: Drew Stephens
-\url{flickr.com/photos/dinomite/3695570625}, Right: \copyright \url{Trello.com}}
+
 
 We also decided to adopt several techniques from the XP, which will help us improve the programming process. The first practise we decided to use is pair programming, having two programmers work alongside on the same code. At any time, those two programmers sitting together may change any line of code in the system. Any time the two find a section of code that appears hard to understand or overly complex, they are to revise it, constantly simplifying and improving it. This technique improves the code quality and the team focus. Furthermore, several tests will be added in our code-base, keeping a test-driven development . However because of the nature of the project being partly research based and the results being quite subjective, it is difficult to test effectively. Hence, the development of the mobile application will be a TDD whereas for the server development we won't be able to follow strictly the TDD.\cite{Cockburn}
 
@@ -31,3 +30,5 @@ For the division of work amongst the project, more flexibility will be achieved 
 To facility parallel development, the server API will be mocked-up and will produce a fixed data set in the desired format that the android applications can handle. That way, those developing the mobile application can work independently from those working on the server. One person on the team is designated as the team "coach". This person reviews with the team members their use of the key practices: use of pair programming and testing,keeping design simple, communicating, and so on.
 
 As regards the actual design of the project there are multiple aspects. The first one is the mobile application that will act as the front-end of the system. For the user interface, some Lo-Fi layouts will be drawn in paper in order to have a general idea of how the interface is going to look like. The relative data will be retrieved in a structured form that will be the same for the server and the mobile application. The second aspect is the server implementation. A project machine will be used for the server, where traffic feeds from TFL and Twitter will be retrieved in XML format and stored in a database.
+
+\footnotetext{Left: Drew Stephens \url{flickr.com/photos/dinomite/3695570625}, Right: \copyright \url{Trello.com}}
