@@ -1,4 +1,4 @@
-To begin identifying an appropriate development methodology, it is necessary to understand the project requirements. The project requirements are determined over a number of meetings with the primary stakeholders. These meetings discuss the minimum requirements and the features that are going to be implemented on the project. 
+To begin identifying an appropriate development methodology, it is necessary to understand the project requirements. The project requirements and features are determined over a number of meetings with the primary stakeholders. 
 
 At this point the development methodology can be determined. Since we are looking for iterative and incremental development, Agile Software Development Methodology will be followed. This also enables time-boxed iterative approach. Agile methods are focused on different aspects of the software development life cycle. Two of the most well known agile methodologies are Scrum and XP.
 
@@ -26,15 +26,16 @@ scrum board as shown in fig 2.
 \begin{figure}[here]
 \begin{minipage}{\textwidth}
 \begin{center}
-\includegraphics[width=0.8\textwidth]{images/scrumboard.jpg}
+\includegraphics[width=0.95\textwidth]{images/scrumboard.jpg}
 \end{center}
 \vspace{-20pt}
 \caption[Caption for LOF]{Scrum Board and Trello\footnotemark}
 \end{minipage} 
 \end{figure}
+\footnotetext{Left: Drew Stephens \url{flickr.com/photos/dinomite/3695570625}, Right: \copyright \url{Trello.com}}
 
 Adopting several techniques from the XP also seemed advantageous, helping to
-improve the process. The first practise we decided to use is pair programming,
+improve the process. The first practice we decided to use is pair programming,
 having two programmers work alongside on the same code. At any time, those two
 programmers sitting together may change any line of code in the system. Any
 time the two find a section of code that appears hard to understand or overly
@@ -46,10 +47,10 @@ the results being quite subjective, it is difficult to test effectively. Hence,
 the development of the mobile application will be test-driven whereas for the
 server development we won't be able to follow test-driven so strictly.\cite{Cockburn}
 
-For the division of work amongst the project, more flexibility will be achieved by maximising the use of the members previous experience, but also keeping everyone interested. A balanced division has been decided where two members of the team will focus on the mobile application, two on the server side and the rest will move between those two tasks as necessary.
+For the division of work amongst the project, more flexibility will be achieved by maximising the use of the members previous experience, but also keeping everyone interested. A balanced division has been decided where two members of the team will focus on the mobile application, two on the server side and the rest will move between those two tasks as necessary. One person on the team is designated as the team leader with aim of coordinating the two development efforts.  
 
-To achieve parallel development, the server API will be mocked-up and will produce a fixed data set in the desired format that the android applications can handle. That way, those developing the mobile application can work independently from those working on the server. One person on the team is designated as the team "coach". This person reviews with the team members their use of the key practices: use of pair programming and testing,keeping design simple, communicating, and so on.
+To achieve parallel development, the server API will be mocked-up and will produce a fixed data set in the desired format that the android applications can handle. That way, those developing the mobile application can work independently from those working on the server.
 
 As regards the mobile application that will act as the front-end of the system, some Lo-Fi layouts will be drawn in paper in order to have a general idea of how the interface is going to look like. The relative data will be retrieved in a structured format that will be the identical for the server and the mobile application.
 
-\footnotetext{Left: Drew Stephens \url{flickr.com/photos/dinomite/3695570625}, Right: \copyright \url{Trello.com}}
+
