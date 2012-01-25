@@ -25,22 +25,22 @@ traffic disruptions that are reported only from Twitter, and not yet on TfL.
 
 The mobile application must provide the commuter with a mechanism for discovering disruptions that may affect their route. This is to be provided through the use of a map based interface. The mobile application also must offer the user the ability to comment or describe an on going traffic disruption. The user interface for reporting disruptions must offer a quick and intuitive mechanism for describing a particular event, while also satisfying users that require more control over the messages published on their account.
 
-The table below shows a breakdown of features ordered by their priority, feasibility and expected completion date. The smaller number in priority means more important to finish fast and in feasibility the smaller number means more achievable.
+The table below shows a breakdown of features ordered by their priority, feasibility and expected completion date. The smaller number in priority means more important to finish fast and in feasibility the smaller number means more achievable. Week 1 is considered to end on 27th of January, this leaves 8 weeks until the project deadline.
 
 \begin{center}
-\begin{tabular}{ | p{9cm} | p{1.6cm} | p{1.8cm} | p{1.8cm} | }
+\begin{tabular}{ | p{9cm} | c | c | p{1.8cm} | }
 \hline
 \multicolumn{4}{|c|}{\textbf{Mobile Application}} \\ \hline
 \textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date} \\ \hline
 \textbf{Report events}\newline
-Report traffic disruption through the mobile application on Twitter. & 1 & 2 & \\ \hline
+Report traffic disruption through the mobile application on Twitter. & 1 & 2 & Week 3 \\ \hline
 \textbf{Present a list of classified and grouped tweets}\newline
 Present to the user tweets identified as describing a traffic disruption,
-clustered around an event. & 2 & 4 & \\ \hline
+clustered around an event. & 2 & 4 & Week 4 \\ \hline
 \textbf{Show local disruption map}\newline
-Show positions of known disruptions on a map. Enable the user to click on an event for further information. & 3 & 5 & \\ \hline
+Show positions of known disruptions on a map. Enable the user to click on an event for further information. & 3 & 5 & Week 6 \\ \hline
 \textbf{Stored Routes}\newline
-Find and show disruptions for user defined stored routes. & 4 & 7 & \\ \hline
+Find and show disruptions for user defined stored routes. & 4 & 7 & Week 7 \\ \hline
 \multicolumn{4}{|c|}{Minimum specifications for the mobile application are
 features including and below priority 3.} \\ \hline
 \end{tabular}
@@ -51,25 +51,25 @@ features including and below priority 3.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Server Hosted Application}} \\ \hline
 \textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date} \\ \hline
 \textbf{Store disruptions from TfL} \newline
-Create a geographic database of live events from TfL. Evolve these database events with data from the feed, in order to have a current representation of the event. & 1 & 3 & \\ \hline
+Create a geographic database of live events from TfL. Evolve these database events with data from the feed, in order to have a current representation of the event. & 1 & 3 & Week 2 \\ \hline
 \textbf{Store and categorise social data} \newline
 For tweets with an explicit location, store them in a geographical database
 table. And those tweets without this explicit information store them separately for later
-analysis. & 2 & 2 & \\ \hline
+analysis. & 2 & 2 & Week 2 \\ \hline
 \textbf{Process mobile client reports} \newline
 Take twitter messages reported from the mobile client and process these in a
-separate pipeline. & 3 & 2 & \\ \hline
+separate pipeline. & 3 & 2 & Week 3 \\ \hline
 \textbf{Classify tweets from Twitter with a simple classifier} \newline
 Train a document classifier using a manually labeled training set to 
-identify traffic related tweets. & 4 & 5 & \\ \hline
+identify traffic related tweets. & 4 & 5 & Week 5 \\ \hline
 \textbf{Identify traffic disruptions from Twitter} \newline
 Inspect incoming traffic tweets and determine new non-TfL disruptions from
-those. & 5 & 5 & \\ \hline
+those. & 5 & 5 & Week 5 \\ \hline
 \textbf{Geocoding of messages without explicit locations} \newline
-Resolve geographic locations extracted from the message context. & 6 & 7 & \\ \hline
+Resolve geographic locations extracted from the message context. & 6 & 7 & Week 6 \\ \hline
 \textbf{Enhance classification and clustering algorithms} \newline
 From insight and data gained from initial classification and clustering
-techniques, attempt to improve the accuracy of the results. & 7 & 9 & \\ \hline
+techniques, attempt to improve the accuracy of the results. & 7 & 9 & Week 7 \\ \hline
 \multicolumn{4}{|c|}{Minimum specifications for the server application are
 features including and below priority 4.} \\ \hline
 \end{tabular}
