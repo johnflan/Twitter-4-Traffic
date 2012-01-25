@@ -11,19 +11,26 @@ requirements will be identified using goal-oriented capture\cite{Requirements}.
 \caption{Data flow}
 \end{figure}
 
-The hosted application will retrieve traffic events from a Transport for London
-(TfL)\cite{website:tfl_dev} data feed and a Twitter
-feed\cite{website:twitter_dev} perodically. TfL provides a curated feed of
+The hosted application will retrieve traffic events from a Transport for
+London\cite{website:tfl_dev} (TfL) data feed and a Twitter
+feed\cite{website:twitter_dev} periodically. TfL provides a curated feed of
 ongoing traffic disruptions in a structured format. Twitter provides us with a
 torrent of unsorted tweets, from which relevant tweets must be extracted. 
 Additionally, traffic disruptions reported from the mobile application can be
-identified through the use of an identifier, enabling those messages to be
+recognised through the use of an identifier, enabling those messages to be
 processed separately. To discover tweets that discuss traffic concepts,
 document classification techniques will be utilised. As the message
 classification algorithm improves, it is expected to be able to generate 
-traffic disruptions that are reported only from Twitter, and not yet on TfL.
+traffic disruptions that are reported from Twitter, and not yet on TfL.
 
-The mobile application must provide the commuter with a mechanism for discovering disruptions that may affect their route. This is to be provided through the use of a map based interface. The mobile application also must offer the user the ability to comment or describe an on going traffic disruption. The user interface for reporting disruptions must offer a quick and intuitive mechanism for describing a particular event, while also satisfying users that require more control over the messages published on their account.
+The mobile application must provide the commuter with a mechanism for
+discovering disruptions that may affect their route. This is to be provided
+through the use of a map based interface. The mobile application must also
+offer the user the ability to comment on or describe an ongoing traffic
+disruption. The user interface for reporting disruptions should provide a quick and
+intuitive mechanism for describing a particular event, while also satisfying
+the user that requires more control over the messages published on their social
+network.
 
 The table below shows a breakdown of features ordered by their priority, feasibility and expected completion date. The smaller number in priority means more important to finish fast and in feasibility the smaller number means more achievable. Week 1 is considered to end on 27th of January, this leaves 8 weeks until the project deadline.
 
@@ -33,7 +40,7 @@ The table below shows a breakdown of features ordered by their priority, feasibi
 \multicolumn{4}{|c|}{\textbf{Mobile Application}} \\ \hline
 \textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date} \\ \hline
 \textbf{Report events}\newline
-Report traffic disruption through the mobile application on Twitter. & 1 & 2 & Week 3 \\ \hline
+Report traffic disruptions through the mobile application on Twitter. & 1 & 2 & Week 3 \\ \hline
 \textbf{Present a list of classified and grouped tweets}\newline
 Present to the user tweets identified as describing a traffic disruption,
 clustered around an event. & 2 & 4 & Week 4 \\ \hline
