@@ -7,12 +7,13 @@ if __name__ == '__main__':
     import sys
     sys.path.append('..')
 
-from pygraph.simulation.infoflow_config import QUIET, STDOUTPUT, VERBOSE, DEBUG
-from data_io.mysqldb_wrapper import make_connection
-from data_io.mysqldb_wrapper import select_from_sql_table
-from data_io.mysqldb_wrapper import insert_into_sql_table
-from data_io.mysqldb_wrapper import update_sql_table
-from data_io.mysqldb_wrapper import get_single_selection
+from logging import FATAL, ERROR, WARNING, INFO, DEBUG 
+#from pygraph.simulation.infoflow_config import QUIET, STDOUTPUT, VERBOSE, DEBUG
+#from data_io.mysqldb_wrapper import make_connection
+#from data_io.mysqldb_wrapper import select_from_sql_table
+#from data_io.mysqldb_wrapper import insert_into_sql_table
+#from data_io.mysqldb_wrapper import update_sql_table
+#from data_io.mysqldb_wrapper import get_single_selection
 
 ####  Twitter Rate Limiting ####
 class SuppressedCallException(Exception ):
@@ -61,7 +62,7 @@ class RateLimiter(object ):
     # do we need write methods?
     writemethods = []
     # initializing rate limiting variable 
-    def __init__(self,api,verbosity=STDOUTPUT ):
+    def __init__(self,api,verbosity=DEBUG ):
         self.max_calls = 0  # number of allowed calls in one hour : the quota
         self.calls_left = 0  # what is left in the quota
         self.t_end = 0 # end time of an one-hour period
@@ -175,10 +176,10 @@ class RateLimiter(object ):
             if now > waittill:
                 pass
             else:
-                if self.verbosity >= STDOUTPUT:
+                if self.verbosity >= DEBUG:
                     print "Sleeping for "+ str(waittill-now)+ " seconds"
                 time.sleep(waittill-now)
-                if self.verbosity >= STDOUTPUT:
+                if self.verbosity >= DEBUG:
                     print "Waking up"
             res = method(*args,**kwargs)
             self.timefrom = time.time()
@@ -197,7 +198,7 @@ def GetRateLimiter(
                         consumer_secret=consumer_secret,
                         access_token_key=access_token_key,
                         access_token_secret=access_token_secret)
-    rlapi=RateLimiter(api,verbosity=kwargs.get('verbosity',STDOUTPUT))
+    rlapi=RateLimiter(api,verbosity=kwargs.get('verbosity', DEBUG))
     return rlapi
 
 

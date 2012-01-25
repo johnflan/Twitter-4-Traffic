@@ -73,7 +73,6 @@ def geolondon(  conn,
                     most_recent_id = max(r.id,most_recent_id)
                     (tid,uname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
-                    text = text.partition(':')[-1].strip(' ')
                     text = text.encode('ascii','ignore')
                     now = datetime.now()
                     nowstr = datetime.strftime(now, DATETIME_STRING_FORMAT)
