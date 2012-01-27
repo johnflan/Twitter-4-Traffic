@@ -8,12 +8,6 @@ if __name__ == '__main__':
     sys.path.append('..')
 
 from logging import FATAL, ERROR, WARNING, INFO, DEBUG 
-#from pygraph.simulation.infoflow_config import QUIET, STDOUTPUT, VERBOSE, DEBUG
-#from data_io.mysqldb_wrapper import make_connection
-#from data_io.mysqldb_wrapper import select_from_sql_table
-#from data_io.mysqldb_wrapper import insert_into_sql_table
-#from data_io.mysqldb_wrapper import update_sql_table
-#from data_io.mysqldb_wrapper import get_single_selection
 
 ####  Twitter Rate Limiting ####
 class SuppressedCallException(Exception ):

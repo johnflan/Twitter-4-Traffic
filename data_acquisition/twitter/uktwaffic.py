@@ -7,8 +7,10 @@ $ python uktwaffic -i ${MINID} -t 'traffic OR accident OR tailback OR gridlock O
 """
 import os
 import sys
-import sqlite3
-from sqlite3 import OperationalError
+import pg8000
+from pg8000 import DBAPI 
+from pg8000.errors import ProgrammingError
+import ConfigParser
 import twitter
 from twitter import TwitterError
 from urllib2 import URLError
@@ -68,31 +70,46 @@ def geolondon(  conn,
                 print "georadius", georadius
                 searchargs = dict(geocode=(51.5,-0.15,georadius),per_page=100,page=page,since_id=since_id,term=term)
                 print "[twitter] rl.FreqLimitGetSearch - %r" % searchargs
+                #GET RESULTS 
                 results = rl.FreqLimitGetSearch(**searchargs)
                 for r in results:
+                    print "[debug-id] Most recent id: ", most_recent_id, \
+                        ",result id: ", r.id
                     most_recent_id = max(r.id,most_recent_id)
                     (tid,uname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
                     text = text.encode('ascii','ignore')
                     now = datetime.now()
                     nowstr = datetime.strftime(now, DATETIME_STRING_FORMAT)
-                    print "a result at: ",nowstr
                     print (tid,uname,created_at,location,text,geo)
                     # geo part
                     if not geo is None and geo.get('type') == 'Point':
+                        print "---------------\n Geo Tagged"
                         geolat,geolong, = geo['coordinates']
                         geocount += 1
-                        print "\t### got one at: ", geo['coordinates'], "that makes %d" % geocount
-                        # and the call
-                        query = "INSERT OR IGNORE INTO geolondon(tid,uname,created_at,location,text,geolat,geolong)"\
-                              + " VALUES(?,?,?,?,?,?,?)"
-                        params = (tid,uname,created_at,location,text,geolat,geolong)
-                        print "[sql] cursor.execute( %s , %r) " % ( query , params )
-                        cursor.execute( query, params)
+                        #print "\t### got one at: ", geo['coordinates'], "that makes %d" % geocount
+                        query = """INSERT INTO geolondon(tid, uname, created_at, location, text, geolat, geolong)
+                              VALUES(%s,%s,to_timestamp(%s, \'YYYY-MM-DD
+                              HH24:MI:SS\'),%s,%s,%s,%s)"""
+                        params = (tid,uname,str(created_at),location,text,geolat,geolong)
+                        print "[sql] cursor.execute( %s , %s) " % ( query , params )
+                        try:
+                            cursor.execute( query, params)
+                        except ProgrammingError, e:
+                            print e
+                            continue
+
                     else:
-                        print "Not geo tagged"
-                        cursor.execute("INSERT OR IGNORE INTO geolondon(tid,uname,created_at,location,text)"\
-                        +" VALUES(?,?,?,?,?)" , (tid,uname,created_at,location,text))
+                        print "---------------\nNot geo tagged"
+                        sql_query = """INSERT INTO geolondon(tid, uname, created_at, location, text) VALUES
+                                    (%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s)"""
+                        params = (tid, uname, str(created_at), location, text)
+                        print "[params]", params
+                        try:
+                            cursor.execute(sql_query, params)
+                        except ProgrammingError, e:
+                            print e
+                            continue
                     conn.commit()
             except TwitterError, e:
                 print
@@ -102,62 +119,75 @@ def geolondon(  conn,
             except URLError, e:
                 print "[ERROR] URLError: ", e, "page:",page, "since_id",since_id
                 results = []
- #           except Exception, e:
- #               print
- #               print "[ERROR] ", e
- #               results = []
- #               print
-
 
 #def sqlexecute(conn, cursor, query, params, verbosity)
 #    print "[sql] cursor.execute( %s , %r) " % ( query , params )
 #    cursor.execute( query, params)
 
 def main(*args,**kwargs):
+    configSection = "Local database"
+    Config = ConfigParser.ConfigParser()
+    Config.read("../t4t_credentials.txt")
+    cfg_username = Config.get(configSection, "username")
+    cfg_password = Config.get(configSection, "password")
+    cfg_database = Config.get(configSection, "database")
+    cfg_server = Config.get(configSection, "server")
+
+    if cfg_server == "" \
+            or cfg_database == "" \
+            or cfg_username == "" \
+            or cfg_password == "":
+        print "Could not load config file"
+        sys.exit(0)
+
     if kwargs['verbosity'] <= DEBUG:
         print "[debug] main args", args
         print "[debug] main kwargs", kwargs
-    if len(args) >= 1:
-        sqlfile = args[0]
-        kwargs['sqlfile'] = sqlfile
-    else:
-        sqlfile = kwargs['sqlfile']
-    if kwargs['verbosity'] <= INFO:
-        print "sql file", sqlfile
-    conn = sqlite3.connect(sqlfile)
+    
+    conn = DBAPI.connect(host=cfg_server, database=cfg_database,
+            user=cfg_username, password=cfg_password)
     cursor = conn.cursor()
+
+    #REMOVE THIS LINE!!!!
+    print "[debug] droping tables to begin - THIS MUST BE REMOVED"
+    cursor.execute("DROP TABLE geolondon, options");
+    conn.commit()
+
 
     if kwargs['query_max_id']:
         print get_max_id(conn,cursor)
         return
 
-    # else run full program
-    fileparts = sqlfile.rpartition(os.sep)
-    datadir = fileparts[0]
-    fileid = fileparts[-1].rpartition('.')[0]
-    epsofname =  datadir + os.sep + fileid + '.eps'
-    print "epsofname = ", epsofname
-
-    query = 'CREATE TABLE IF NOT EXISTS geolondon(tid INTEGER PRIMARY KEY,uname VARCHAR(40), created_at DATETIME,location VARCHAR(128), text VARCHAR(150), geolat FLOAT, geolong FLOAT )'
+    #Postgres does not support CREATE TABLE IF *NOT*
+    #a solution seems to be just create the table
+    #if it already exists nothing happens
+    #query = 'CREATE TABLE IF NOT EXISTS geolondon(tid INTEGER PRIMARY KEY,uname VARCHAR(40), created_at DATETIME,location VARCHAR(128), text VARCHAR(150), geolat FLOAT, geolong FLOAT )'
+    query = """CREATE TABLE geolondon(tid BIGINT PRIMARY KEY,uname VARCHAR(40),
+    created_at TIMESTAMP,location VARCHAR(128), text VARCHAR(200), geolat
+    FLOAT, geolong FLOAT )"""
     params = None
     print "[sql] cursor.execute( %s , %r) " % ( query , params )
     cursor.execute(query)
     conn.commit()
-    cursor.execute('CREATE INDEX IF NOT EXISTS geolon_tid_idx ON geolondon(tid)')
+    #cursor.execute('CREATE INDEX IF NOT EXISTS geolon_tid_idx ON geolondon(tid)')
+    cursor.execute('CREATE INDEX geolon_tid_idx ON geolondon(tid)')
     conn.commit()
 
-
-
-    query = 'CREATE TABLE IF NOT EXISTS options (timestamp DATETIME, key TEXT, value TEXT, UNIQUE(timestamp, key))'
-    params = None
-    print "[sql] cursor.execute( %s , %r) " % ( query , params )
+    #query = 'CREATE TABLE IF NOT EXISTS options (timestamp DATETIME, key TEXT, value TEXT, UNIQUE(timestamp, key))'
+    query = 'CREATE TABLE options (timestamp TIMESTAMP, key TEXT, value TEXT, UNIQUE(timestamp, key))'
+    print "[sql] cursor.execute( %s) " % query
     cursor.execute(query)
+    conn.commit()
+    
     timestamp = datetime.now()
+    #postgres needs this insert format for timestamps
+    #to_timestamp('2012-01-26 01:09:26.721779', 'YYYY-MM-DD HH:MI:SS.US')
     for key,value in kwargs.iteritems():
-        query = 'INSERT OR IGNORE INTO options VALUES(?,?,?)'
-        params = (timestamp, key, value)
-        print "[sql] cursor.execute( %s , %r) " % ( query , params )
-        cursor.execute( query, params)
+        query = 'INSERT INTO options VALUES(to_timestamp(\'' + str(timestamp) \
+                + '\' ,\'YYYY-MM-DD HH24:MI:SS.US\'), \'' + key + '\' , \'' \
+                + str(value) + '\')'
+        print "[sql]", query
+        cursor.execute(query)
     conn.commit()
 
     start_id = get_max_id(conn,cursor)
@@ -184,6 +214,10 @@ if __name__ == '__main__':
                         dest='sqlfile',
                         default=None,
                         help='The input sql file name')
+    parser.add_option('--dbserver',
+                        dest='dbserver',
+                        default=None,
+                        help='Database server')
     parser.add_option('-i',
                         dest='start_id',
                         type=int,
