@@ -1,34 +1,19 @@
 from flask import Flask
 app = Flask(__name__)
 
-
-#(GET) /t4t/0.1/disruptions/?lat=xxx&long=xxx&radius=xxx
-#(GET) /t4t/0.1/disruptions/?topleft=xxx,xxx&bottomright=xxx,xxx
-#(POST) /t4t/0.1/disruptions/route/
-#(GET) /t4t/0.1/tweets/?disruptionID=xxx
-#(PUT) /t4t/0.1/report/
-
 response_data = {   'disruption_radius.txt': None,
                     'disruption_rect.txt': None,
                     'tweets_disruption_id.txt': None,
-                    }
-
+                    'instructions.txt': None}
 
 @app.route("/")
 def hello():
-        return """Twitter for traffic API mock server.\nThe following routes
-        are available:\n\n
-        (GET) /t4t/0.1/disruptions/?lat=xxx&long=xxx&radius=xxx
-        (GET) /t4t/0.1/disruptions/?topleft=xxx,xxx&bottomright=xxx,xxx
-        (POST) /t4t/0.1/disruptions/route/
-        (GET) /t4t/0.1/tweets/?disruptionID=xxx
-        (PUT) /t4t/0.1/report/
-        """
+    return getResponse('instructions.txt')
 
-#----------------------------------------------------------------
+#--- API V0.1 ----------------------------------------------------
 @app.route("/0.1/disruptions/")
 def disruptions():
-        return "Hello World!"
+        return getResponse('disruptions_rect.txt') 
 
 
 @app.route("/0.1/disruptions/route/")
@@ -45,5 +30,25 @@ def tweets():
 def report():
         return "Hello World!"
 
+
+
+def getResponse(endpoint):
+    response = response_data[endpoint]
+    if not response == None:
+        print response
+        return response
+    else:
+        return "Error no data found"
+
+def loadResponseData():
+    iterFilesList = response_data.copy()
+    for fileName in iterFilesList:
+        try:
+            f = open(fileName, 'r')
+            response_data[fileName] = f.read()
+        except IOError:
+            print "Error unable to open: ", fileName
+
 if __name__ == "__main__":
+    loadResponseData()
     app.run(host='0.0.0.0',port=55003)
