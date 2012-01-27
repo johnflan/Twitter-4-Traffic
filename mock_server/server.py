@@ -1,4 +1,5 @@
 from flask import Flask
+import sys
 app = Flask(__name__)
 
 
@@ -45,5 +46,27 @@ def tweets():
 def report():
         return "Hello World!"
 
+def main(*args,**kwargs):
+    app.run(host=kwargs['server'],port=kwargs['port'])
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',port=55003)
+    from optparse import OptionParser
+    parser=OptionParser()
+    parser.add_option('-s', '--server',
+            dest='server',
+            default='0.0.0.0',
+            help='The server address')
+    parser.add_option('-p','--port',
+            dest='port',
+            default='55003',
+            help='The server port',
+            type=int)
+    parser.add_option('-r','--resp',
+            dest='resp',
+            default='/responses',
+            help='The directory where the responses are saved')
+    (options, args)=parser.parse_args()
+    kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
+    main(*args,**kwargs)
+
+
