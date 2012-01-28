@@ -5,7 +5,7 @@
 Currently the following endpoints are supported.
 <UL>
     <LI>(GET) <A
-    HREF="/t4t/0.1/disruptions/?lat=xxx&long=xxx&radius=xxx">/t4t/0.1/disruptions/?lat=xxx&long=xxx&radius=xxx</A></LI>
+    HREF="/t4t/0.1/disruptions?latitude=2.3&longitude=2.1&radius=10">/t4t/0.1/disruptions?latitude=2.3&longitude=2.1&radius=10</A></LI>
     <LI>(GET) <A HREF="
     /t4t/0.1/disruptions/?topleft=xxx,xxx&bottomright=xxx,xxx">/t4t/0.1/disruptions/?topleft=xxx,xxx&bottomright=xxx,xxx</A></LI>
     <LI>(POST) <A

@@ -1,35 +1,68 @@
-from flask import Flask
+from flask import Flask, request
 import sys
 app = Flask(__name__)
 
 response_data = {   'disruption_radius.txt': None,
                     'disruption_rect.txt': None,
                     'tweets_disruption_id.txt': None,
+                    'route_disruptions.txt':None,
                     'instructions.txt': None}
 
-@app.route("/")
-def hello():
+@app.route("/", methods=['GET'])
+def instructions():
     return getResponse('instructions.txt')
 
 #--- API V0.1 ----------------------------------------------------
-@app.route("/0.1/disruptions/")
+
+@app.route("/t4t/0.1/disruptions", methods=['GET'])
 def disruptions():
-        return getResponse('disruptions_rect.txt') 
+
+    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
+           in request.args):
+        print "[INFO] Valid disruptions request:"
+        print "\tRadius: ", request.args['radius'], ", Latitude: ",\
+            request.args['latitude'], ", Longitude: ",\
+            request.args['longitude']
+        return getResponse('disruption_radius.txt')
 
 
-@app.route("/0.1/disruptions/route/")
+    if ('topleftlat' in request.args and 'topleftlong' in request.args and
+        'bottomrightlat' in request.args and 'bottomrightlong' in
+        request.args):
+        print "[INFO] Valid disruptions request"
+        print "\tTop left latitude: ", request.args['topleftlat'], \
+                ", top left longitude: ", request.args['topleftlong'],\
+                ", Bottom right latitude: ", request.args['bottomrightlat'],\
+                ", bottom right longitude: ", request.args['bottomrightlong']
+        return getResponse('disruption_rect.txt')
+
+    return "Invalid disruptions request", 500
+
+#POST is for creating
+#PUT is for creating/updating
+@app.route("/t4t/0.1/disruptions/route/", methods=['PUT','POST'])
 def disruptionsRoute():
-        return "Hello World!"
 
+    if request.mimetype == "application/json":
+        print"[INFO] recieved json body:", request.data
+        return getResponse('route_disruptions.txt')
+    
+    return "Invalid request", 500
 
-@app.route("/0.1/tweets/")
+@app.route("/t4t/0.1/tweets", methods=['GET'])
 def tweets():
-        return "Hello World!"
+    if ('disruptionID' in request.args):
+        return getResponse('tweets_disruption_id.txt')
+
+    return "Invalid tweet request", 500
 
 
-@app.route("/0.1/report/")
+@app.route("/t4t/0.1/report", methods=['PUT', 'POST'])
 def report():
-        return "Hello World!"
+    if (request.mimetype == "application/json"):
+        print "[INFO] received json body, ", request.data
+        return "Success"
+    return "Invalid request", 500
 
 def getResponse(endpoint):
     response = response_data[endpoint]
