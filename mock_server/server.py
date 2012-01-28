@@ -39,17 +39,17 @@ def getResponse(endpoint):
     else:
         return "Error no data found"
 
-def loadResponseData():
+def loadResponseData(respDir):
     iterFilesList = response_data.copy()
     for fileName in iterFilesList:
         try:
-            f = open(fileName, 'r')
+            f = open(respDir+'/'+fileName, 'r')
             response_data[fileName] = f.read()
         except IOError:
             print "Error unable to open: ", fileName
 
 def main(*args,**kwargs):
-    loadResponseData()
+    loadResponseData(kwargs['resp'])
     app.run(host=kwargs['server'],port=kwargs['port'])
 
 if __name__ == "__main__":
