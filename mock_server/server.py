@@ -25,7 +25,6 @@ def disruptions():
             request.args['longitude']
         return getResponse('disruption_radius.txt')
 
-
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
@@ -36,33 +35,30 @@ def disruptions():
                 ", bottom right longitude: ", request.args['bottomrightlong']
         return getResponse('disruption_rect.txt')
 
-    return "Invalid disruptions request", 500
+    return "Invalid disruptions request", 400
 
 #POST is for creating
 #PUT is for creating/updating
 @app.route("/t4t/0.1/disruptions/route/", methods=['PUT','POST'])
 def disruptionsRoute():
-
     if request.mimetype == "application/json":
-        print"[INFO] recieved json body:", request.data
+        print"[INFO] recieved json body:", request.json
         return getResponse('route_disruptions.txt')
-    
-    return "Invalid request", 500
+    return "Invalid request", 400
 
 @app.route("/t4t/0.1/tweets", methods=['GET'])
 def tweets():
     if ('disruptionID' in request.args):
         return getResponse('tweets_disruption_id.txt')
-
-    return "Invalid tweet request", 500
+    return "Invalid tweet request", 400
 
 
 @app.route("/t4t/0.1/report", methods=['PUT', 'POST'])
 def report():
     if (request.mimetype == "application/json"):
-        print "[INFO] received json body, ", request.data
+        print "[INFO] received json body, ", request.json
         return "Success"
-    return "Invalid request", 500
+    return "Invalid request", 400
 
 def getResponse(endpoint):
     response = response_data[endpoint]
@@ -104,4 +100,3 @@ if __name__ == "__main__":
     (options, args)=parser.parse_args()
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
     main(*args,**kwargs)
-
