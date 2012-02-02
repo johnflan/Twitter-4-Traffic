@@ -264,12 +264,15 @@ def periodically_sample_feed(*args,**kwds):
 
         if filesize > 0:
             # read the update date to rename the file appropriately.
-            dom = get_dom(tmpfname)
-            update_at = get_update_datetime(dom)
-            update_at_str = strftime(update_at,DT_FORMAT_TIMESTAMP)
-            ofname = datadir + os.sep + 'tfldisruptions'+update_at_str+'.xml'
-            if verbosity <= INFO:   print "Writing to %s..." % ofname
-            os.rename(tmpfname,ofname)
+            try:
+                dom = get_dom(tmpfname)
+                update_at = get_update_datetime(dom)
+                update_at_str = strftime(update_at,DT_FORMAT_TIMESTAMP)
+                ofname = datadir + os.sep + 'tfldisruptions'+update_at_str+'.xml'
+                if verbosity <= INFO:   print "Writing to %s..." % ofname
+                os.rename(tmpfname,ofname)
+            except:
+                print "[Error] Xml parsing failure"
         else:
             lastfeedcollected = newfeedtime
             print "After %d tries the feed is still empty, so ignoring." % tries
