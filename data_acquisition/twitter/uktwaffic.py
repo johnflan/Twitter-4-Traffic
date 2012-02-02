@@ -83,7 +83,6 @@ def geolondon(  conn,
                     now = datetime.now()
                     nowstr = datetime.strftime(now, DATETIME_STRING_FORMAT)
                     #print (tid,uname,created_at,location,text,geo)
-                    print uname + ", " + text
 
                     # If the tweet is a retweet drop it, this method is not
                     # 100%. But the API is not returning if r.retweet
@@ -93,30 +92,43 @@ def geolondon(  conn,
 
                     # geo part
                     if not geo is None and geo.get('type') == 'Point':
-                        print "---------------\n Geo Tagged"
                         geolat,geolong, = geo['coordinates']
                         geocount += 1
                         #print "\t### got one at: ", geo['coordinates'], "that makes %d" % geocount
-                        query = """INSERT INTO geolondon(tid, uname, created_at, location, text, geolat, geolong)
-                              VALUES(%s,%s,to_timestamp(%s, \'YYYY-MM-DD
-                              HH24:MI:SS\'),%s,%s,%s,%s)"""
-                        params = (tid,uname,str(created_at),location,text,geolat,geolong)
-                        print "[sql] cursor.execute( %s , %s) " % ( query , params )
+                        geoloc = "ST_GeographyFromText('SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")')"
+
+                        text = text.replace("'", "")
+                        query = "INSERT INTO geolondon(tid, uname, created_at,\
+                        location,text,geolocation) VALUES (" + str(tid) +\
+                        ",'" + uname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD\
+                        HH24:MI:SS'),'" + str(location) + "',\'" + str(text) +\
+                        "\'," + geoloc + ")"
+
+
+                        print uname, "\t", text[:50], geo['coordinates']
+                        #query = """INSERT INTO geolondon(tid, uname,
+                        #created_at, location, text, geolocation)
+                        #      VALUES(%s,%s,to_timestamp(%s, \'YYYY-MM-DD
+                        #      HH24:MI:SS\'),%s,%s,ST_GeographyFromText(SRID=4326;POINT(%s,%s)))"""
+                        #params = (tid,uname,str(created_at),location,text,str(geolong),str(geolat))
+                        #print "[sql] params ", query
                         try:
-                            cursor.execute( query, params)
+                            cursor.execute( query )
                         except ProgrammingError, e:
+                            print query
                             print e
                             continue
 
                     else:
-                        print "---------------\nNot geo tagged"
                         sql_query = """INSERT INTO geolondon(tid, uname, created_at, location, text) VALUES
                                     (%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s)"""
                         params = (tid, uname, str(created_at), location, text)
-                        print "[params]", params
+                        #print "[params]", params
+                        print uname, "\t", text[:50]
                         try:
                             cursor.execute(sql_query, params)
                         except ProgrammingError, e:
+                            print params
                             print e
                             continue
                     conn.commit()
@@ -150,8 +162,7 @@ def createTables(conn, cursor):
     #if it already exists nothing happens
     #query = 'CREATE TABLE IF NOT EXISTS geolondon(tid INTEGER PRIMARY KEY,uname VARCHAR(40), created_at DATETIME,location VARCHAR(128), text VARCHAR(150), geolat FLOAT, geolong FLOAT )'
     query = """CREATE TABLE geolondon(tid BIGINT PRIMARY KEY,uname VARCHAR(40),
-    created_at TIMESTAMP,location VARCHAR(128), text VARCHAR(200), geolat
-    FLOAT, geolong FLOAT )"""
+    created_at TIMESTAMP,location VARCHAR(128), text VARCHAR(200), geolocation GEOGRAPHY(POINT, 4326) )"""
     params = None
     print "[sql] cursor.execute( %s , %r) " % ( query , params )
     cursor.execute(query)
