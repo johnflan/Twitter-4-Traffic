@@ -7,6 +7,7 @@ $ python uktwaffic -i ${MINID} -t 'traffic OR accident OR tailback OR gridlock O
 """
 import os
 import sys
+import re
 import pg8000
 from pg8000 import DBAPI 
 from pg8000.errors import ProgrammingError
@@ -52,12 +53,14 @@ def robust_execute(conn,cursor,query,values=None, maxtries=5):
 def geolondon(  conn,
                 rl,
                 georadius="19.622mi",
-                term='traffic',
                 start_id=0,
                 **kwargs):
+    term = kwargs['terms']
     cursor = conn.cursor()
     most_recent_id = start_id
     geocount = 0
+    retweetRegex = re.compile('/\brt\b/i')
+    
     while True:
         since_id = most_recent_id
         results = None
@@ -73,15 +76,21 @@ def geolondon(  conn,
                 #GET RESULTS 
                 results = rl.FreqLimitGetSearch(**searchargs)
                 for r in results:
-                    print "[debug-id] Most recent id: ", most_recent_id, \
-                        ",result id: ", r.id
                     most_recent_id = max(r.id,most_recent_id)
                     (tid,uname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
                     text = text.encode('ascii','ignore')
                     now = datetime.now()
                     nowstr = datetime.strftime(now, DATETIME_STRING_FORMAT)
-                    print (tid,uname,created_at,location,text,geo)
+                    #print (tid,uname,created_at,location,text,geo)
+                    print uname + ", " + text
+
+                    # If the tweet is a retweet drop it, this method is not
+                    # 100%. But the API is not returning if r.retweet
+                    isRetweet = re.search('RT\s@', r.text, re.IGNORECASE)
+                    if isRetweet:
+                        continue
+
                     # geo part
                     if not geo is None and geo.get('type') == 'Point':
                         print "---------------\n Geo Tagged"
@@ -120,9 +129,54 @@ def geolondon(  conn,
                 print "[ERROR] URLError: ", e, "page:",page, "since_id",since_id
                 results = []
 
-#def sqlexecute(conn, cursor, query, params, verbosity)
-#    print "[sql] cursor.execute( %s , %r) " % ( query , params )
-#    cursor.execute( query, params)
+def loadSearchTerms(kwargs):
+    try:
+        f = open("searchTerms.txt", "r")
+        terms = f.read()
+        print "[INFO] Search Terms: ", terms
+        kwargs['terms'] = terms.strip()
+    except IOError:
+        print "[Error] search terms file not found"
+        sys.exit()
+
+def createTables(conn, cursor):
+    #REMOVE THIS LINE!!!!
+    print "[debug] droping tables to begin - THIS MUST BE REMOVED"
+    cursor.execute("DROP TABLE geolondon, options");
+    conn.commit()
+    
+    #Postgres does not support CREATE TABLE IF *NOT*
+    #a solution seems to be just create the table
+    #if it already exists nothing happens
+    #query = 'CREATE TABLE IF NOT EXISTS geolondon(tid INTEGER PRIMARY KEY,uname VARCHAR(40), created_at DATETIME,location VARCHAR(128), text VARCHAR(150), geolat FLOAT, geolong FLOAT )'
+    query = """CREATE TABLE geolondon(tid BIGINT PRIMARY KEY,uname VARCHAR(40),
+    created_at TIMESTAMP,location VARCHAR(128), text VARCHAR(200), geolat
+    FLOAT, geolong FLOAT )"""
+    params = None
+    print "[sql] cursor.execute( %s , %r) " % ( query , params )
+    cursor.execute(query)
+    conn.commit()
+    #cursor.execute('CREATE INDEX IF NOT EXISTS geolon_tid_idx ON geolondon(tid)')
+    cursor.execute('CREATE INDEX geolon_tid_idx ON geolondon(tid)')
+    conn.commit()
+
+    #query = 'CREATE TABLE IF NOT EXISTS options (timestamp DATETIME, key TEXT, value TEXT, UNIQUE(timestamp, key))'
+    query = 'CREATE TABLE options (timestamp TIMESTAMP, key TEXT, value TEXT, UNIQUE(timestamp, key))'
+    print "[sql] cursor.execute( %s) " % query
+    cursor.execute(query)
+    conn.commit()
+
+    timestamp = datetime.now()
+    #postgres needs this insert format for timestamps
+    #to_timestamp('2012-01-26 01:09:26.721779', 'YYYY-MM-DD HH:MI:SS.US')
+    for key,value in kwargs.iteritems():
+        query = 'INSERT INTO options VALUES(to_timestamp(\'' + str(timestamp) \
+                + '\' ,\'YYYY-MM-DD HH24:MI:SS.US\'), \'' + key + '\' , \'' \
+                + str(value) + '\')'
+        print "[sql]", query
+        cursor.execute(query)
+    conn.commit()
+
 
 def main(*args,**kwargs):
     configSection = "Local database"
@@ -148,47 +202,18 @@ def main(*args,**kwargs):
             user=cfg_username, password=cfg_password)
     cursor = conn.cursor()
 
-    #REMOVE THIS LINE!!!!
-    print "[debug] droping tables to begin - THIS MUST BE REMOVED"
-    cursor.execute("DROP TABLE geolondon, options");
-    conn.commit()
-
+    if kwargs['reset-db']:
+        print "[INFO] Reset DB, this cannot be undone - are you sure? y/n"
+        inputToken = raw_input('> ')
+        if inputToken == 'y':
+            createTables(conn, cursor)
+            print "done."
 
     if kwargs['query_max_id']:
         print get_max_id(conn,cursor)
         return
 
-    #Postgres does not support CREATE TABLE IF *NOT*
-    #a solution seems to be just create the table
-    #if it already exists nothing happens
-    #query = 'CREATE TABLE IF NOT EXISTS geolondon(tid INTEGER PRIMARY KEY,uname VARCHAR(40), created_at DATETIME,location VARCHAR(128), text VARCHAR(150), geolat FLOAT, geolong FLOAT )'
-    query = """CREATE TABLE geolondon(tid BIGINT PRIMARY KEY,uname VARCHAR(40),
-    created_at TIMESTAMP,location VARCHAR(128), text VARCHAR(200), geolat
-    FLOAT, geolong FLOAT )"""
-    params = None
-    print "[sql] cursor.execute( %s , %r) " % ( query , params )
-    cursor.execute(query)
-    conn.commit()
-    #cursor.execute('CREATE INDEX IF NOT EXISTS geolon_tid_idx ON geolondon(tid)')
-    cursor.execute('CREATE INDEX geolon_tid_idx ON geolondon(tid)')
-    conn.commit()
-
-    #query = 'CREATE TABLE IF NOT EXISTS options (timestamp DATETIME, key TEXT, value TEXT, UNIQUE(timestamp, key))'
-    query = 'CREATE TABLE options (timestamp TIMESTAMP, key TEXT, value TEXT, UNIQUE(timestamp, key))'
-    print "[sql] cursor.execute( %s) " % query
-    cursor.execute(query)
-    conn.commit()
-    
-    timestamp = datetime.now()
-    #postgres needs this insert format for timestamps
-    #to_timestamp('2012-01-26 01:09:26.721779', 'YYYY-MM-DD HH:MI:SS.US')
-    for key,value in kwargs.iteritems():
-        query = 'INSERT INTO options VALUES(to_timestamp(\'' + str(timestamp) \
-                + '\' ,\'YYYY-MM-DD HH24:MI:SS.US\'), \'' + key + '\' , \'' \
-                + str(value) + '\')'
-        print "[sql]", query
-        cursor.execute(query)
-    conn.commit()
+    loadSearchTerms(kwargs)
 
     start_id = get_max_id(conn,cursor)
     print start_id
@@ -210,14 +235,6 @@ if __name__ == '__main__':
     import StringIO
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option('--sqlfile',
-                        dest='sqlfile',
-                        default=None,
-                        help='The input sql file name')
-    parser.add_option('--dbserver',
-                        dest='dbserver',
-                        default=None,
-                        help='Database server')
     parser.add_option('-i',
                         dest='start_id',
                         type=int,
@@ -227,10 +244,6 @@ if __name__ == '__main__':
                         dest='georadius', 
                         default='20.0mi', 
                         help='The radius of the geocode entry')
-    parser.add_option('-t',
-                        dest='term', 
-                        default='traffic OR accident OR tailback OR gridlock OR m25 OR standstill', 
-                        help='The search term for the search api')
     parser.add_option('-v', '--verbosity',
                         dest='verbosity', 
                         default=WARNING, 
@@ -241,11 +254,11 @@ if __name__ == '__main__':
                         default=False, 
                         action ='store_true',
                         help='Simply return the maximum id currently in the table')
-
+    parser.add_option('--reset-db',
+                        dest='reset-db',
+                        default=False,
+                        help='Wipe the current database tables')
     (options, args) = parser.parse_args()
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
-#    print "args",args
-#    print "kwargs",kwargs
     main(*args,**kwargs)
-
 
