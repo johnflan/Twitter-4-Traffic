@@ -18,8 +18,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1310",
    "remark":"The Hammersmith Flyover has reopened for light vehicles only, with one lane running in each direction.  Other traffic is being diverted via the Hammersmith Gyratory.  Drivers using the A4 westbound requiring the M4 and London Heathrow are advised to use the A3220 Warwick Road, the A40 westbound, the A312 southbound and then rejoin the M4.  Traffic is moderate and moving well over the flyover and diversion routes. Expect possible delays during the peak periods.",
-   "long":"-4.00051493942",
-   "lat":"5.60177276672"
+   "lat":"51.4912383044",
+   "lon":"-0.220175382647"
   },
   {
    "eventID":"227150",
@@ -40,8 +40,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1341",
    "remark":"At present there are no reports of traffic congestion.",
-   "long":"-3.97546016539",
-   "lat":"5.67342855902"
+   "lat":"51.5146304326",
+   "lon":"-0.104425476753"
   },
   {
    "eventID":"227788",
@@ -62,8 +62,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"At present there are no reports of traffic congestion.",
-   "long":"-3.96849585715",
-   "lat":"5.67192531235"
+   "lat":"51.5215985633",
+   "lon":"-0.106586643287"
   },
   {
    "eventID":"227762",
@@ -84,8 +84,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"Restrictions in place. Traffic flowing well in the area.",
-   "long":"-3.97118487203",
-   "lat":"5.68496743241"
+   "lat":"51.5186258153",
+   "lon":"-0.0857666586516"
   },
   {
    "eventID":"227894",
@@ -106,8 +106,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"Broken down vehicle blocking lane one. Expect delays.",
-   "long":"-3.91107418519",
-   "lat":"5.77907382909"
+   "lat":"51.5762206855",
+   "lon":"0.0675267071333"
   },
   {
    "eventID":"227403",
@@ -128,8 +128,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"Lancaster Place is reduced to one lane northbound for a crane operation. Traffic is moving slowly on approach. There is also  3-way temporary signals in place for modernisation works. Expect delays.",
-   "long":"-3.97914781247",
-   "lat":"5.66428998195"
+   "lat":"51.511163559",
+   "lon":"-0.1192114035"
   },
   {
    "eventID":"218462",
@@ -150,8 +150,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"Traffic is currently light and flowing well on Barking road and around the West Ham Football Ground",
-   "long":"-3.9560408764",
-   "lat":"5.76264466508"
+   "lat":"51.5318668174",
+   "lon":"0.0393903492431"
   },
   {
    "eventID":"227620",
@@ -172,8 +172,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"Single alternate lane controlled by temporary traffic signals in operation. Traffic is moderate in the area.",
-   "long":"-3.99184331449",
-   "lat":"5.66046496697"
+   "lat":"51.4986074895",
+   "lon":"-0.125793880696"
   },
   {
    "eventID":"227749",
@@ -194,8 +194,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"Duke Street remains open but there are temporary traffic lights in operation at the junction with Wigmore Street.",
-   "long":"-3.97496189037",
-   "lat":"5.64363605349"
+   "lat":"51.5157882488",
+   "lon":"-0.152184871032"
   },
   {
    "eventID":"226788",
@@ -216,8 +216,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1340",
    "remark":"At present there are no reports of traffic congestion.",
-   "long":"-3.9876761101",
-   "lat":"5.64540712825"
+   "lat":"51.503089069",
+   "lon":"-0.149788034381"
   },
   {
    "eventID":"227088",
@@ -238,8 +238,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1339",
    "remark":"At present there are no reports of traffic congestion.",
-   "long":"-3.97648286769",
-   "lat":"5.68482356293"
+   "lat":"51.5133540979",
+   "lon":"-0.0861894378259"
   },
   {
    "eventID":"227805",
@@ -260,8 +260,8 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1339",
    "remark":"One lane is closed on Camden Street and lane one closed on Camden Road on approach to the junction.",
-   "long":"-3.95000221891",
-   "lat":"5.65073556952"
+   "lat":"51.5404855292",
+   "lon":"-0.139922148538"
   },
   {
    "eventID":"195396",
@@ -282,7 +282,7 @@
    "remarkDate":"2012-01-21",
    "remarkTime":"1339",
    "remark":"No restrictions in place, all lanes open in both directions. Traffic is light and flowing well.",
-   "long":"-3.87705744714",
-   "lat":"5.66059652485"
+   "lat":"51.6128955152",
+   "lon":"-0.121494340617"
   }
 ]}
