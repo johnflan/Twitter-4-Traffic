@@ -180,7 +180,7 @@ def grid2lonlat(N, E):
 	#These are on the wrong ellipsoid currently: Airy1830. (Denoted by _1)
 	lat_1 = lat - VII*dE**2 + VIII*dE**4 - IX*dE**6
 	lon_1 = lon0 + X*dE - XI*dE**3 + XII*dE**5 - XIIA*dE**7
-	print ['firstbash', lat_1*180/pi, lon_1*180/pi]
+
 	#Want to convert to the GRS80 ellipsoid.
 	#First convert to cartesian from spherical polar coordinates
 	H = 0 #Third spherical coord.
