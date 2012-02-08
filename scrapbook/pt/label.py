@@ -67,7 +67,7 @@ def label_tweets(cursor, conn):
                 print "%s tweets labelled" % i
 		return
             elif ch=="r":
-		if lastid!="0":
+                if lastid!="0":
                     query = "DELETE FROM labelled_tweets WHERE tid='%s'" % lastid
                     cursor.execute(query)
                     conn.commit()
