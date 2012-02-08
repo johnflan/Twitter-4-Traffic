@@ -6,63 +6,78 @@ import optparse
 import ConfigParser
 
 
-#def main(action,*args, **db):
-def main(*args, **db):
-    #if action=="showTweets":
-        showTweets(**db)
-    #elif action == "train":
-    #    trainClassifier(*args)
+def main(action,*args, **db):
+
+    connectDB(**db)
+
+    if action=="train":
+        trainClassifier(*args)
+
+    elif action == "test":
+        testClassifier(*args)
+
+    elif action == "classify":
+        classifyTweet(*args)
+
+    else:
+        print "\nPlease choose an action between train, test & classify\n"
 
 
-def showTweets(**db):
+def connectDB(**db):
     try:
         conn = DBAPI.connect(**db)
         cursor = conn.cursor()
-        cursor.execute("""SELECT * from labelled_tweets""")
-        rows = cursor.fetchall()
-        print "connected"
-        for row in rows:
-	        print row
     except:
-	    print "Unable to connect to the database"
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        sys.exit("Database connection failed! ->%s" % (exceptionValue))
+    return cursor, conn
+
+
+def trainClassifier(*args):
+    print "todo train"
+
+
+def testClassifier(*args):
+    print "todo test"
+
+def classifyTweet(*args):
+    print "todo real classification finally"
+
 
 if __name__ == "__main__":
-	configSection = "Local database"
-	Config = ConfigParser.ConfigParser()
-	Config.read("t4t_credentials.txt")
-	user = Config.get(configSection, "username")
-	password = Config.get(configSection, "password")
-	database = Config.get(configSection, "database")
-	host = Config.get(configSection, "server")
+    configSection = "Local database"
+    Config = ConfigParser.ConfigParser()
+    Config.read("t4t_credentials.txt")
+    user = Config.get(configSection, "username")
+    password = Config.get(configSection, "password")
+    database = Config.get(configSection, "database")
+    host = Config.get(configSection, "server")
+    action = 'noAction'
 
-	# Parse options from the command line
-	parser = optparse.OptionParser("usage: %prog [options] [action] [tables]")
-	parser.add_option('-H','--host',
-					dest='host',
-					default=host,
-					help='The hostname of the DB')
-	parser.add_option('-d','--database',
-					dest='database',
-					default=database,
-					help='The name of the DB')
-	parser.add_option('-U','--user',
-					dest='user',
-					default=user,
-					help='The username for the DB')
-	parser.add_option('-p','--password',
-					dest='password',
-					default=password,
-					help='The password for the DB')
-    #parser.add_option('-a','--action',
-    #                dest='action',
-    #                default=action,
-    #                help='The action the classifier will execute')
+    # Parse options from the command line
+    parser = optparse.OptionParser("usage: %prog [options] [action] [tables]")
+    parser.add_option('-H','--host',
+                    dest='host',
+                    default=host,
+                    help='The hostname of the DB')
+    parser.add_option('-d','--database',
+                    dest='database',
+                    default=database,
+                    help='The name of the DB')
+    parser.add_option('-U','--user',
+                    dest='user',
+                    default=user,
+                    help='The username for the DB')
+    parser.add_option('-p','--password',
+                    dest='password',
+                    default=password,
+                    help='The password for the DB')
+    parser.add_option('-a','--action',
+                    dest='action',
+                    default=0,
+                    help='The action the classifier will execute')
+    (options, args) = parser.parse_args()
+    
+    db = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
 
-	(options, args) = parser.parse_args()
-
-	db = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
-	#if len(args)==0:
-	#	sys.exit("Wrong number of arguments")
-
-	sys.exit(main(*args, **db))
-	#sys.exit(main(args[0],*args, **db))
+    sys.exit(main(*args, **db))
