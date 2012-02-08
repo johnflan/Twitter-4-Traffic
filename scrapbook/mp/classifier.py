@@ -3,12 +3,15 @@
 from pg8000 import DBAPI
 import sys
 import optparse
+import ConfigParser
 
 
-
-def main(action, *args, **db):
-    if action=="showTweets":
-            showTweets(db)
+#def main(action,*args, **db):
+def main(*args, **db):
+    #if action=="showTweets":
+        showTweets(**db)
+    #elif action == "train":
+    #    trainClassifier(*args)
 
 
 def showTweets(**db):
@@ -50,12 +53,16 @@ if __name__ == "__main__":
 					dest='password',
 					default=password,
 					help='The password for the DB')
+    #parser.add_option('-a','--action',
+    #                dest='action',
+    #                default=action,
+    #                help='The action the classifier will execute')
 
 	(options, args) = parser.parse_args()
 
 	db = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
-	# Needs an argument (setup, remove or drop)
-	if len(args)==0:
-		sys.exit("Wrong number of arguments")
+	#if len(args)==0:
+	#	sys.exit("Wrong number of arguments")
 
-	sys.exit(main(args[0], *args, **db))
+	sys.exit(main(*args, **db))
+	#sys.exit(main(args[0],*args, **db))
