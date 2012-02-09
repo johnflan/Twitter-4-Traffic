@@ -35,7 +35,7 @@ def label_tweets(cursor, conn, username):
     lastid="0"
     while True:
         try:
-            query = "SELECT tid, text FROM geolondon WHERE tid NOT IN (SELECT tid FROM labelled_tweets) ORDER BY RANDOM() LIMIT 1"
+            query = "SELECT tid, uname, text FROM geolondon WHERE tid NOT IN (SELECT tid FROM labelled_tweets) ORDER BY RANDOM() LIMIT 1"
             cursor.execute(query)
             data = cursor.fetchone()
         except:
@@ -46,8 +46,9 @@ def label_tweets(cursor, conn, username):
             continue
 
         try:
-            print ">>> Tweet %s: %s <<<" % (data[0], data[1])
-            print "> \'1\' Traffic - \'2\' Not Traffic - \'3\' Unclear - \'4\' Bot / \'r\' Remove previous row \'q\' Quit"
+            print ">>> Tweet %s from @%s <<<" % (data[0], data[1])
+            print ">>>\n%s\n<<<" % data[2]
+            print "\'1\' Traffic\n\'2\' Not Traffic\n\'3\' Unclear\n\'4\' Bot\n\'r\' Remove previous row\n\'q\' Quit"
             ch = raw_input("> Enter a choice: ")
 
             choice = {}
@@ -83,11 +84,11 @@ def label_tweets(cursor, conn, username):
                 continue
 
             cursor.execute("INSERT INTO labelled_tweets VALUES(%s,%s,%s,%s,%s,%s,%s)", 
-                    (data[0],data[1],choice[0],choice[1],choice[2],choice[3],username))
+                    (data[0],data[2],choice[0],choice[1],choice[2],choice[3],username))
             conn.commit()
             lastid=data[0]
             i+=1
-            print "Saved Tweet: %s" % data[0]
+            print "> Saved Tweet: %s" % data[0]
         except:
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -96,7 +97,7 @@ def label_tweets(cursor, conn, username):
 
 def showUserStats(cursor):
     try:
-        query = "SELECT username, count(*) as labels FROM labelled_tweets GROUP BY username ORDER BY labels"
+        query = "SELECT username, count(*) as labels FROM labelled_tweets GROUP BY username ORDER BY labels DESC"
 
         cursor.execute(query)
 
