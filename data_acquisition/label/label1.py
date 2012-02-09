@@ -123,7 +123,7 @@ def label_tweets(cursor, conn, username):
             print "Insert Error -> %s" % exceptionValue
             lastid="0"
 
-def showUserStats(cursor):
+			
 def showUserStats(cursor):
     try:
         query = "SELECT username, count(*) as labels FROM labelled_tweets GROUP BY username ORDER BY labels"
