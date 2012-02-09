@@ -104,6 +104,7 @@ def setup(cursor, conn, *args):
                         ntraffic VARCHAR(1) NOT NULL,
                         unclear VARCHAR(1) NOT NULL,
                         robot VARCHAR(1) NOT NULL,
+                        username VARCHAR(10) NOT NULL,
                         PRIMARY KEY (tid)
                     )""")
                 print "> Table labelled_tweets created"

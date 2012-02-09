@@ -7,7 +7,7 @@ def main(**db):
     # Connect to the db
     cursor, conn = connect(**db)
     
-    label_tweets(cursor, conn)
+    label_tweets(cursor, conn, db['user'])
     
 ###############################################################################################
 ############################ Creates a connection to the db ###################################
@@ -30,7 +30,7 @@ def connect(**db):
 ############################  ###################################
 ###############################################################################################
 
-def label_tweets(cursor, conn):
+def label_tweets(cursor, conn, username):
     i=0
     lastid="0"
     while True:
@@ -64,8 +64,9 @@ def label_tweets(cursor, conn):
                 choice[3]='y'
                 choice[0],choice[1],choice[2]='n','n','n'
             elif ch=="q":
-                print "%s tweets labelled" % i
-		return
+                print "You labelled %s tweets" % i
+                showUserStats(cursor)
+                return
             elif ch=="r":
                 if lastid!="0":
                     query = "DELETE FROM labelled_tweets WHERE tid='%s'" % lastid
@@ -81,7 +82,8 @@ def label_tweets(cursor, conn):
                 print "> Wrong key"
                 continue
 
-            cursor.execute("INSERT INTO labelled_tweets VALUES(%s,%s,%s,%s,%s,%s)", (data[0],data[1],choice[0],choice[1],choice[2],choice[3]))
+            cursor.execute("INSERT INTO labelled_tweets VALUES(%s,%s,%s,%s,%s,%s,%s)", 
+                    (data[0],data[1],choice[0],choice[1],choice[2],choice[3],username))
             conn.commit()
             lastid=data[0]
             i+=1
@@ -91,7 +93,28 @@ def label_tweets(cursor, conn):
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             print "Insert Error -> %s" % exceptionValue
             lastid="0"
-        
+
+def showUserStats(cursor):
+    try:
+        query = "SELECT username, count(*) as labels FROM labelled_tweets GROUP BY username ORDER BY labels"
+
+        cursor.execute(query)
+
+        users = cursor.fetchall()
+
+        print ">>>>>>  Statistics  <<<<<<"
+        total=0
+
+        for user in users:
+            print "User: %s Labelled: %s" % (user[0],user[1])
+            total+=int(user[1])
+
+        print "Total %s Tweets Labelled" % total
+
+    except:
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        sys.exit("Error -> %s" % exceptionValue)
+
 if __name__ == "__main__":
     configSection = "Local database"
     Config = ConfigParser.ConfigParser()
