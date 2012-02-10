@@ -113,7 +113,7 @@ def label_tweets(cursor, conn, username):
                 continue
 
             cursor.execute("INSERT INTO labelled_tweets VALUES(%s,%s,%s,%s,%s,%s,%s)", 
-                    (data[0],data[1],choice[0],choice[1],choice[2],choice[3],username))
+                    (data[0],data[2],choice[0],choice[1],choice[2],choice[3],username))
             conn.commit()
             lastid=data[0]
             i+=1
