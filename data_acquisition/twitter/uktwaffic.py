@@ -98,6 +98,7 @@ def geolondon(  conn,
                         geoloc = "ST_GeographyFromText('SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")')"
 
                         text = text.replace("'", "")
+                        text = text.replace("%", "")
                         query = "INSERT INTO geolondon(tid, uname, created_at,\
                         location,text,geolocation) VALUES (" + str(tid) +\
                         ",'" + uname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD\

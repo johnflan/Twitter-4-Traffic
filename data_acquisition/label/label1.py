@@ -74,9 +74,9 @@ def label_tweets(cursor, conn, username):
             continue
 
         try:
-            print ">>> Tweet %s from @%s <<<" % (data[0], data[1])
-            print ">>>\n%s\n<<<" % data[2]
-            print "\'1\' Traffic\n\'2\' Not Traffic\n\'3\' Unclear\n\'4\' Bot\n\'r\' Remove previous row\n\'q\' Quit"
+            print "\n\n\n\nUser:  @%s" % data[1]
+            print "\n%s\n" % data[2]
+            print "\'1\' Traffic \'2\' Not Traffic \'3\' Unclear \'4\' Bot \'r\' Remove previous row \'q\' Quit"
 
             ch = getch()
             
