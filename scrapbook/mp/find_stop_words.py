@@ -52,6 +52,7 @@ def main(*args,**opts):
             else:
                 cursor.execute("INSERT INTO %s (word,freq) VALUES('%s',%s)" %
                         (opts['to_table'],wordlist.keys()[i],wordlist.values()[i]))
+		conn.commit()
         except:
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             sys.exit("Could not write/update values in database! ->%s" % (exceptionValue))
