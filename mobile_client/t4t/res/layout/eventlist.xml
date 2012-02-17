@@ -10,9 +10,26 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         layout="@layout/app_header" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/section_header"
+        android:paddingLeft="5dip"
+        android:paddingTop="4dip">
+
+        <TextView
+            android:id="@+id/textView1"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/local_disruptions" />
+
+    </LinearLayout>
     
 	<ListView
-	    android:id="@+id/newsList"
+	    android:id="@+id/eventList"
 	    android:layout_height="fill_parent"
 	    android:layout_width="fill_parent"
 	    android:cacheColorHint="#00000000"

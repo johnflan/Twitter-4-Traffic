@@ -3,5 +3,5 @@
 
     <string name="hello">Hello World!</string>
     <string name="app_name">Right Turn</string>
-
+	<string name="local_disruptions">Local disruptions</string>
 </resources>
