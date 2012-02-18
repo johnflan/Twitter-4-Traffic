@@ -101,11 +101,11 @@ def geolondon(  conn,
                         text = text.replace("%", "")
                         query = "INSERT INTO geolondon(tid, uname, created_at,\
                         location,text,geolocation) VALUES (" + str(tid) +\
-                        ",'" + uname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD\
-                        HH24:MI:SS'),'" + str(location) + "',\'" + str(text) +\
+                        ",'" + uname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD HH24:MI:SS'),'" +\
+                        str(location) + "',\'" + str(text) +\
                         "\'," + geoloc + ")"
 
-
+                        print query
                         print uname, "\t", text[:50], geo['coordinates']
                         #query = """INSERT INTO geolondon(tid, uname,
                         #created_at, location, text, geolocation)
