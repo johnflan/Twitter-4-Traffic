@@ -9,6 +9,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
@@ -70,14 +71,13 @@ public class RESTClient extends Observable implements LocationObserver {
 		
 		Log.i(TAG, "Requesting: " + URL + query);
 		
-		JSONObject response = null;
+		String response = null;
 		ResponseHandler<String> handler = new BasicResponseHandler();  
         try {  
-            try {
-				response = new JSONObject( httpclient.execute(request, handler) );
-			} catch (JSONException e) {
-				Log.e(TAG, "Error parsing data "+e.toString());
-			}  
+			response = httpclient.execute(request, handler);
+
+        } catch (HttpHostConnectException e) {
+        	Log.e(TAG, "Error contacting server: " + e.getMessage());
         } catch (ClientProtocolException e) {  
             e.printStackTrace();  
         } catch (IOException e) {  
@@ -89,9 +89,21 @@ public class RESTClient extends Observable implements LocationObserver {
 		
 	}
 
-	private void parseJsonEvents(JSONObject response) {
+	private void parseJsonEvents(String responseStr) {
 		
-		Log.i(TAG, "REST Event response: " + response.toString());
+		if ( responseStr == null )
+			return;
+		
+		Log.i(TAG, "Response: " + responseStr);
+		
+		JSONObject response = null;
+		try {
+			response = new JSONObject( responseStr );
+		} catch (JSONException e1) {
+			Log.e(TAG, "Error parsing server response: " + responseStr);
+		}
+		
+		Log.i(TAG, "REST Event response: " + responseStr);
 		
 		List<EventItem> parsedEventItems = new ArrayList<EventItem>();
 		JSONArray disruptions = null;
@@ -100,7 +112,7 @@ public class RESTClient extends Observable implements LocationObserver {
 		try {
 			disruptions = response.getJSONArray("disruptions");
 		} catch (JSONException e) {
-			Log.e(TAG, "Error parsing disruptions array: " + response.toString());
+			Log.e(TAG, "Error parsing disruptions array: " + responseStr);
 		}
 		
 		
@@ -119,7 +131,7 @@ public class RESTClient extends Observable implements LocationObserver {
 				parsedEventItems.add(event);
 				
 			} catch (JSONException e) {
-				Log.e(TAG, "Error parsing disruption event: " + response.toString());
+				Log.e(TAG, "Error parsing disruption event: " + responseStr);
 			}
 				
 		}
