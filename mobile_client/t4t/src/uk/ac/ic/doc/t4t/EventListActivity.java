@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import uk.ac.ic.doc.t4t.services.LocationMgr;
-import uk.ac.ic.doc.t4t.services.RESTClient;
+import uk.ac.ic.doc.t4t.common.services.LocationMgr;
+import uk.ac.ic.doc.t4t.common.services.RESTClient;
+import uk.ac.ic.doc.t4t.eventlist.EventItem;
+import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 
 
 import android.app.Activity;

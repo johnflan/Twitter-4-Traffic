@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.t4t.services;
+package uk.ac.ic.doc.t4t.common.services;
 
 import java.util.ArrayList;
 import java.util.List;

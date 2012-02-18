@@ -1,6 +1,9 @@
-package uk.ac.ic.doc.t4t;
+package uk.ac.ic.doc.t4t.eventlist;
 
 import java.util.List;
+
+import uk.ac.ic.doc.t4t.R;
+import uk.ac.ic.doc.t4t.R.id;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;

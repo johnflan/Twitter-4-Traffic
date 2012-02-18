@@ -1,7 +1,9 @@
-package uk.ac.ic.doc.t4t.services;
+package uk.ac.ic.doc.t4t.common.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Observable;
 
@@ -16,9 +18,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import uk.ac.ic.doc.t4t.EventItem;
+import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
 import android.content.Context;
+import android.text.format.Time;
 import android.util.Log;
 
 public class RESTClient extends Observable implements LocationObserver {
@@ -124,9 +127,39 @@ public class RESTClient extends Observable implements LocationObserver {
 				
 				event.setEventID(JsonEvent.getString(EVENT_ID));
 				
+				event.setEventStartTime(
+						stringToDate( 
+								JsonEvent.getString(EVENT_START_DATE),
+								JsonEvent.getString(EVENT_START_TIME) ));
+						
+				event.setEventEndTime(
+						stringToDate( 
+								JsonEvent.getString(EVENT_END_DATE),
+								JsonEvent.getString(EVENT_END_TIME) ));
+				
+				event.setEventType(JsonEvent.getInt(EVENT_TYPE));
+				event.setCategory(JsonEvent.getString(CATEGORY));
+				event.setSector(JsonEvent.getString(SECTOR));		
+				event.setLastModifiedTime(
+						stringToDate( JsonEvent.getString(LAST_MODIFIED_TIME) ));
+				
+				event.setSeverity(JsonEvent.getString(SEVERITY));
+				event.setPostCodeStart(JsonEvent.getString(POST_CODE_START));
+				event.setPostCodeEnd(JsonEvent.getString(POST_CODE_END));
+						
+				event.setRemarkTime(
+						stringToDate( 
+								JsonEvent.getString(REMARK_DATE), 
+								JsonEvent.getString(REMARK_TIME) ));
+				
+				event.setRemark(JsonEvent.getString(REMARK));
+				
 				event.setTitle(JsonEvent.getString(TITLE));
 				event.setLocation(JsonEvent.getString(LOCATION));
 				event.setDescription(JsonEvent.getString(DESCRIPTION));
+				
+				event.setLatitude(JsonEvent.getDouble(LATITUDE));
+				event.setLongitude(JsonEvent.getDouble(LONGITUDE));
 				
 				parsedEventItems.add(event);
 				
@@ -141,6 +174,53 @@ public class RESTClient extends Observable implements LocationObserver {
 		setChanged();
 		notifyObservers(parsedEventItems);
 		
+	}
+	
+	/*
+	 * Date converter for JSON strings
+	 * return Date
+	 */
+	private Date stringToDate(String date){
+		//Date Format YYYY-MM-DD
+		//may occasionally have time then the format is
+		//YYYY-MM-DDTHHMM
+		int year, month, day, hour, minute;
+		
+		if (date == null || date.equals(""))
+			return null;
+		
+		try {
+			year = Integer.parseInt( date.substring(0, 3) );
+			month = Integer.parseInt( date.substring(5, 6) );
+			day = Integer.parseInt( date.substring(8, 9) );
+			
+			if (date.length() == 15 ){
+				hour = Integer.parseInt( date.substring(11, 12) );
+				minute = Integer.parseInt( date.substring(13, 14));
+				return new Date(year, month, day, hour, minute);
+			}
+			
+			return new Date(year, month, day);
+			
+		} catch (NumberFormatException e){
+			Log.e(TAG, "Error parsing date string: " + date);
+		}
+		
+		return null;
+	}
+	
+	private Date stringToDate(String date, String time){
+		
+		if ( date.equals("NULL") && time.equals("NULL"))
+			return null;
+		
+		else if (time.equals("NULL"))
+			return stringToDate(date);
+		
+		else if (date.equals("NULL"))
+			return stringToDate("0000-00-00T" + time);
+		
+		return stringToDate(date + "T" + time);
 	}
 
 	@Override

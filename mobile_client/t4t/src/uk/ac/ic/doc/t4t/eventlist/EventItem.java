@@ -1,14 +1,12 @@
-package uk.ac.ic.doc.t4t;
+package uk.ac.ic.doc.t4t.eventlist;
 
 import java.util.Date;
 
 public class EventItem {
 
 	private String eventID;
-	private Date eventStartDate;
 	private Date eventStartTime;
 	
-	private Date eventEndDate;
 	private Date eventEndTime;
 	
 	private int eventType;
@@ -17,6 +15,7 @@ public class EventItem {
 	
 	private Date lastModifiedTime;
 	
+	private String sector;
 	private String location;
 	private String title;
 	private String description;
@@ -25,7 +24,6 @@ public class EventItem {
 	private String postCodeEnd;
 	
 	private String remark;
-	private Date remarkDate;
 	private Date remarkTime;
 	
 	private double latitude;
@@ -37,30 +35,20 @@ public class EventItem {
 	public void setEventID(String eventID) {
 		this.eventID = eventID;
 	}
-	public Date getEventStartDate() {
-		return eventStartDate;
-	}
-	public void setEventStartDate(Date eventStartDate) {
-		this.eventStartDate = eventStartDate;
-	}
 	public Date getEventStartTime() {
 		return eventStartTime;
 	}
 	public void setEventStartTime(Date eventStartTime) {
 		this.eventStartTime = eventStartTime;
 	}
-	public Date getEventEndDate() {
-		return eventEndDate;
-	}
-	public void setEventEndDate(Date eventEndDate) {
-		this.eventEndDate = eventEndDate;
-	}
+
 	public Date getEventEndTime() {
 		return eventEndTime;
 	}
 	public void setEventEndTime(Date eventEndTime) {
 		this.eventEndTime = eventEndTime;
 	}
+
 	public int getEventType() {
 		return eventType;
 	}
@@ -121,18 +109,13 @@ public class EventItem {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
-	public Date getRemarkDate() {
-		return remarkDate;
-	}
-	public void setRemarkDate(Date remarkDate) {
-		this.remarkDate = remarkDate;
-	}
 	public Date getRemarkTime() {
 		return remarkTime;
 	}
 	public void setRemarkTime(Date remarkTime) {
 		this.remarkTime = remarkTime;
 	}
+
 	public double getLatitude() {
 		return latitude;
 	}
@@ -144,6 +127,12 @@ public class EventItem {
 	}
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
+	}
+	public String getSector() {
+		return sector;
+	}
+	public void setSector(String sector) {
+		this.sector = sector;
 	}
 
 }
