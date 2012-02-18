@@ -24,7 +24,11 @@ public final class R {
         public static final int ic_launcher=0x7f020006;
         public static final int section_header=0x7f020007;
         public static final int share_button=0x7f020008;
-        public static final int splash_bg=0x7f020009;
+        public static final int sign_accident=0x7f020009;
+        public static final int sign_generic=0x7f02000a;
+        public static final int sign_signal_failure=0x7f02000b;
+        public static final int sign_works=0x7f02000c;
+        public static final int splash_bg=0x7f02000d;
     }
     public static final class id {
         public static final int eventDescription=0x7f060008;

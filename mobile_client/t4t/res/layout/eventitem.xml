@@ -24,7 +24,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Event title"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:textSize="10pt"/>
 
             <TextView
                 android:id="@+id/eventLocation"
@@ -37,7 +39,9 @@
                 android:id="@+id/eventDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Event description" />
+                android:text="Event description"
+                android:textColor="#000000"
+                android:textSize="8pt"/>
         </LinearLayout>
 
         <LinearLayout
@@ -51,12 +55,16 @@
                 android:id="@+id/eventTypeIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/sign_generic"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"/>
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/sign_accident"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"/>
         </LinearLayout>
 
     </LinearLayout>

@@ -30,13 +30,15 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View view;
 		TextView textTitle;
-		TextView textBody;
+		TextView textLocation;
+		TextView textDescription;
 	
 	    view = inflater.inflate(resourceId, parent, false);
 	
 	    try {
-	    	//textTitle = (TextView)view.findViewById(R.id.newstitle);
-	    	//textBody = (TextView)view.findViewById(R.id.newsbody);
+	    	textTitle = (TextView)view.findViewById(R.id.eventTitle);
+	    	textLocation = (TextView)view.findViewById(R.id.eventLocation);
+	    	textDescription = (TextView)view.findViewById(R.id.eventDescription);
 	    } catch( ClassCastException e ) {
 	    	Log.e(TAG, "Your layout must provide an image and a text view with ID's icon and text.", e);
 	    	throw e;
@@ -44,8 +46,9 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	
 		EventItem item = getItem(position);
 
-	    //textTitle.setText(item.getTitle());
-	    //textBody.setText(item.getTruncatedDescription());
+	    textTitle.setText(item.getTitle());
+	    textLocation.setText(item.getLocation());
+	    textDescription.setText(item.getDescription());
 		
 	    return view;
 	  }
