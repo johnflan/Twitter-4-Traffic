@@ -42,72 +42,86 @@ def setup(cursor, conn, *args):
         for i in range(1,len(args)):
             if args[i]=="archive":
                 cursor.execute("""CREATE TABLE archive(
-                        updated_at TIMESTAMP NOT NULL,
-                        ltisid INTEGER NOT NULL,
-                        eventstartdate DATE,
-                        eventstarttime TIME,
-                        eventenddate DATE,
-                        eventendtime TIME,
-                        event_type TEXT,
-                        category TEXT,
-                        title TEXT,
-                        sector TEXT,
-                        location TEXT,
-                        description TEXT,
-                        lastmodifiedtime TIMESTAMP,
-                        severity TEXT,
-                        postcodestart TEXT,
-                        postcodeend TEXT,
-                        remarkdate DATE,
-                        remarktime TIME,
-                        remark TEXT,
-                        grideasting DECIMAL(10,2),
-                        gridnorthing DECIMAL(10,2),
-                        lonlat GEOGRAPHY(POINT, 4326),
-                        PRIMARY KEY (updated_at, ltisid)
-                    )""")
+                                updated_at TIMESTAMP NOT NULL,
+                                ltisid INTEGER NOT NULL,
+                                eventstartdate DATE,
+                                eventstarttime TIME,
+                                eventenddate DATE,
+                                eventendtime TIME,
+                                event_type TEXT,
+                                category TEXT,
+                                title TEXT,
+                                sector TEXT,
+                                location TEXT,
+                                description TEXT,
+                                lastmodifiedtime TIMESTAMP,
+                                severity TEXT,
+                                postcodestart TEXT,
+                                postcodeend TEXT,
+                                remarkdate DATE,
+                                remarktime TIME,
+                                remark TEXT,
+                                grideasting DECIMAL(10,2),
+                                gridnorthing DECIMAL(10,2),
+                                lonlat GEOGRAPHY(POINT, 4326),
+                                PRIMARY KEY (updated_at, ltisid)
+                                )""")
                 cursor.execute("CREATE INDEX archive_index ON tfl USING GIST (lonlat)")
                 print "> Table archive created"
             elif args[i]=="tfl":                
                 cursor.execute("""CREATE TABLE tfl(
-                        updated_at TIMESTAMP NOT NULL,
-                        ltisid INTEGER NOT NULL,
-                        eventstartdate DATE,
-                        eventstarttime TIME,
-                        eventenddate DATE,
-                        eventendtime TIME,
-                        event_type TEXT,
-                        category TEXT,
-                        title TEXT,
-                        sector TEXT,
-                        location TEXT,
-                        description TEXT,
-                        lastmodifiedtime TIMESTAMP,
-                        severity TEXT,
-                        postcodestart TEXT,
-                        postcodeend TEXT,
-                        remarkdate DATE,
-                        remarktime TIME,
-                        remark TEXT,
-                        grideasting DECIMAL(10,2),
-                        gridnorthing DECIMAL(10,2),
-                        lonlat GEOGRAPHY(POINT, 4326),
-                        PRIMARY KEY (ltisid)
-                    )""")
+                                updated_at TIMESTAMP NOT NULL,
+                                ltisid INTEGER NOT NULL,
+                                eventstartdate DATE,
+                                eventstarttime TIME,
+                                eventenddate DATE,
+                                eventendtime TIME,
+                                event_type TEXT,
+                                category TEXT,
+                                title TEXT,
+                                sector TEXT,
+                                location TEXT,
+                                description TEXT,
+                                lastmodifiedtime TIMESTAMP,
+                                severity TEXT,
+                                postcodestart TEXT,
+                                postcodeend TEXT,
+                                remarkdate DATE,
+                                remarktime TIME,
+                                remark TEXT,
+                                grideasting DECIMAL(10,2),
+                                gridnorthing DECIMAL(10,2),
+                                lonlat GEOGRAPHY(POINT, 4326),
+                                PRIMARY KEY (ltisid)
+                                )""")
                 cursor.execute("CREATE INDEX tfl_index ON tfl USING GIST (lonlat)")
                 print "> Table tfl created"
             elif args[i]=="labelled_tweets":                
                 cursor.execute("""CREATE TABLE labelled_tweets(
-                        tid BIGINT NOT NULL,
-                        tweet TEXT NOT NULL,
-                        ptraffic VARCHAR(1) NOT NULL,
-                        ntraffic VARCHAR(1) NOT NULL,
-                        unclear VARCHAR(1) NOT NULL,
-                        robot VARCHAR(1) NOT NULL,
-                        username VARCHAR(10) NOT NULL,
-                        PRIMARY KEY (tid)
-                    )""")
+                                tid BIGINT NOT NULL,
+                                tweet TEXT NOT NULL,
+                                ptraffic VARCHAR(1) NOT NULL,
+                                ntraffic VARCHAR(1) NOT NULL,
+                                unclear VARCHAR(1) NOT NULL,
+                                robot VARCHAR(1) NOT NULL,
+                                username VARCHAR(10) NOT NULL,
+                                PRIMARY KEY (tid)
+                                )""")
                 print "> Table labelled_tweets created"
+            elif args[i]=="event":
+                cursor.execute("""CREATE TABLE event(
+                                eid SERIAL NOT NULL,
+                                lonlat GEOGRAPHY(POINT, 4326),
+                                PRIMARY KEY (eid)
+                                )""")
+                print "> Table event created"
+            elif args[i]=="cluster_data":
+                cursor.execute("""CREATE TABLE cluster_data(
+                                eid BIGINT NOT NULL REFERENCES event(eid),
+                                tid BIGINT NOT NULL REFERENCES geolondon(tid)
+                                )""")
+                print "> Table cluster_data created"
+                        
         
         print "> Giving privileges"
         configSection = "Users"
