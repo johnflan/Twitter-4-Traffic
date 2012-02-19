@@ -1,11 +1,14 @@
 package uk.ac.ic.doc.t4t.eventlist;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
-public class EventItem {
+public class EventItem implements Serializable{
 
+	private static final long serialVersionUID = 3305037298459804021L;
+	
 	private String eventID;
 	private Date eventStartTime;
 	
@@ -146,7 +149,6 @@ public class EventItem {
 	}
 	public double getCurrentDistanceFromEvent(){
 		
-
 		return distanceFromEventKM;
 	}
 

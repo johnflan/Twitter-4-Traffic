@@ -24,6 +24,10 @@
             android:name="EventListActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name="EventDetailsActivity"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

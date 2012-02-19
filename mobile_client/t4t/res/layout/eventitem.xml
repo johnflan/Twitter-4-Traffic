@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:text="Event description"
                 android:textColor="#000000"
-                android:lines="5"
+                android:lines="4"
                 android:textSize="8pt"/>
         </LinearLayout>
 

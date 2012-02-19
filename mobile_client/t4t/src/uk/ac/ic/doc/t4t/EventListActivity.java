@@ -12,8 +12,12 @@ import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class EventListActivity extends Activity implements Observer {
@@ -34,7 +38,23 @@ public class EventListActivity extends Activity implements Observer {
         restClient.addObserver(this);
         
         location = new LocationMgr(this);
-        location.addLocationObserver(restClient);    
+        location.addLocationObserver(restClient); 
+        
+        eventList = (ListView)findViewById(R.id.eventList);
+        
+        //make the event clickable
+        eventList.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+				EventItem currentItem = (EventItem) adapterView.getItemAtPosition(position);
+				
+					Log.i(TAG, "Opening event: " + currentItem.getTitle());
+					
+					Intent i = new Intent(EventListActivity.this, EventDetailsActivity.class);
+					i.putExtra("EventDetails", currentItem);
+					startActivity(i);
+
+			}
+		});
     }
 
 	@Override
@@ -45,11 +65,12 @@ public class EventListActivity extends Activity implements Observer {
 		
 		Log.i(TAG, "Updating event list");
 		eventItems = (List<EventItem>) data;
-		
-		eventList = (ListView)findViewById(R.id.eventList);
-        
+
+
         eventList.setAdapter(new EventItemAdapter(this, R.layout.eventitem, eventItems));
         eventList.setClickable(true);
+        
+       
 		
 	}
 

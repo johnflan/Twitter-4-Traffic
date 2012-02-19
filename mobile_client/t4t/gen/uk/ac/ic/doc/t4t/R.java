@@ -15,48 +15,58 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int event_orange=0x7f020000;
-        public static final int event_red=0x7f020001;
-        public static final int header_bg=0x7f020002;
-        public static final int header_logo=0x7f020003;
-        public static final int header_share_button=0x7f020004;
-        public static final int header_share_button_on=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int section_header=0x7f020007;
-        public static final int share_button=0x7f020008;
-        public static final int sign_accident=0x7f020009;
-        public static final int sign_generic=0x7f02000a;
-        public static final int sign_signal_failure=0x7f02000b;
-        public static final int sign_works=0x7f02000c;
-        public static final int splash_bg=0x7f02000d;
+        public static final int event_details_bg=0x7f020000;
+        public static final int event_orange=0x7f020001;
+        public static final int event_red=0x7f020002;
+        public static final int header_bg=0x7f020003;
+        public static final int header_logo=0x7f020004;
+        public static final int header_share_button=0x7f020005;
+        public static final int header_share_button_on=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int section_header=0x7f020008;
+        public static final int share_button=0x7f020009;
+        public static final int sign_accident=0x7f02000a;
+        public static final int sign_generic=0x7f02000b;
+        public static final int sign_signal_failure=0x7f02000c;
+        public static final int sign_works=0x7f02000d;
+        public static final int splash_bg=0x7f02000e;
+        public static final int tweet_profile_placeholder=0x7f02000f;
+        public static final int what_people_are_saying_bg=0x7f020010;
     }
     public static final class id {
-        public static final int eventDescription=0x7f060008;
-        public static final int eventDistance=0x7f06000b;
-        public static final int eventDistanceType=0x7f06000c;
-        public static final int eventIconsLayout=0x7f060009;
-        public static final int eventLayout=0x7f060003;
-        public static final int eventList=0x7f06000e;
-        public static final int eventLocation=0x7f060007;
-        public static final int eventTextLayout=0x7f060005;
-        public static final int eventTitle=0x7f060006;
-        public static final int eventTypeIcon=0x7f06000a;
+        public static final int eventDescription=0x7f06000a;
+        public static final int eventDistance=0x7f06000d;
+        public static final int eventDistanceType=0x7f06000e;
+        public static final int eventIconsLayout=0x7f06000b;
+        public static final int eventLayout=0x7f060005;
+        public static final int eventList=0x7f060010;
+        public static final int eventLocation=0x7f060009;
+        public static final int eventSectionTitle=0x7f060003;
+        public static final int eventTextLayout=0x7f060007;
+        public static final int eventTitle=0x7f060008;
+        public static final int eventTypeIcon=0x7f06000c;
         public static final int header_share_button=0x7f060002;
         public static final int imageView1=0x7f060001;
         public static final int linearLayout1=0x7f060000;
-        public static final int severityIcon=0x7f060004;
-        public static final int splash_bg=0x7f06000f;
-        public static final int textView1=0x7f06000d;
+        public static final int linearLayout2=0x7f060012;
+        public static final int severityIcon=0x7f060006;
+        public static final int splash_bg=0x7f060011;
+        public static final int textView1=0x7f060004;
+        public static final int tweetList=0x7f06000f;
     }
     public static final class layout {
         public static final int app_header=0x7f030000;
-        public static final int eventitem=0x7f030001;
-        public static final int eventlist=0x7f030002;
-        public static final int splash=0x7f030003;
+        public static final int eventdetails=0x7f030001;
+        public static final int eventitem=0x7f030002;
+        public static final int eventlist=0x7f030003;
+        public static final int splash=0x7f030004;
+        public static final int tweetitem=0x7f030005;
     }
     public static final class string {
         public static final int app_name=0x7f050001;
+        public static final int disruption_details=0x7f050003;
         public static final int hello=0x7f050000;
         public static final int local_disruptions=0x7f050002;
+        public static final int what_people_are_saying=0x7f050004;
     }
 }

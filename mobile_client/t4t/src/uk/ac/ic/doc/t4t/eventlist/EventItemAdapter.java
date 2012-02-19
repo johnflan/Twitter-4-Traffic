@@ -40,18 +40,24 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 		TextView textLocation;
 		TextView textDescription;
 		TextView textCurrentDistance;
-		ImageView eventCategory;
+		TextView textCurrentDistanceType;
+		ImageView imageEventCategory;
+		ImageView imageEventSeverity;
 	
 	    view = inflater.inflate(resourceId, parent, false);
 	
 	    try {
 	    	textTitle = (TextView)view.findViewById(R.id.eventTitle);
 	    	textLocation = (TextView)view.findViewById(R.id.eventLocation);
-	    	textDescription = (TextView)view.findViewById(R.id.eventDescription);
-	    	eventCategory = (ImageView)view.findViewById(R.id.eventTypeIcon);
+	    	textDescription = (TextView)view.findViewById(R.id.eventDescription);    	
 	    	textCurrentDistance = (TextView)view.findViewById(R.id.eventDistance);
+	    	textCurrentDistanceType = (TextView)view.findViewById(R.id.eventDistanceType);
+	    	
+	    	imageEventCategory = (ImageView)view.findViewById(R.id.eventTypeIcon);
+	    	imageEventSeverity = (ImageView)view.findViewById(R.id.severityIcon);
+	    	
 	    } catch( ClassCastException e ) {
-	    	Log.e(TAG, "Your layout must provide an image and a text view with ID's icon and text.", e);
+	    	Log.e(TAG, "Layout must provide an image and a text view with ID's icon and text.", e);
 	    	throw e;
 	    }
 	
@@ -61,22 +67,31 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	    textLocation.setText(item.getLocation());
 	    textDescription.setText(item.getDescription());
 	    
+	    //Distance from event, if we have no distance data hide section
 	    if (item.getCurrentDistanceFromEvent() != 0){
 	    	textCurrentDistance.setText( Double.toString(item.getCurrentDistanceFromEvent()) );
 	    } else {
-	    	
+	    	textCurrentDistance.setText( "" );
+	    	textCurrentDistanceType.setText( "" );
 	    }
 	    
+	    //Event category icon
 	    if (item.getCategory().equalsIgnoreCase("works"))
-	    	eventCategory.setImageResource(R.drawable.sign_works);
+	    	imageEventCategory.setImageResource(R.drawable.sign_works);
 	    else if (item.getCategory().equalsIgnoreCase("signal failure"))
-	    	eventCategory.setImageResource(R.drawable.sign_signal_failure);
+	    	imageEventCategory.setImageResource(R.drawable.sign_signal_failure);
 	    else if (item.getCategory().equalsIgnoreCase("accident"))
-	    	eventCategory.setImageResource(R.drawable.sign_accident);
+	    	imageEventCategory.setImageResource(R.drawable.sign_accident);
 	    else
-	    	eventCategory.setImageResource(R.drawable.sign_generic);
+	    	imageEventCategory.setImageResource(R.drawable.sign_generic);
 	    
-		
+	    //Event severity icon
+	    //moderate is the most common, but may have severe or low (no icon for low)
+	    if (item.getSeverity().equalsIgnoreCase("moderate"))
+	    	imageEventSeverity.setImageResource(R.drawable.event_orange);
+	    else if (item.getSeverity().equalsIgnoreCase("severe"))
+	    	imageEventSeverity.setImageResource(R.drawable.event_red);
+	    
 	    return view;
 	  }
 }
