@@ -1,5 +1,7 @@
 package uk.ac.ic.doc.t4t.eventlist;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 
 public class EventItem {
@@ -28,6 +30,8 @@ public class EventItem {
 	
 	private double latitude;
 	private double longitude;
+	
+	private double distanceFromEventKM;
 	
 	public String getEventID() {
 		return eventID;
@@ -133,6 +137,17 @@ public class EventItem {
 	}
 	public void setSector(String sector) {
 		this.sector = sector;
+	}
+	public void setCurrentDistanceFromEvent(double f) {
+		BigDecimal bd = new BigDecimal(f).setScale(1, RoundingMode.HALF_EVEN);
+		f = bd.doubleValue();
+		distanceFromEventKM = f;
+		
+	}
+	public double getCurrentDistanceFromEvent(){
+		
+
+		return distanceFromEventKM;
 	}
 
 }

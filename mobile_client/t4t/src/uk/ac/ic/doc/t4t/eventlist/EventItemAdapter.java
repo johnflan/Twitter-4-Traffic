@@ -6,6 +6,8 @@ import uk.ac.ic.doc.t4t.R;
 import uk.ac.ic.doc.t4t.R.id;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +39,7 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 		TextView textTitle;
 		TextView textLocation;
 		TextView textDescription;
+		TextView textCurrentDistance;
 		ImageView eventCategory;
 	
 	    view = inflater.inflate(resourceId, parent, false);
@@ -46,6 +49,7 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	    	textLocation = (TextView)view.findViewById(R.id.eventLocation);
 	    	textDescription = (TextView)view.findViewById(R.id.eventDescription);
 	    	eventCategory = (ImageView)view.findViewById(R.id.eventTypeIcon);
+	    	textCurrentDistance = (TextView)view.findViewById(R.id.eventDistance);
 	    } catch( ClassCastException e ) {
 	    	Log.e(TAG, "Your layout must provide an image and a text view with ID's icon and text.", e);
 	    	throw e;
@@ -57,6 +61,12 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	    textLocation.setText(item.getLocation());
 	    textDescription.setText(item.getDescription());
 	    
+	    if (item.getCurrentDistanceFromEvent() != 0){
+	    	textCurrentDistance.setText( Double.toString(item.getCurrentDistanceFromEvent()) );
+	    } else {
+	    	
+	    }
+	    
 	    if (item.getCategory().equalsIgnoreCase("works"))
 	    	eventCategory.setImageResource(R.drawable.sign_works);
 	    else if (item.getCategory().equalsIgnoreCase("signal failure"))
@@ -65,7 +75,7 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	    	eventCategory.setImageResource(R.drawable.sign_accident);
 	    else
 	    	eventCategory.setImageResource(R.drawable.sign_generic);
-	    	
+	    
 		
 	    return view;
 	  }

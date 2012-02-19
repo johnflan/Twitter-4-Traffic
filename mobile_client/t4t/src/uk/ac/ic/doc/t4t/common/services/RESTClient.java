@@ -21,6 +21,8 @@ import org.json.JSONObject;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -59,10 +61,12 @@ public class RESTClient extends Observable implements LocationObserver {
 	private final static String LATITUDE = "lat";
 	private final static String LONGITUDE = "lon";
 	
+	private LocationManager locationManager;
+	
 	List<EventItem> eventItems = new ArrayList<EventItem>();
 	
 	public RESTClient(Context context){
-		  
+		  this.context = context;
 	}
 	
 	public void requestEvents(){
@@ -160,6 +164,31 @@ public class RESTClient extends Observable implements LocationObserver {
 				
 				event.setLatitude(JsonEvent.getDouble(LATITUDE));
 				event.setLongitude(JsonEvent.getDouble(LONGITUDE));
+				
+				//Distance to event
+				if (locationManager == null && context != null)
+					locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
+				Location lastKnownLocation = null;
+				
+				if (locationManager != null)
+					lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			    
+				if (lastKnownLocation != null){
+					Log.i(TAG, "Current lat: " + lastKnownLocation.getLatitude() + ", long: " + lastKnownLocation.getLongitude());
+			    Log.i(TAG, "Event lat: " + event.getLatitude() + ", long: " + event.getLongitude());
+			    
+			    float[] results = new float[3];
+			    Location.distanceBetween(
+			    		lastKnownLocation.getLatitude(), 
+			    		lastKnownLocation.getLongitude(), 
+			    		event.getLatitude(),
+			    		event.getLongitude(),
+			    		results);
+
+			    	Log.i(TAG, "Distance to event: " + results[0] / 1000);
+			    	event.setCurrentDistanceFromEvent(results[0] / 1000);
+				}
+			    
 				
 				parsedEventItems.add(event);
 				
