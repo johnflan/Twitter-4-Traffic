@@ -1,1 +1,20 @@
-{}
+{"tweets":[
+    {
+        "tweetID":"165200977564139522",
+        "uname":"LITM4",
+        "created_at":"2012-02-02 22:14:43",
+        "location":"",
+        "text":"#OnlyAtWoodhouse was the Crescent Way bus stop thought to be created by Satan"
+        "lat":"51.4912383044",
+        "long":"-0.220175382647"
+    },
+    {
+        "tweetID":"165207523094306817",
+        "uname":"Eyebee",
+        "created_at":"2012-02-02 00:00:00",
+        "location":"",
+        "text":"Yay stuck in traffic :( #a406"
+        "lat":"51.5146304326",
+        "long":"-0.104425476753"
+    }
+]}
