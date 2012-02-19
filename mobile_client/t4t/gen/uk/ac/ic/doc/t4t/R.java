@@ -34,6 +34,10 @@ public final class R {
         public static final int what_people_are_saying_bg=0x7f020010;
     }
     public static final class id {
+        public static final int TweetAge=0x7f060016;
+        public static final int TweetText=0x7f060015;
+        public static final int TweetUserIcon=0x7f060012;
+        public static final int TweetUsername=0x7f060014;
         public static final int eventDescription=0x7f06000a;
         public static final int eventDistance=0x7f06000d;
         public static final int eventDistanceType=0x7f06000e;
@@ -48,7 +52,7 @@ public final class R {
         public static final int header_share_button=0x7f060002;
         public static final int imageView1=0x7f060001;
         public static final int linearLayout1=0x7f060000;
-        public static final int linearLayout2=0x7f060012;
+        public static final int linearLayout2=0x7f060013;
         public static final int severityIcon=0x7f060006;
         public static final int splash_bg=0x7f060011;
         public static final int textView1=0x7f060004;

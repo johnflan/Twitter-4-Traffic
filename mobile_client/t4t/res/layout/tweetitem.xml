@@ -5,13 +5,13 @@
         android:layout_height="wrap_content" >
 
          <ImageView
-            android:id="@+id/severityIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
-            android:paddingTop="10dip"
-            android:src="@drawable/tweet_profile_placeholder" />
+             android:id="@+id/TweetUserIcon"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:paddingLeft="10dip"
+             android:paddingRight="10dip"
+             android:paddingTop="10dip"
+             android:src="@drawable/tweet_profile_placeholder" />
 
          <LinearLayout
              android:id="@+id/linearLayout2"
@@ -20,21 +20,21 @@
              android:orientation="vertical" >
 
              <TextView
-                 android:id="@+id/textView1"
-                 android:layout_width="wrap_content"
+                 android:id="@+id/TweetUsername"
+                 android:layout_width="match_parent"
                  android:layout_height="wrap_content"
-                 android:text="UserName @name"
                  android:paddingTop="9dip"
-                 android:textStyle="bold"
-                 android:textColor="#000000"/>
+                 android:text="UserName @name"
+                 android:textColor="#000000"
+                 android:textStyle="bold" />
              
              <TextView
-                 android:id="@+id/textView1"
-                 android:layout_width="wrap_content"
+                 android:id="@+id/TweetText"
+                 android:layout_width="match_parent"
                  android:layout_height="wrap_content"
-                 android:text="Message body ...."
                  android:lines="4"
-                 android:textColor="#000000"/>
+                 android:text="Message body ...."
+                 android:textColor="#000000" />
 
          </LinearLayout>
          
@@ -45,12 +45,12 @@
              android:orientation="vertical" >
 
              <TextView
-                 android:id="@+id/textView1"
+                 android:id="@+id/TweetAge"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
-                 android:text="10 min"
+                 android:paddingRight="10dip"
                  android:paddingTop="10dip"
-                 android:paddingRight="10dip"/>
+                 android:text="10 min" />
 
          </LinearLayout>
 

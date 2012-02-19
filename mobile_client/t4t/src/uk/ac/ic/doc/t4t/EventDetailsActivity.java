@@ -3,6 +3,7 @@ package uk.ac.ic.doc.t4t;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.ic.doc.t4t.common.services.RESTClient;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItemAdapter;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
@@ -37,15 +38,25 @@ public class EventDetailsActivity extends Activity {
     	
     	populateEvent(eventDetails);
     	
-    	tweets.add(new TweetItem());
-    	tweets.add(new TweetItem());
-    	tweets.add(new TweetItem());
-    	tweets.add(new TweetItem());
-    	tweets.add(new TweetItem());
+    	populateTweets(eventDetails);
 
-        tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
-        //tweetList.setClickable(true);
+        
     }
+
+	private void populateTweets(EventItem eventDetails) {
+
+		RESTClient restClient = new RESTClient(this);
+		tweets = restClient.requestTweets(eventDetails.getEventID());
+		if (tweets != null){
+			tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
+		} else {
+			
+			//No tweets found
+		}
+			
+        //tweetList.setClickable(true);
+		
+	}
 
 	private void populateEvent(EventItem eventDetails) {
 		

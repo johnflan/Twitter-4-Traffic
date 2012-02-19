@@ -69,8 +69,6 @@ public class EventListActivity extends Activity implements Observer {
 
         eventList.setAdapter(new EventItemAdapter(this, R.layout.eventitem, eventItems));
         eventList.setClickable(true);
-        
-       
 		
 	}
 
