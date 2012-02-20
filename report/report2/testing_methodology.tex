@@ -46,5 +46,7 @@ portions of the project. Currently we are striving to create these tests in a
 test driven manor, but this practice can be difficult to uphold - particularly
 with pending deadlines.
 
-\subsection{Statistical}
+\subsection{Classifier accuracy}
+In order to retrieve information about traffic disruptions from social data, there is a need to classify text in the form of tweets. We need to verifiy that our classifier is performing well, below we outline a number of methods we are utilising to perform this validation.
 
+The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To generate multiple samples from a single sample, an alternative to cross-validation is the Bootstrap that generates new samples by drawing instances from the original sample with replacement. Another method is the Confusion Matrix which is a visualization tool typically used to present the results attained by a learner. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class.For this purpose, the NLTK package provides the function nltk.ConfusionMatrix (). Finally, the Precision and Recall Rates can be calculated in order to ensure the results from the previous method. The recall and the precision can be derived easily from the confusion matrix.
