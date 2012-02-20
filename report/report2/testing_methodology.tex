@@ -1,0 +1,50 @@
+Further to the discussion of development methodologies in the previous report,
+the group had identified a number of ideologies to be adopted. A test driven
+approach to development was one of those concepts to be applied when possible.
+This section will expand further on the testing approach being applied to
+different aspects of the development. 
+
+\subsection{Maximum value}
+The team is approaching testing in such a manor as to extract the `maximum
+value’ from testing efforts, this is primarily due to the goals and timescale
+of the project. During the life of this project the team is not aiming to
+achieve 100\% test coverage, but to concentrate testing efforts in areas with
+the greatest reward.
+
+With this in mind, aspects of the development will strive for a good level of
+test coverage. These areas include the mobile application, web-server
+application and data scraping scripts. It is hoped that having good coverage of
+these aspects will help to speed up the development effort, by way of reducing
+the time necessary to track down bugs and additionally to offer a higher
+quality user experience.
+
+\subsection{Functional}
+To test boundaries between systems, functional testing is being applied. This
+enables testing of  the inputs and outputs of the system as a whole conform to
+the expected responses. Ensuring these boundaries behave correctly is an
+important step in ensuring stability as a whole.
+
+The biggest of these boundaries is between the mobile application and the back
+end service, where communication occurs over a REST API. The functional testing
+of this interface is being performed using the command line tool ‘cURL’ which
+was useful for initial development. But as development progresses the team is
+investigating moving to Apache JMeter to provide a better testing platform.
+JMeter also offers a simpler interface for creating tests and has the added
+advantage of being able to stress test the service, something that has been
+discussed at our supervisor meetings.
+
+\subsection{Unit}
+Unit testing is a valued technique as it not only provides a mechanism for
+exercising software modules through its interfaces, but importantly encourages
+good software design principles such as modularity and low coupling. The
+components of this project which are expected to have the largest percentage of
+code coverage are the tweet processing pipeline, REST API server and mobile
+application.
+
+Separate test suites are under concurrent development for the Python and Java
+portions of the project. Currently we are striving to create these tests in a
+test driven manor, but this practice can be difficult to uphold - particularly
+with pending deadlines.
+
+\subsection{Statistical}
+
