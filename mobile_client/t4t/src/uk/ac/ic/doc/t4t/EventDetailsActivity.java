@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ public class EventDetailsActivity extends Activity {
 	private final static String TAG = "EventDetailsActivity";
 	private List<TweetItem> tweets = new ArrayList<TweetItem>();
 	private ListView tweetList;
+	private ImageButton reportEventBtn;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,11 +39,19 @@ public class EventDetailsActivity extends Activity {
     		eventDetails = (EventItem) extras.getSerializable("EventDetails");
     	}
     	
-    	populateEvent(eventDetails);
+    	reportEventBtn = (ImageButton) findViewById(R.id.header_share_button);
+        reportEventBtn.setOnClickListener(new View.OnClickListener() {	
+			@Override
+			public void onClick(View v) {
+				Log.i(TAG, "Opening report event activity");
+				
+				Intent i = new Intent(EventDetailsActivity.this, ReportEventActivity.class);
+				startActivity(i);	
+			}
+		});
     	
+    	populateEvent(eventDetails);  	
     	populateTweets(eventDetails);
-
-        
     }
 
 	private void populateTweets(EventItem eventDetails) {

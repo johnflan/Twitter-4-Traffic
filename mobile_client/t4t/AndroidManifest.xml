@@ -28,6 +28,9 @@
             android:name="EventDetailsActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity android:name="ReportEventActivity"></activity>
+        <activity android:name="EventMapActivity"></activity>
+        <activity android:name="AboutApplicationActivity"></activity>
     </application>
 
 </manifest>

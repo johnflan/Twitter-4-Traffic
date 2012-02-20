@@ -1,9 +1,15 @@
 package uk.ac.ic.doc.t4t;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.xml.sax.SAXException;
 
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
 import uk.ac.ic.doc.t4t.common.services.RESTClient;
@@ -16,9 +22,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class EventListActivity extends Activity implements Observer {
 	private final static String TAG = "EventListActivity";
@@ -26,6 +37,7 @@ public class EventListActivity extends Activity implements Observer {
 	private List<EventItem> eventItems = new ArrayList<EventItem>();
 	private LocationMgr location;
 	private RESTClient restClient;
+	private ImageButton reportEventBtn;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +67,20 @@ public class EventListActivity extends Activity implements Observer {
 
 			}
 		});
+        
+        reportEventBtn = (ImageButton) findViewById(R.id.header_share_button);
+        reportEventBtn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Log.i(TAG, "Opening report event activity");
+				
+				Intent i = new Intent(EventListActivity.this, ReportEventActivity.class);
+				startActivity(i);
+				
+			}
+		});
+        
     }
 
 	@Override
@@ -71,5 +97,31 @@ public class EventListActivity extends Activity implements Observer {
         eventList.setClickable(true);
 		
 	}
+	
+	@Override  
+    public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_options_menu, menu);
+		return true;
+    }
+	
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+		Intent i;
+        switch (item.getItemId()) {
+        
+            case R.id.menu_show_map:
+            	i = new Intent(EventListActivity.this, EventMapActivity.class);
+                startActivity(i);
+                break;
+                
+            case R.id.menu_about:
+            	i = new Intent(EventListActivity.this, AboutApplicationActivity.class);
+                startActivity(i);
+                break;
+                
+        }
+        return true;
+    }
 
 }

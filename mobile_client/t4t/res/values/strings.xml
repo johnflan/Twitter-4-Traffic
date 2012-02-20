@@ -4,6 +4,11 @@
     <string name="hello">Hello World!</string>
     <string name="app_name">Right Turn</string>
 	<string name="local_disruptions">Local disruptions</string>
+	<string name="disruptions_map">Disruptions map</string>
 	<string name="disruption_details">Disruption details</string>
 	<string name="what_people_are_saying">What people are saying</string>
+	<string name="report_event">Report traffic disruption</string>
+	<string name="menu_show_map">Show map</string>
+	<string name="menu_about">About</string>
+
 </resources>
