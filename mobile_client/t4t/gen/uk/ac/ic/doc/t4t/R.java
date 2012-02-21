@@ -12,6 +12,10 @@ public final class R {
         public static final int mainfadein=0x7f040000;
         public static final int splashfadeout=0x7f040001;
     }
+    public static final class array {
+        public static final int pref_service_options=0x7f060000;
+        public static final int pref_service_values=0x7f060001;
+    }
     public static final class attr {
     }
     public static final class drawable {
@@ -34,32 +38,33 @@ public final class R {
         public static final int what_people_are_saying_bg=0x7f020010;
     }
     public static final class id {
-        public static final int TweetAge=0x7f070017;
-        public static final int TweetText=0x7f070016;
-        public static final int TweetUserIcon=0x7f070013;
-        public static final int TweetUsername=0x7f070015;
-        public static final int eventDescription=0x7f07000b;
-        public static final int eventDistance=0x7f07000e;
-        public static final int eventDistanceType=0x7f07000f;
-        public static final int eventIconsLayout=0x7f07000c;
-        public static final int eventLayout=0x7f070006;
-        public static final int eventList=0x7f070011;
-        public static final int eventLocation=0x7f07000a;
-        public static final int eventSectionTitle=0x7f070004;
-        public static final int eventTextLayout=0x7f070008;
-        public static final int eventTitle=0x7f070009;
-        public static final int eventTypeIcon=0x7f07000d;
-        public static final int header_share_button=0x7f070003;
-        public static final int imageView1=0x7f070002;
-        public static final int linearLayout1=0x7f070001;
-        public static final int linearLayout2=0x7f070014;
-        public static final int mapview=0x7f070012;
-        public static final int menu_about=0x7f070019;
-        public static final int menu_show_map=0x7f070018;
-        public static final int severityIcon=0x7f070007;
-        public static final int splash_bg=0x7f070000;
-        public static final int textView1=0x7f070005;
-        public static final int tweetList=0x7f070010;
+        public static final int TweetAge=0x7f090017;
+        public static final int TweetText=0x7f090016;
+        public static final int TweetUserIcon=0x7f090013;
+        public static final int TweetUsername=0x7f090015;
+        public static final int eventDescription=0x7f09000b;
+        public static final int eventDistance=0x7f09000e;
+        public static final int eventDistanceType=0x7f09000f;
+        public static final int eventIconsLayout=0x7f09000c;
+        public static final int eventLayout=0x7f090006;
+        public static final int eventList=0x7f090011;
+        public static final int eventLocation=0x7f09000a;
+        public static final int eventSectionTitle=0x7f090004;
+        public static final int eventTextLayout=0x7f090008;
+        public static final int eventTitle=0x7f090009;
+        public static final int eventTypeIcon=0x7f09000d;
+        public static final int header_share_button=0x7f090003;
+        public static final int imageView1=0x7f090002;
+        public static final int linearLayout1=0x7f090001;
+        public static final int linearLayout2=0x7f090014;
+        public static final int mapview=0x7f090012;
+        public static final int menu_about=0x7f090019;
+        public static final int menu_settings=0x7f09001a;
+        public static final int menu_show_map=0x7f090018;
+        public static final int severityIcon=0x7f090007;
+        public static final int splash_bg=0x7f090000;
+        public static final int textView1=0x7f090005;
+        public static final int tweetList=0x7f090010;
     }
     public static final class layout {
         public static final int about=0x7f030000;
@@ -74,17 +79,27 @@ public final class R {
         public static final int tweetitem=0x7f030009;
     }
     public static final class menu {
-        public static final int main_options_menu=0x7f060000;
+        public static final int main_options_menu=0x7f080000;
     }
     public static final class string {
-        public static final int app_name=0x7f050001;
-        public static final int disruption_details=0x7f050004;
-        public static final int disruptions_map=0x7f050003;
-        public static final int hello=0x7f050000;
-        public static final int local_disruptions=0x7f050002;
-        public static final int menu_about=0x7f050008;
-        public static final int menu_show_map=0x7f050007;
-        public static final int report_event=0x7f050006;
-        public static final int what_people_are_saying=0x7f050005;
+        public static final int app_name=0x7f070001;
+        public static final int disruption_details=0x7f070004;
+        public static final int disruptions_map=0x7f070003;
+        public static final int hello=0x7f070000;
+        public static final int local_disruptions=0x7f070002;
+        public static final int menu_about=0x7f070008;
+        public static final int menu_settings=0x7f070009;
+        public static final int menu_show_map=0x7f070007;
+        public static final int pref_server_port_key=0x7f07000f;
+        public static final int pref_server_port_summary=0x7f07000e;
+        public static final int pref_server_port_title=0x7f07000d;
+        public static final int pref_server_url_key=0x7f07000c;
+        public static final int pref_server_url_summary=0x7f07000b;
+        public static final int pref_server_url_title=0x7f07000a;
+        public static final int report_event=0x7f070006;
+        public static final int what_people_are_saying=0x7f070005;
+    }
+    public static final class xml {
+        public static final int preferences=0x7f050000;
     }
 }

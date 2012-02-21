@@ -32,6 +32,7 @@
         <activity android:name="ReportEventActivity"></activity>
         <activity android:name="EventMapActivity"></activity>
         <activity android:name="AboutApplicationActivity"></activity>
+        <activity android:name="PreferenceActivity"></activity>
     </application>
 
 </manifest>
