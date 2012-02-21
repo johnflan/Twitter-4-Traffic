@@ -49,8 +49,10 @@ public class RESTClient extends Observable implements LocationObserver {
 	
 	public RESTClient(Context context){
 		  this.context = context;
-		  URL = PreferencesHelper.getServerURL(context) + ":" +
+		  URL = PreferencesHelper.getServerURL(context) + ":" + 
 				  PreferencesHelper.getServerPort(context);
+		  
+		  Log.i(TAG, "Server URL: " + URL);
 	}
 	
 	public void requestEvents(){

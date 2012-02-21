@@ -17,5 +17,5 @@
 	<string name="pref_server_url_key">server_url</string>
 	<string name="pref_server_port_title">Data source</string>
 	<string name="pref_server_port_summary">Select which service returns results</string>
-	<string name="pref_server_port_key">server_url</string>
+	<string name="pref_server_port_key">server_port</string>
 </resources>
