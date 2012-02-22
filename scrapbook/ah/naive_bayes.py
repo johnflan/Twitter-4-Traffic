@@ -23,10 +23,10 @@ def main(*args,**opts):
 	classifier = trainClassifier(conn, cursor, opts['tablename'], test_tweet)
 
 	#TO DO:: Save the classifier in a file (.pkl) so to use later. http://docs.python.org/library/shelve.html#module-shelve
-	#TO DO:: Better tokenazation (remove , . / etc from the word)
-	#TO DO:: Convert emotions to strings eg. :) -> _smile_ ,  :( _sad_
-	#TO DO:: Apply more tests
-	#TO DO:: Reaserch if the ordering on the bag of words improve the accuracy
+	#TO DO:: Better tokenization (remove ", . /" etc from the words)
+	#TO DO:: Convert emotions to strings eg. :) -> _smile_ ,  :( -> _sad_
+	#TO DO:: Apply more tests for the evaluation
+	#TO DO:: Research if the ordering on the bag of words improve the accuracy
 	
 
 def connectDB(**db):
