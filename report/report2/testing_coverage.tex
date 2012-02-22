@@ -1,0 +1,14 @@
+To date much of the server side code has been experimental, mainly consisting
+of identifying clusters of tweets and classifying vehicular traffic tweets. Due
+to this we don't have much test coverage of this code. We are now beginning to
+build the server service from these algorithms, unit and functional test
+coverage is an important part of this development. Currently we have a set of
+cURL scripts to perform functional testing against the server interface.
+
+The testing progress has been much more successful with the development of the
+Android mobile application due to its less experimental nature. The mobile
+application has been written to minimise internal dependencies in order to
+maximise the ability to exercise those classes. One area of difficulty in
+testing this mobile application has been trying to test classes that extend
+system classes. To avoid this problem, we are striving to only perform `wiring'
+and instantiation in those classes.
