@@ -23,14 +23,20 @@ latitude/longitude references were required for our application. Fortunately
 Ordnance Survey provide a technique for translating between the coordinate
 systems which was successfully implemented.
 
-We have manually labelled a subsection of these tweets in order to train a
-classifier to identify tweets about traffic. Labelling of the tweets has proven
-to be a time consuming process. From Twitter we are requesting tweets that
-match any of about 15 terms, even with this restriction of the domain of tweets
-we are seeing only about 1\% of tweets with relevant traffic content. It is
-planned in the next week to bootstrap the initial classifier with the manually
-labeled set in order to identify more traffic related tweets which can be
-manually labelled.
+We have manually labelled a subsection of these tweets to train a
+classifier to identify tweets about vehicular traffic. Labelling of the tweets
+has proven to be a time consuming process. From Twitter we request tweets that
+match any of about 15 terms, even with this restriction of the domain
+we are seeing only about 1\% of tweets with relevant traffic content.
+
+It is planned in the next week to bootstrap the initial classifier with the manually
+labeled set. Bootstrapping enables us to train an initial classifier from a
+small dataset. The classifier can then be used to discover so the group can manually label
+positive results in order to create a larger training set. With this larger
+training set it is expected we can then create a more accurate classifier.
+There is an inherent danger in this technique, it is possible to `overfit' the
+classifier to our initial training data, and then amplify the initial `overfit'. This
+is something we will have to actively monitor.
 
 A basic Naive Bayes classifier is currently in development and is being trained
 using these manually labeled tweets. During the classification  of the tweets
