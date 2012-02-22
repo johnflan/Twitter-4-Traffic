@@ -1,9 +1,17 @@
-To date much of the server side code has been experimental, mainly consisting
+To date, much of the server side code has been experimental, mainly consisting
 of identifying clusters of tweets and classifying vehicular traffic tweets. Due
 to this we don't have much test coverage of this code. We are now beginning to
 build the server service from these algorithms, unit and functional test
 coverage is an important part of this development. Currently we have a set of
 cURL scripts to perform functional testing against the server interface.
+
+In addition to code coverage we are statistically assessing the classifier. The
+below results are achieved by dividing the labelled set into training and
+testing sets. The results for the accuracy are:
+\begin{itemize}
+\item Accuracy for train set: 99.84\%
+\item Accuracy for test set:  77.37\%
+\end{itemize}
 
 The testing progress has been much more successful with the development of the
 Android mobile application due to its less experimental nature. The mobile
