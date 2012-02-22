@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+   
+    <string-array name="pref_service_options">
+        <item>Mock data</item>
+        <item>Real data</item>
+    </string-array>
+    
+    <string-array name="pref_service_values">
+        <item>55003</item>
+        <item>55004</item>
+    </string-array>
+    
+    
+</resources>

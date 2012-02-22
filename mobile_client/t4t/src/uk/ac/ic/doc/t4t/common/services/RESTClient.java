@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
@@ -34,7 +35,7 @@ public class RESTClient extends Observable implements LocationObserver {
 	private HttpClient httpclient;
 	private HttpGet request;
 	private boolean hasLocation = false;
-	private String URL = "http://vm-project-g1153006.doc.ic.ac.uk:55003";
+	private String URL;
 	private double latitude;
 	private double longitude;
 	
@@ -48,6 +49,10 @@ public class RESTClient extends Observable implements LocationObserver {
 	
 	public RESTClient(Context context){
 		  this.context = context;
+		  URL = PreferencesHelper.getServerURL(context) + ":" + 
+				  PreferencesHelper.getServerPort(context);
+		  
+		  Log.i(TAG, "Server URL: " + URL);
 	}
 	
 	public void requestEvents(){

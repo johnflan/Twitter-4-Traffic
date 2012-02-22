@@ -120,6 +120,10 @@ public class EventListActivity extends Activity implements Observer {
                 startActivity(i);
                 break;
                 
+            case R.id.menu_settings:
+            	i = new Intent(EventListActivity.this, PreferenceActivity.class);
+                startActivity(i);
+                break;
         }
         return true;
     }
