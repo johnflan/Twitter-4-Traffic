@@ -1,4 +1,4 @@
-Further to the discussion of development methodologies in the previous report,
+﻿Further to the discussion of development methodologies in the previous report,
 the group had identified a number of ideologies to be adopted. A test driven
 approach to development was one of those concepts to be applied when possible.
 This section will expand further on the testing approach being applied to
@@ -69,7 +69,8 @@ datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is
 used for testing the classifier that has been built on all other remaining
 subsets. To generate multiple samples from a single sample, an alternative to
 cross-validation is the Bootstrap that generates new samples by drawing
-instances from the original sample with replacement. Another method is the
+instances from the original samples (one subset of samples from train set and one from test set)
+ with replacement. Another way to evaluate our classifier is the
 Confusion Matrix which is a visualization tool typically used to present the
 results attained by a learner. Each column of the matrix represents the
 instances in a predicted class, while each row represents the instances in an

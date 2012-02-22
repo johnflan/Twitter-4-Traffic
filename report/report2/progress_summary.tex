@@ -1,4 +1,4 @@
-The project is currently in Week 5 of the 8 Week schedule, to date the team has
+﻿The project is currently in Week 5 of the 8 Week schedule, to date the team has
 remained on course with the project schedule. A number of team decisions have
 helped to maintain this progress. The most important of which are the use of a
 scrum board for keeping track of tasks in progress, the division of work to
@@ -34,12 +34,13 @@ manually labelled.
 
 A basic Naive Bayes classifier is currently in development and is being trained
 using these manually labeled tweets. During the classification  of the tweets
-some non-traffic tweets were being labelled as traffic. After some brief
+some non-traffic tweets were being labelled as traffic. After some 
 research the team has identified that a lot of the features-words were having
 very low information gain(informativeness). To overcome this obstacle the
-stop-words have been found and have been filtered from the feature set. In
+stop-words have been found and have been filtered from the feature set.The stopwrods 
+are a set of words that doesn't provide any valuable information to the classifier.  In
 addition, because of the nature of the tweets and in order to increase the
-performance of the classifier significant bigrams have been included. 
+performance of the classifier significant unordered bigrams have been included. 
 
 Finally, a module has also been written to identify timely geographical
 clusters of traffic tweets in an attempt to predict new traffic disruption
