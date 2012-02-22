@@ -28,8 +28,22 @@ def main(*args,**opts):
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             sys.exit("Creating stop words table failed! ->%s" % (exceptionValue))
 
-    cursor.execute("SELECT "+opts['column']+" FROM "+opts['from_table'])
-
+	try:
+		cursor.execute("SELECT "+opts['column']+" FROM "+opts['from_table'])
+	except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            sys.exit("Selecting tweets failed in database! ->%s" % (exceptionValue))
+	
+	
+	try:
+		searchTermsFile = open("../../data_acquisition/twitter/searchTerms.txt", "r")
+		searchTerms = []
+		for line in searchTermsFile:
+			searchTerms.append(line.strip())
+	except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            sys.exit("Problem reading search terms! ->%s" % (exceptionValue))
+	
     rows = cursor.fetchall()
     all_words = []
     for row in rows:
@@ -37,7 +51,7 @@ def main(*args,**opts):
         row = re.sub("\W"," ",row)
 
 
-        words = [word.lower() for word in row.split()]
+        words = [word.lower() for word in row.split() if not word in searchTerms]
         all_words.extend(words)
 
     wordlist = nltk.FreqDist(all_words)
