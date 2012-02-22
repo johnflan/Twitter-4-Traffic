@@ -1,9 +1,9 @@
 The project is currently in Week 5 of the 8 Week schedule, to date the team has
 remained on course with the project schedule. A number of team decisions have
 helped to maintain this progress. The most important of which are the use of a
-scrum board (Trello) for keeping track of tasks in progress, the division of
-work to play to members strengths and the separation of server and mobile
-development tasks.
+scrum board for keeping track of tasks in progress, the division of work to
+play to members strengths and the separation of server and mobile development
+tasks.
 
 Although the team is currently on track, it is from this point onwards that
 meeting the deadlines will become increasingly difficult. Up to this point we
@@ -12,19 +12,39 @@ like “Geocoding of messages without explicit locations”, “Enhance
 classification and clustering algorithms” and “Disruptions for Stored Routes”
 have some inherent difficulties.
 
-At this stage in the development no revisions are foreseen for the development
-schedule.
-
 \subsection{Server development}
 
 The server has been configured with a geographical database and we are
-currently collecting Transport for London and Twitter data for analysis. We
-have manually labelled a subsection of these tweets in order to train the
-classifier to identify tweets about traffic. A basic Naive Bayes classifier is
-currently in development and is being trained using these manually labeled
-tweets. Finally a module has also been written to identify timely geographical
-clusters of traffic tweets in an attempt to identify new traffic disruption
-events.
+currently collecting Transport for London and Twitter data for analysis.
+
+A small unforeseen difficulty with the storage of Transport for London data was
+that all location data was encoded in with UK Grid references and
+latitude/longitude references were required for our application. Fortunately
+Ordnance Survey provide a technique for translating between the coordinate
+systems which was successfully implemented.
+
+We have manually labelled a subsection of these tweets in order to train a
+classifier to identify tweets about traffic. Labelling of the tweets has proven
+to be a time consuming process. From Twitter we are requesting tweets that
+match any of about 15 terms, even with this restriction of the domain of tweets
+we are seeing only about 1\% of tweets with relevant traffic content. It is
+planned in the next week to bootstrap the initial classifier with the manually
+labeled set in order to identify more traffic related tweets which can be
+manually labelled.
+
+A basic Naive Bayes classifier is currently in development and is being trained
+using these manually labeled tweets. During the classification  of the tweets
+some non-traffic tweets were being labelled as traffic. After some brief
+research the team has identified that a lot of the features-words were having
+very low information gain(informativeness). To overcome this obstacle the
+stop-words have been found and have been filtered from the feature set. In
+addition, because of the nature of the tweets and in order to increase the
+performance of the classifier significant bigrams have been included. 
+
+Finally, a module has also been written to identify timely geographical
+clusters of traffic tweets in an attempt to predict new traffic disruption
+events. 
+
 
 \subsection{Mobile application development}
 
@@ -36,3 +56,46 @@ a hi-fidelity design was created and implemented. Currently the application is
 able to request traffic events for the current location and display them in a
 list, on clicking on a traffic event a list of tweets for the event are
 requested and displayed to the user. 
+
+\subsection{Specification updates}
+
+Features and requirements suggested in the initial report remain unchanged,
+with the same priority and due dates. However, a number of additional features
+have been proposed for the mobile application during supervisor meetings. One
+of them is allowing the user to toggle tweets visibility on the map according
+to their geographical location. Another feature is enabling the user to rate
+all the tweets and as a result the higher ranked ones will be shown on the map.
+
+As for the server application an extra feature will be to store the locations
+of traffic cameras. When a user selects a traffic event on the map he will be
+presented with links to nearby cameras.
+
+
+\begin{center}
+\begin{tabular}{ | p{9cm} | c | c | p{1.8cm} | }
+\hline
+\multicolumn{4}{|c|}{\textbf{Mobile Application}} \\ \hline
+\textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date}
+\\ \hline
+\textbf{Present tweets on the map}\newline
+Display high ranked tweets on the map. & & & Week 6 \\ \hline
+\textbf{Present traffic camera for events}\newline
+Present traffic camera for events
+If a traffic event occurs in the vicinity of a traffic camera, present the user
+with a camera icon. If they click on the icon they are presented with a live
+view of the event. &  &  & Week 7 \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ | p{9cm} | c | c | p{1.8cm} | }
+\hline
+\multicolumn{4}{|c|}{\textbf{Server Application}} \\ \hline
+\textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date}
+\\ \hline
+\textbf{Store traffic cameras by geolocation}\newline
+Store a list of public traffic cameras in the database by their geographic
+location. When returning traffic disruptions in the vicinity of a camera,
+attach a link to the most relevant camera. &  &  & Week 7 \\ \hline
+\end{tabular}
+\end{center}
