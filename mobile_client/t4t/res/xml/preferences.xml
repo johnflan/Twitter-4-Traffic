@@ -13,5 +13,15 @@
            android:defaultValue="55003"
            android:entries="@array/pref_service_options"
            android:entryValues="@array/pref_service_values"/>
+		
+		
+		<ListPreference android:title="@string/pref_default_view_title"
+           android:summary="@string/pref_default_view_summary"
+           android:key="@string/pref_default_view_key"
+           android:defaultValue="map"
+           android:entries="@array/pref_default_view_options"
+           android:entryValues="@array/pref_default_view_values"/>
+		
+		
     </PreferenceCategory>
 </PreferenceScreen>

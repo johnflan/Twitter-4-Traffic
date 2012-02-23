@@ -12,5 +12,15 @@
         <item>55004</item>
     </string-array>
     
+        <string-array name="pref_default_view_options">
+        <item>Map view</item>
+        <item>List view</item>
+    </string-array>
+    
+    <string-array name="pref_default_view_values">
+        <item>map</item>
+        <item>list</item>
+    </string-array>
+    
     
 </resources>

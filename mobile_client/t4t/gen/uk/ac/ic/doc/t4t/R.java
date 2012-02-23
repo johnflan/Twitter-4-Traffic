@@ -13,6 +13,8 @@ public final class R {
         public static final int splashfadeout=0x7f040001;
     }
     public static final class array {
+        public static final int pref_default_view_options=0x7f060002;
+        public static final int pref_default_view_values=0x7f060003;
         public static final int pref_service_options=0x7f060000;
         public static final int pref_service_values=0x7f060001;
     }
@@ -27,17 +29,18 @@ public final class R {
         public static final int header_share_button=0x7f020005;
         public static final int header_share_button_on=0x7f020006;
         public static final int ic_launcher=0x7f020007;
-        public static final int section_header=0x7f020008;
-        public static final int share_button=0x7f020009;
-        public static final int sign_accident=0x7f02000a;
-        public static final int sign_generic=0x7f02000b;
-        public static final int sign_signal_failure=0x7f02000c;
-        public static final int sign_works=0x7f02000d;
-        public static final int splash_bg=0x7f02000e;
-        public static final int splash_clouds=0x7f02000f;
-        public static final int splash_logo=0x7f020010;
-        public static final int tweet_profile_placeholder=0x7f020011;
-        public static final int what_people_are_saying_bg=0x7f020012;
+        public static final int map_pointer=0x7f020008;
+        public static final int section_header=0x7f020009;
+        public static final int share_button=0x7f02000a;
+        public static final int sign_accident=0x7f02000b;
+        public static final int sign_generic=0x7f02000c;
+        public static final int sign_signal_failure=0x7f02000d;
+        public static final int sign_works=0x7f02000e;
+        public static final int splash_bg=0x7f02000f;
+        public static final int splash_clouds=0x7f020010;
+        public static final int splash_logo=0x7f020011;
+        public static final int tweet_profile_placeholder=0x7f020012;
+        public static final int what_people_are_saying_bg=0x7f020013;
     }
     public static final class id {
         public static final int TweetAge=0x7f090017;
@@ -81,7 +84,8 @@ public final class R {
         public static final int tweetitem=0x7f030009;
     }
     public static final class menu {
-        public static final int main_options_menu=0x7f080000;
+        public static final int event_list_options_menu=0x7f080000;
+        public static final int event_map_options_menu=0x7f080001;
     }
     public static final class string {
         public static final int app_name=0x7f070001;
@@ -89,15 +93,19 @@ public final class R {
         public static final int disruptions_map=0x7f070003;
         public static final int hello=0x7f070000;
         public static final int local_disruptions=0x7f070002;
-        public static final int menu_about=0x7f070008;
-        public static final int menu_settings=0x7f070009;
-        public static final int menu_show_map=0x7f070007;
-        public static final int pref_server_port_key=0x7f07000f;
-        public static final int pref_server_port_summary=0x7f07000e;
-        public static final int pref_server_port_title=0x7f07000d;
-        public static final int pref_server_url_key=0x7f07000c;
-        public static final int pref_server_url_summary=0x7f07000b;
-        public static final int pref_server_url_title=0x7f07000a;
+        public static final int menu_about=0x7f070009;
+        public static final int menu_settings=0x7f07000a;
+        public static final int menu_show_list=0x7f070007;
+        public static final int menu_show_map=0x7f070008;
+        public static final int pref_default_view_key=0x7f070013;
+        public static final int pref_default_view_summary=0x7f070012;
+        public static final int pref_default_view_title=0x7f070011;
+        public static final int pref_server_port_key=0x7f070010;
+        public static final int pref_server_port_summary=0x7f07000f;
+        public static final int pref_server_port_title=0x7f07000e;
+        public static final int pref_server_url_key=0x7f07000d;
+        public static final int pref_server_url_summary=0x7f07000c;
+        public static final int pref_server_url_title=0x7f07000b;
         public static final int report_event=0x7f070006;
         public static final int what_people_are_saying=0x7f070005;
     }

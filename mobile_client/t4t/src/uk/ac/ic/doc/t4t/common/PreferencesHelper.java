@@ -10,6 +10,7 @@ public class PreferencesHelper {
 	
 	private final static String DEFAULT_SERVER_URL = "http://vm-project-g1153006.doc.ic.ac.uk";
 	private final static String DEFAULT_SERVER_PORT = "55003";
+	private final static String DEFAULT_VIEW = "map";
 	
     public static String getServerURL(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
@@ -42,6 +43,24 @@ public class PreferencesHelper {
         Editor prefsEditor = prefs.edit();
         prefsEditor.putString(
                 context.getString(R.string.pref_server_port_key),
+                newValue);
+        prefsEditor.commit();
+    }
+    
+    public static String getDefaultView(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_default_view_key),
+        		DEFAULT_VIEW);
+        
+    }
+ 
+    public static void setDefaultView(Context context, String newValue) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(
+                context.getString(R.string.pref_default_view_key),
                 newValue);
         prefsEditor.commit();
     }
