@@ -2,6 +2,9 @@ package uk.ac.ic.doc.t4t.common.services;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.android.maps.GeoPoint;
+
 import android.content.Context;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -48,6 +51,13 @@ public class LocationMgr implements LocationListener{
 	
 	public double getLongitude(){
 		return longitude;
+	}
+	
+	public GeoPoint getGeoPoint(){
+		GeoPoint point = new GeoPoint(
+				(int) (latitude * 1E6),
+				(int) (longitude  * 1E6) );
+		return point;
 	}
 	
 	public void addLocationObserver(LocationObserver locationObserver){

@@ -12,6 +12,7 @@ import uk.ac.ic.doc.t4t.eventmap.EventOverlay;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
@@ -19,6 +20,8 @@ import com.google.android.maps.OverlayItem;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -35,6 +38,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 	private List<EventItem> eventItems = new ArrayList<EventItem>();
 	private MapView mapView;
 	private List<Overlay> mapOverlays;
+	private EventOverlay eventOverlay;
 
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -63,13 +67,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         mapView = (MapView) findViewById(R.id.mapview);
         mapOverlays = mapView.getOverlays();
         Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
-        EventOverlay eventOverlay = new EventOverlay(drawable, this);
-        
-        GeoPoint point = new GeoPoint(19240000,-99120000);
-        OverlayItem overlayitem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
-        
-        eventOverlay.addOverlay(overlayitem);
-        mapOverlays.add(eventOverlay);
+        eventOverlay = new EventOverlay(drawable, this);
         
         //Here we set the rest client as a listener for the location service
         //so once a location is returned, we can make a HTTP request.       
@@ -78,6 +76,10 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         location = new LocationMgr(this);
         location.addLocationObserver(restClient); 
+       
+        MapController mapController = mapView.getController();
+        mapController.animateTo(location.getGeoPoint());
+        mapController.setZoom(6);
         
     }
 
@@ -90,8 +92,31 @@ public class EventMapActivity extends MapActivity implements Observer {
 		Log.i(TAG, "Updating event list");
 		eventItems = (List<EventItem>) data;
 		
+		addEventOverlay(eventItems);
+		
 	}
 	
+	private void addEventOverlay(List<EventItem> eventItems) {
+		
+		for (EventItem event : eventItems){
+
+			GeoPoint point = new GeoPoint(
+					(int) (event.getLatitude() * 1E6),
+					(int) (event.getLongitude() * 1E6) );
+			OverlayItem overlayitem = new OverlayItem(
+												point,
+												event.getTitle(),
+												event.getDescription());
+			
+			eventOverlay.addOverlay(overlayitem);
+		}
+		
+        
+        mapOverlays.add(eventOverlay);
+		
+	}
+
+
 	@Override  
     public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
