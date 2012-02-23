@@ -1,4 +1,4 @@
-Further to the discussion of development methodologies in the previous report,
+﻿Further to the discussion of development methodologies in the previous report,
 the group had identified a number of ideologies to be adopted. A test driven
 approach to development was one of those concepts to be applied when possible.
 This section will expand further on the testing approach being applied to
@@ -47,6 +47,34 @@ test driven manor, but this practice can be difficult to uphold - particularly
 with pending deadlines.
 
 \subsection{Classifier verification}
-Machine learning algorithms induce classifiers that depend on the training set, and there is a need for evaluation and statistical testing to assess the expected error rate of a classification algorithm, and even compare the expected error rates of two classification algorithms to be able to say which one is better. Evaluation can also be used as a guide for future improvements on the model. In order to evaluate the classifier several techniques have been used. The first technique is to generate a test set of tweets which their labels are already known. This test set has to be distinct from the train set which has been used to train the classifier. Afterward this test set is being classified by the classifier and the labels, that it decides, are being compared with their correct labels. The second technique is to calculate the accuracy of the classifier which measures the percentage of inputs in the test set that the classifier correctly labelled.
+Machine learning algorithms induce classifiers that depend on the training set,
+and there is a need for evaluation and statistical testing to assess the
+expected error rate of a classification algorithm, and even compare the
+expected error rates of two classification algorithms to be able to say which
+one is better. Evaluation can also be used as a guide for future improvements
+on the model. In order to evaluate the classifier several techniques have been
+used. The first technique is to generate a test set of tweets which their
+labels are already known. This test set has to be distinct from the train set
+which has been used to train the classifier. Afterward this test set is being
+classified by the classifier and the labels, that it decides, are being
+compared with their correct labels. The second technique is to calculate the
+accuracy of the classifier which measures the percentage of inputs in the test
+set that the classifier correctly labelled.
 
-However more techniques will be used, when the dataset will be further increased, in order to get more accurate evaluations and avoid possible “overfitting”. The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To generate multiple samples from a single sample, an alternative to cross-validation is the Bootstrap that generates new samples by drawing instances from the original sample with replacement. Another method is the Confusion Matrix which is a visualization tool typically used to present the results attained by a learner. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class.For this purpose, the NLTK package provides the function nltk.ConfusionMatrix (). Finally, the Precision and Recall Rates can be calculated in order to ensure the results from the previous method. The recall and the precision can be derived easily from the confusion matrix.
+However more techniques will be used, when the dataset will be further
+increased, in order to get more accurate evaluations and avoid possible
+`overfitting'. The first of these methods is the K-Fold Cross Validation. The
+dataset is split each time into K equally sized subsets, training and testing
+datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is
+used for testing the classifier that has been built on all other remaining
+subsets. To generate multiple samples from a single sample, an alternative to
+cross-validation is the Bootstrap that generates new samples by drawing
+instances from the original samples (one subset of samples from train set and one from test set)
+ with replacement. Another way to evaluate our classifier is the
+Confusion Matrix which is a visualization tool typically used to present the
+results attained by a learner. Each column of the matrix represents the
+instances in a predicted class, while each row represents the instances in an
+actual class.For this purpose, the NLTK package provides the function
+nltk.ConfusionMatrix(). Finally, the Precision and Recall Rates can be
+calculated in order to ensure the results from the previous method. The recall
+and the precision can be derived easily from the confusion matrix.

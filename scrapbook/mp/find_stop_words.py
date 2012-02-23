@@ -28,18 +28,31 @@ def main(*args,**opts):
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             sys.exit("Creating stop words table failed! ->%s" % (exceptionValue))
 
-    cursor.execute("SELECT "+opts['column']+" FROM "+opts['from_table'])
+    try:
+        cursor.execute("SELECT "+opts['column']+" FROM "+opts['from_table'])
+    except:
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        sys.exit("Selecting tweets failed in database! ->%s" % (exceptionValue))
+    
+    searchTermsFile = open("../../data_acquisition/twitter/searchTerms.txt","r")
+    searchTerms = []
+    try:
+        for line in searchTermsFile:
+            searchTerms.append(line.strip())
+    except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            sys.exit("Problem reading search terms! ->%s" % (exceptionValue))
 
     rows = cursor.fetchall()
+    print "...Fetching all words..."
     all_words = []
     for row in rows:
         row = row[0].replace("'","").replace("%","")
         row = re.sub("\W"," ",row)
 
-
-        words = [word.lower() for word in row.split()]
+        words = [word.lower() for word in row.split() if not word in searchTerms]
         all_words.extend(words)
-
+    print "...Finding the frequent words..."
     wordlist = nltk.FreqDist(all_words)
 
     for i in range(min(len(wordlist),int(opts['limit']))):
@@ -52,7 +65,7 @@ def main(*args,**opts):
             else:
                 cursor.execute("INSERT INTO %s (word,freq) VALUES('%s',%s)" %
                         (opts['to_table'],wordlist.keys()[i],wordlist.values()[i]))
-		conn.commit()
+            conn.commit()
         except:
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             sys.exit("Could not write/update values in database! ->%s" % (exceptionValue))
