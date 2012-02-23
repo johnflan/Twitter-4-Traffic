@@ -33,6 +33,7 @@
         <activity android:name="EventMapActivity"></activity>
         <activity android:name="AboutApplicationActivity"></activity>
         <activity android:name="PreferenceActivity"></activity>
+        <service android:name="UpdaterService"></service>
     </application>
 
 </manifest>

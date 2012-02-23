@@ -7,14 +7,17 @@ import android.os.Handler;
 
 public class SplashScreenActivity extends Activity {
 
-	private final int SPLASH_DISPLAY_LENGTH = 1500;
+	private final int SPLASH_DISPLAY_LENGTH = 1000;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-
-    	new Handler().postDelayed(new Runnable(){
+        
+        startService(new Intent(this, UpdaterService.class));
+        //stopService(new Intent(this, UpdaterService.class));
+    	
+        new Handler().postDelayed(new Runnable(){
     		 
             @Override
             public void run() {

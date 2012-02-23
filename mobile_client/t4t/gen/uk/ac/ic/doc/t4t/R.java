@@ -34,8 +34,10 @@ public final class R {
         public static final int sign_signal_failure=0x7f02000c;
         public static final int sign_works=0x7f02000d;
         public static final int splash_bg=0x7f02000e;
-        public static final int tweet_profile_placeholder=0x7f02000f;
-        public static final int what_people_are_saying_bg=0x7f020010;
+        public static final int splash_clouds=0x7f02000f;
+        public static final int splash_logo=0x7f020010;
+        public static final int tweet_profile_placeholder=0x7f020011;
+        public static final int what_people_are_saying_bg=0x7f020012;
     }
     public static final class id {
         public static final int TweetAge=0x7f090017;
