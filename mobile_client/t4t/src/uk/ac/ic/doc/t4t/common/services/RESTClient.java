@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import uk.ac.ic.doc.t4t.UpdaterService;
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
@@ -30,7 +31,7 @@ import android.util.Log;
 
 public class RESTClient extends Observable implements LocationObserver {
 	
-	private final static String TAG = "RESTClient";
+	private static final String TAG = UpdaterService.class.getSimpleName();
 	private Context context;
 	private HttpClient httpclient;
 	private HttpGet request;

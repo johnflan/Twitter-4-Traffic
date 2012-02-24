@@ -31,7 +31,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 public class EventMapActivity extends MapActivity implements Observer {
-	private final static String TAG = "EventMapActivity";
+	private static final String TAG = UpdaterService.class.getSimpleName();
 	private ImageButton reportEventBtn;
 	private LocationMgr location;
 	private RESTClient restClient;
@@ -39,6 +39,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 	private MapView mapView;
 	private List<Overlay> mapOverlays;
 	private EventOverlay eventOverlay;
+	private MapController mapController;
 
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -66,8 +67,6 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapOverlays = mapView.getOverlays();
-        Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
-        eventOverlay = new EventOverlay(drawable, this);
         
         //Here we set the rest client as a listener for the location service
         //so once a location is returned, we can make a HTTP request.       
@@ -77,9 +76,13 @@ public class EventMapActivity extends MapActivity implements Observer {
         location = new LocationMgr(this);
         location.addLocationObserver(restClient); 
        
-        MapController mapController = mapView.getController();
+        mapController = mapView.getController();
+        Log.i(TAG, "Moving map to users current loc : " + location.getGeoPoint());
         mapController.animateTo(location.getGeoPoint());
-        mapController.setZoom(6);
+        mapController.setZoom(13);
+        
+        Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
+        eventOverlay = new EventOverlay(drawable, this);
         
     }
 
@@ -97,6 +100,9 @@ public class EventMapActivity extends MapActivity implements Observer {
 	}
 	
 	private void addEventOverlay(List<EventItem> eventItems) {
+		Log.i(TAG, "Adding new overlay");
+		
+		eventOverlay.clearOverlays();
 		
 		for (EventItem event : eventItems){
 
@@ -109,11 +115,14 @@ public class EventMapActivity extends MapActivity implements Observer {
 												event.getDescription());
 			
 			eventOverlay.addOverlay(overlayitem);
+			
 		}
 		
         
         mapOverlays.add(eventOverlay);
-		
+        
+		//forces a redraw of the map to show the overlay
+        mapView.invalidate();
 	}
 
 
@@ -129,7 +138,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 		Intent i;
         switch (item.getItemId()) {
         
-            case R.id.menu_show_map:
+            case R.id.menu_show_list:
             	i = new Intent(EventMapActivity.this, EventListActivity.class);
                 startActivity(i);
                 break;

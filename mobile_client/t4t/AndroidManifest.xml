@@ -13,6 +13,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.NoTitleBar">
         <uses-library android:name="com.google.android.maps" />
+        
         <activity
             android:name="SplashScreenActivity"
             android:screenOrientation="portrait">
@@ -21,19 +22,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name="EventListActivity"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait"/>
+      
         <activity
             android:name="EventDetailsActivity"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity android:name="ReportEventActivity"></activity>
-        <activity android:name="EventMapActivity"></activity>
-        <activity android:name="AboutApplicationActivity"></activity>
-        <activity android:name="PreferenceActivity"></activity>
-        <service android:name="UpdaterService"></service>
+            android:screenOrientation="portrait"/>
+
+        <activity android:name="ReportEventActivity"
+            android:screenOrientation="portrait"/>
+        
+        <activity android:name="EventMapActivity"
+            android:screenOrientation="portrait"/>
+        
+        <activity android:name="AboutApplicationActivity"
+            android:screenOrientation="portrait"/>
+        
+        <activity android:name="PreferenceActivity"
+            android:screenOrientation="portrait"/>
+        
+        <service android:name="UpdaterService"/>
     </application>
 
 </manifest>
