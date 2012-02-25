@@ -25,4 +25,87 @@
             android:text="@string/report_event" />
 
     </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/tableLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingTop="20px">
+
+            <ImageButton
+                android:id="@+id/reportTrafficJam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_report_event_traffic"
+                android:background="@null"
+                android:paddingRight="20px"/>
+            
+            <ImageButton
+                android:id="@+id/reportRoadworks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_report_event_roadworks"
+                android:background="@null"
+                android:paddingLeft="20px"/>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingTop="20px">
+
+            <ImageButton
+                android:id="@+id/reportOOOTrafficLights"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_report_event_ooo_trafficlights"
+                android:background="@null"
+                android:paddingRight="20px"/>
+            
+            <ImageButton
+                android:id="@+id/reportTrafficAccident"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_report_event_accident"
+                android:background="@null"
+                android:paddingLeft="20px"/>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingTop="20px">
+
+            <ImageButton
+                android:id="@+id/reportTrafficJam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_report_event_traffic"
+                android:background="@null"
+                android:paddingRight="20px"/>
+            
+            <ImageButton
+                android:id="@+id/reportTrafficAccident"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_report_event_traffic"
+                android:background="@null"
+                android:paddingLeft="20px"/>
+
+        </TableRow>
+
+    </TableLayout>
+
 </LinearLayout>
