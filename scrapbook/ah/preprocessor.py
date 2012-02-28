@@ -1,5 +1,5 @@
 # convert emoticons	DONE
-# convert links DONE
+# convert links 
 # convert can't -> can not actually 't not -(decided not to delete ') DONE
 # remove usernames and any other regular expression we dont need	DONE
 # convert curse words eg. sh!t  _curse_  ????? (from 240k only around 100 have those words)
@@ -18,21 +18,7 @@ from nltk.metrics import BigramAssocMeasures
 
 
 class preprocessor:
-
-	# def __init__(self, data):
-		# self.data = data;
 					
-					
-	def convert_to_list(unfiltered_tweets):
-		"""Remove the characters/words we don't need to check"""
-		data = []
-		for tweets in unfiltered_tweets:
-			#remove from the tweets the "@username"
-			req_exp = re.compile(r'@([A-Za-z0-9_]+)')
-			tweets = req_exp.sub('',tweets[0])
-			data.append(tweets)
-		return data
-	
 	def replace_emoticons(self, emoticons_tweet):
 		"""Replace the emoticonsin of the input string with the corresponding string"""
 		#Many-to-one dictionary
@@ -51,12 +37,11 @@ class preprocessor:
 		return emoticons_tweet
 	
 	def remove_puncuation(self, tweet):
-		"""Remove all the puncuation except the symbol # from the tweet"""
-		punctuation = re.compile(r'[-.?!,":;()|$%&*+/<=>@[\]^`{}~]')
-		#Replace with space the '
-		#tweet = tweet.replace("'"," ")
-		#Replace with space the rest punctuation except the #
+		"""Remove all the puncuation except the symbol #,@,' from the tweet"""
+		punctuation = re.compile(r'[-.?!,":;()|$%&*+/<=>[\]^`{}~]')
+		#Replace with space the punctuation 
 		return punctuation.sub(' ', tweet)
+		
 		
 	def tokenazation(self, tweets_str, stopword_set):
 		""" Lower the tweets (traffic and nontraffic), split them, remove the stopwords and the words with just one character """	
@@ -66,13 +51,42 @@ class preprocessor:
 				tokenized_tweets.extend(filtered_words)
 		return tokenized_tweets
 		
+		
+	def remove_reg_expr(self, tokens):
+		"""Remove the words we don't need to check"""
+		data = []
+		for tweets in tokens:
+			#Remove from the tweets the "@username"
+			req_exp = re.compile(r'@([A-Za-z0-9_]+)')
+			tweets = req_exp.sub('',tweets)
+			if tweets!='':
+				data.append(tweets)
+		return data
+	
+		
 	def lemmanazation(self,tokens):
 		""" Lemmanaze the tokenized tweets (child ,children => child, child)"""
 		wnl=nltk.WordNetLemmatizer()
 		lemmas=[wnl.lemmatize(t) for t in tokens]
 		return lemmas
 		
+		
 	def include_bigrams(self, words, score_fn=BigramAssocMeasures.chi_sq, n=200):
 		bigram_finder = BigramCollocationFinder.from_words(words)
 		bigrams = bigram_finder.nbest(score_fn, n)
 		return words + bigrams
+		
+		
+	def preprocess(self, tweet, stopwords):
+		tweet = self.replace_emoticons(tweet)
+		# tweet = self.convert_links(tweet)
+		tweet = self.remove_puncuation(tweet)
+		tweet = [tweet]
+		tokens = []
+		tokens = self.tokenazation(tweet,stopwords)
+		tokens = self.remove_reg_expr(tokens)
+		tokens = self.lemmanazation(tokens)
+		tokens = self.include_bigrams(tokens)
+		return tokens
+		
+		
