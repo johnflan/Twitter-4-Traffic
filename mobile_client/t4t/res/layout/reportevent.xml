@@ -89,18 +89,18 @@
             android:paddingTop="20px">
 
             <ImageButton
-                android:id="@+id/reportTrafficJam"
+                android:id="@+id/reportWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/btn_report_event_traffic"
+                android:src="@drawable/btn_report_event_weather"
                 android:background="@null"
                 android:paddingRight="20px"/>
             
             <ImageButton
-                android:id="@+id/reportTrafficAccident"
+                android:id="@+id/reportRoadClosed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/btn_report_event_traffic"
+                android:src="@drawable/btn_report_event_roadclosed"
                 android:background="@null"
                 android:paddingLeft="20px"/>
 

@@ -59,7 +59,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 			public void onClick(View v) {
 				Log.i(TAG, "Opening report event activity");
 				
-				Intent i = new Intent(EventMapActivity.this, ReportEventActivity.class);
+				Intent i = new Intent(EventMapActivity.this, ReportQuickEventActivity.class);
 				startActivity(i);	
 			}
 		});

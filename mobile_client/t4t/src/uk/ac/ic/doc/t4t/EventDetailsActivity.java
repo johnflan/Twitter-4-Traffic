@@ -45,7 +45,7 @@ public class EventDetailsActivity extends Activity {
 			public void onClick(View v) {
 				Log.i(TAG, "Opening report event activity");
 				
-				Intent i = new Intent(EventDetailsActivity.this, ReportEventActivity.class);
+				Intent i = new Intent(EventDetailsActivity.this, ReportQuickEventActivity.class);
 				startActivity(i);	
 			}
 		});

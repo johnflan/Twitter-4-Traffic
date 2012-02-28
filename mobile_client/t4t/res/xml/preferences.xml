@@ -22,6 +22,16 @@
            android:entries="@array/pref_default_view_options"
            android:entryValues="@array/pref_default_view_values"/>
 		
+		<EditTextPreference
+            android:summary="@string/pref_twitter_username_summary"
+            android:title="@string/pref_twitter_username_title"
+            android:key="@string/pref_twitter_username_key" />
+            
+           <EditTextPreference
+            android:summary="@string/pref_twitter_password_summary"
+            android:title="@string/pref_twitter_password_title"
+            android:key="@string/pref_twitter_password_key" />
+		
 		
     </PreferenceCategory>
 </PreferenceScreen>

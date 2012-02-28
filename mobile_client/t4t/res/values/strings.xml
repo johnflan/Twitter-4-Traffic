@@ -22,4 +22,13 @@
 	<string name="pref_default_view_title">Default view</string>
 	<string name="pref_default_view_summary">Start application with map or list view</string>
 	<string name="pref_default_view_key">default_view</string>
+	<string name="pref_twitter_username_title">Twitter username</string>
+	<string name="pref_twitter_username_summary">Change your twitter username</string>	
+	<string name="pref_twitter_username_key">twitter_username</string>
+	<string name="pref_twitter_password_title">Twitter password</string>
+	<string name="pref_twitter_password_summary">Change your twitter password</string>	
+	<string name="pref_twitter_password_key">twitter_passwrod</string>
+	
+	<string name="pref_twitter_oauth_key">twitter_oauth_access_key</string>	
+	<string name="pref_twitter_oauth_token">twitter_oauth_token</string>
 </resources>

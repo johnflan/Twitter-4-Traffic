@@ -75,7 +75,7 @@ public class EventListActivity extends Activity implements Observer {
 			public void onClick(View v) {
 				Log.i(TAG, "Opening report event activity");
 				
-				Intent i = new Intent(EventListActivity.this, ReportEventActivity.class);
+				Intent i = new Intent(EventListActivity.this, ReportQuickEventActivity.class);
 				startActivity(i);
 				
 			}

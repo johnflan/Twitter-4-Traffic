@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.t4t.common;
 
 import uk.ac.ic.doc.t4t.R;
+import winterwell.jtwitter.Twitter.IHttpClient;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -64,4 +65,59 @@ public class PreferencesHelper {
                 newValue);
         prefsEditor.commit();
     }
+
+	public static String getTwitterUsername(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_twitter_username_key),
+        		DEFAULT_VIEW);
+	}
+
+	public static String getTwitterPassword(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_twitter_password_key),
+        		DEFAULT_VIEW);
+	}
+	
+	
+    public static String getTwitterOAuthToken(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_twitter_oauth_key),
+        		"");
+        
+    }
+ 
+    public static void setTwitterOAuthToken(Context context, String newValue) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(
+                context.getString(R.string.pref_twitter_oauth_key),
+                newValue);
+        prefsEditor.commit();
+    }
+    
+    public static String getTwitterOAuthVerifier(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_twitter_oauth_token),
+        		"");
+        
+    }
+ 
+    public static void setTwitterOAuthVerifier(Context context, String newValue) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(
+                context.getString(R.string.pref_twitter_oauth_token),
+                newValue);
+        prefsEditor.commit();
+    }
+	
+	
 }
