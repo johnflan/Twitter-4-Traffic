@@ -1,18 +1,20 @@
 # convert emoticons	DONE
-# convert links
-# convert can't -> can not actually 't not
+# convert links DONE
+# convert can't -> can not actually 't not -(decided not to delete ') DONE
 # remove usernames and any other regular expression we dont need	DONE
-# convert curse words eg. sh!t 
-# remover stop-marks/puncuation
-# Converts upper case letters to lower case.
+# convert curse words eg. sh!t  _curse_  ????? (from 240k only around 100 have those words)
+# remove stop-marks/puncuation DONE
+# Converts upper case letters to lower case. DONE
 # tokenazation DONE
-# remove single characters (after the puncuation) eg. tom's home -> tom s home -> tom hom DONE
+# remove single characters (after the puncuation) DONE
 # lemmanization	DONE
 # remove noise words(stopwords) DONE
-# find bigramms
+# find bigramms DONE
 
 import re
 import nltk
+from nltk.collocations import BigramCollocationFinder
+from nltk.metrics import BigramAssocMeasures
 
 
 class preprocessor:
@@ -25,8 +27,6 @@ class preprocessor:
 		"""Remove the characters/words we don't need to check"""
 		data = []
 		for tweets in unfiltered_tweets:
-			# remove from the tweets the ",)"
-			# tweets = tweets[0].replace("","")
 			#remove from the tweets the "@username"
 			req_exp = re.compile(r'@([A-Za-z0-9_]+)')
 			tweets = req_exp.sub('',tweets[0])
@@ -54,7 +54,7 @@ class preprocessor:
 		"""Remove all the puncuation except the symbol # from the tweet"""
 		punctuation = re.compile(r'[-.?!,":;()|$%&*+/<=>@[\]^`{}~]')
 		#Replace with space the '
-		tweet = tweet.replace("'"," ")
+		#tweet = tweet.replace("'"," ")
 		#Replace with space the rest punctuation except the #
 		return punctuation.sub(' ', tweet)
 		
@@ -67,7 +67,12 @@ class preprocessor:
 		return tokenized_tweets
 		
 	def lemmanazation(self,tokens):
+		""" Lemmanaze the tokenized tweets (child ,children => child, child)"""
 		wnl=nltk.WordNetLemmatizer()
 		lemmas=[wnl.lemmatize(t) for t in tokens]
 		return lemmas
 		
+	def include_bigrams(self, words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+		bigram_finder = BigramCollocationFinder.from_words(words)
+		bigrams = bigram_finder.nbest(score_fn, n)
+		return words + bigrams
