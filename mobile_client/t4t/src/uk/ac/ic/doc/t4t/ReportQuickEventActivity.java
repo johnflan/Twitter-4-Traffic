@@ -40,6 +40,8 @@ public class ReportQuickEventActivity extends Activity {
 	
 	private static final String CALLBACK_URL = "right-turn://twitter";
 	
+	private static final String APP_HASH_TAG = "#RightTurn";
+	
 	private LocationMgr locationMgr;
 
 	
@@ -61,6 +63,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic jam");
+				postTweet("Heavy traffic at ");
 				
 			}
 		});
@@ -69,6 +72,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting roadworks");
+				postTweet("Road works at ");
 				
 			}
 		});
@@ -77,6 +81,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic lights our of order");
+				postTweet("Traffic lights out of order at ");
 				
 			}
 		});
@@ -85,6 +90,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic accident");
+				postTweet("Traffic accident at ");
 				
 			}
 		});
@@ -93,6 +99,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting dangerous driving conditions");
+				postTweet("Dangerious driving conditions at ");
 				
 			}
 		});
@@ -101,7 +108,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting road closed");
-				postTweet("Road closed at  #RightTurn");
+				postTweet("Road closed at ");
 			}
 		});
         
@@ -123,16 +130,6 @@ public class ReportQuickEventActivity extends Activity {
     		Log.i(TAG, "logging in for " + PreferencesHelper.getTwitterUsername(this));
     		// Make a Twitter object
     		
-    		Log.d(TAG, "OAUTH_KEY: " + OAUTH_KEY);
-    		Log.d(TAG, "OAUTH_SECRET: " + OAUTH_SECRET);
-    		Log.d(TAG, "PreferencesHelper.getTwitterOAuthToken(this): " + PreferencesHelper.getTwitterOAuthToken(this));
-    		Log.d(TAG, "PreferencesHelper.getTwitterOAuthVerifier(this): " + PreferencesHelper.getTwitterOAuthVerifier(this));
-    		//OAuthSignpostClient client = new OAuthSignpostClient(
-    		//		OAUTH_KEY,
-    		//		OAUTH_SECRET,
-    		//		PreferencesHelper.getTwitterOAuthToken(this),
-    		//		PreferencesHelper.getTwitterOAuthVerifier(this) );
-    		
     		OAuthSignpostClient client = new OAuthSignpostClient(
     				CONSUMER_KEY,
     				CONSUMER_SECRET,
@@ -141,34 +138,36 @@ public class ReportQuickEventActivity extends Activity {
 
     		twitter = new Twitter("t4traffic", client);
     		
-    	}
+        	try
+        	{
+    	    	//Status to post in Twitter
+        		
+        		double location[] = {locationMgr.getLatitude(), locationMgr.getLongitude()};
+        		twitter.setMyLocation(location);
 
+    	    	twitter.setStatus(msg + " " + APP_HASH_TAG);
+    	    	Toast.makeText(ReportQuickEventActivity.this, "Posted to Twitter", Toast.LENGTH_LONG).show();
+        	}
+        	catch(TwitterException.E401 e)
+        	{
+    	    	// comes here when username or password is wrongs
+    	    	Toast.makeText(ReportQuickEventActivity.this, "Wrong Username or Password",Toast.LENGTH_LONG).show();
+    	    	PreferencesHelper.setTwitterOAuthToken(this, "");
+    	    	PreferencesHelper.setTwitterOAuthVerifier(this, "");
+    	    	e.printStackTrace();
+        	}
+        	catch(Exception e)
+        	{
+        		Log.e(TAG, "Twitter exception: " + e.getMessage());
+        		e.printStackTrace();
+        		Toast.makeText(ReportQuickEventActivity.this, "Error posting to twitter",Toast.LENGTH_LONG).show();
+        		
+        	}
+    		
+    	}
     	
-    	try
-    	{
-	    	//Status to post in Twitter
-    		
-    		double location[] = {locationMgr.getLatitude(), locationMgr.getLongitude()};
-    		twitter.setMyLocation(location);
+    	//ONCE THE MESSAGE HAS BEEN POSTED SHOULD FINISH THIS ACTIVITY
 
-	    	twitter.setStatus(msg);
-	    	Toast.makeText(ReportQuickEventActivity.this, "Article Posted to Twitter Successfully!!", Toast.LENGTH_SHORT).show();
-    	}
-    	catch(TwitterException.E401 e)
-    	{
-	    	// comes here when username or password is wrongs
-	    	Toast.makeText(ReportQuickEventActivity.this, "Wrong Username or Password, Kindly Check your logins",Toast.LENGTH_SHORT).show();
-	    	//PreferencesHelper.setTwitterOAuthToken(this, "");
-	    	//PreferencesHelper.setTwitterOAuthVerifier(this, "");
-	    	e.printStackTrace();
-    	}
-    	catch(Exception e)
-    	{
-    		Log.e(TAG, "Twitter exception: " + e.getMessage());
-    		e.printStackTrace();
-    		Toast.makeText(ReportQuickEventActivity.this, "Network Host not responding",Toast.LENGTH_SHORT).show();
-    		
-    	}
     }
 
 	@Override
