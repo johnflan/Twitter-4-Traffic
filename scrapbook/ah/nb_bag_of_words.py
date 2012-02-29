@@ -5,10 +5,9 @@ import optparse
 import ConfigParser
 import nltk
 import re
+import collections
 from preprocessor import preprocessor
 from pg8000 import DBAPI
-from nltk.collocations import BigramCollocationFinder
-from nltk.metrics import BigramAssocMeasures
 
 def main(*args,**opts):
 	db = dict([ ['host',opts['host']], ['database',opts['database']],
@@ -179,9 +178,28 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		test = features_extractor(test_tweet.lower().split())
 		print "\nThe tweet '%s' is about: %s \n" % (test_tweet, classifier.classify(test))
 		
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>> TEST THE CLASSIFIER <<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		
+		referenceSet = collections.defaultdict(set)
+		testSet = collections.defaultdict(set)
+
+		for index, (tweets, trueLabel) in enumerate(test_set):
+			referenceSet[trueLabel].add(index)
+			claasifiedLabel = classifier.classify(tweets)
+			testSet[claasifiedLabel].add(index)
+
 		#Evaluation of the classification
-		print 'accuracy:', nltk.classify.util.accuracy(classifier, test_set)
-		print nltk.classify.accuracy(classifier, train_set)
+		print 'Accuracy of the classifier:  ', nltk.classify.util.accuracy(classifier, test_set)
+		print '\nTraffic precision:           ', nltk.metrics.precision(referenceSet['traffic'], testSet['traffic'])
+		print 'Traffic recall:              ', nltk.metrics.recall(referenceSet['traffic'], testSet['traffic'])
+		print 'Traffic F-measure:           ', nltk.metrics.f_measure(referenceSet['traffic'], testSet['traffic'])
+		print '\nNon-Traffic precision:       ', nltk.metrics.precision(referenceSet['nontraffic'], testSet['nontraffic'])
+		print 'Non-Traffic recall:          ', nltk.metrics.recall(referenceSet['nontraffic'], testSet['nontraffic'])
+		print 'Non-Traffic F-measure:       ', nltk.metrics.f_measure(referenceSet['nontraffic'], testSet['nontraffic'])
+		print "\n"
+		
 		classifier.show_most_informative_features()
 		
 	except:	
