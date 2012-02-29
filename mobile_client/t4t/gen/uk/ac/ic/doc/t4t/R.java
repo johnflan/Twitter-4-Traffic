@@ -133,11 +133,8 @@ public final class R {
         public static final int pref_server_url_key=0x7f07000d;
         public static final int pref_server_url_summary=0x7f07000c;
         public static final int pref_server_url_title=0x7f07000b;
-        public static final int pref_twitter_oauth_key=0x7f07001a;
-        public static final int pref_twitter_oauth_token=0x7f07001b;
-        public static final int pref_twitter_password_key=0x7f070019;
-        public static final int pref_twitter_password_summary=0x7f070018;
-        public static final int pref_twitter_password_title=0x7f070017;
+        public static final int pref_twitter_oauth_key=0x7f070017;
+        public static final int pref_twitter_oauth_token=0x7f070018;
         public static final int pref_twitter_username_key=0x7f070016;
         public static final int pref_twitter_username_summary=0x7f070015;
         public static final int pref_twitter_username_title=0x7f070014;

@@ -74,14 +74,6 @@ public class PreferencesHelper {
         		DEFAULT_VIEW);
 	}
 
-	public static String getTwitterPassword(Context context) {
-		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        
-        return prefs.getString(
-        		context.getString(R.string.pref_twitter_password_key),
-        		DEFAULT_VIEW);
-	}
-	
 	
     public static String getTwitterOAuthToken(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
@@ -115,6 +107,43 @@ public class PreferencesHelper {
         Editor prefsEditor = prefs.edit();
         prefsEditor.putString(
                 context.getString(R.string.pref_twitter_oauth_token),
+                newValue);
+        prefsEditor.commit();
+    }
+    
+    
+    public static String getTwitterTempToken(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		"twitter_temp_token",
+        		"");
+        
+    }
+ 
+    public static void setTwitterTempToken(Context context, String newValue) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(
+                "twitter_temp_token",
+                newValue);
+        prefsEditor.commit();
+    }
+    
+    public static String getTwitterTempTokenSecret(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		"twitter_temp_token_secret",
+        		"");
+        
+    }
+ 
+    public static void setTwitterTempTokenSecret(Context context, String newValue) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(
+                "twitter_temp_token_secret",
                 newValue);
         prefsEditor.commit();
     }
