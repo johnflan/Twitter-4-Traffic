@@ -91,27 +91,48 @@ def trainClassifier(conn, cursor, tablename):
         print "Select Error -> %s" % exceptionValue
         lastid="0"
 
-    try:
+    #try:
         #Filter the tweets and add the label in the list for each tweet
 
-        traffic_data = filter_and_dict(ttweets, stop_words)
-        ntraffic_data = filter_and_dict(nttweets, stop_words)
+    traffic_data = filter_and_dict(ttweets, stop_words)
+    ntraffic_data = filter_and_dict(nttweets, stop_words)
 
-        labels = ['ptraffic'] * len(traffic_data) + ['ntraffic'] * len(ntraffic_data)
-        data = traffic_data + ntraffic_data
+    tr_l = int(len(traffic_data)*2.0/3.0)
+    ntr_l = int(len(ntraffic_data)*2.0/3.0)
 
-        train_set = SparseDataSet(data, L=labels)
+    train_labels = ['ptraffic'] * tr_l + ['ntraffic'] * ntr_l
+    train_data = traffic_data[0:tr_l] + ntraffic_data[0:ntr_l]
 
-        print "\n\n\n TRAIN SET INFO"
-        print train_set
+    train_set = SparseDataSet(train_data, L=train_labels)
 
-        classifier = SVM()
 
-        #train our classifier using cross validation
-        result = classifier.cv(train_set, 5)
-        print "\n\n\n TRAINING RESULT"
-        print result
-        print "\n\n"
+    test_labels = ['ptraffic'] * (len(traffic_data) - tr_l) + ['ntraffic'] * (len(ntraffic_data) - ntr_l)
+    test_data = traffic_data[tr_l:len(traffic_data)] + ntraffic_data[ntr_l:len(ntraffic_data)]
+
+    test_set = SparseDataSet(test_data, L=test_labels)
+
+
+    print "\n\nTRAIN SET INFO\n"
+    print train_set
+
+    print "\n\nTEST SET INFO\n"
+    print test_set
+
+    classifier = SVM()
+
+    #train our classifier using cross validation
+    classifier.train(train_set, saveSpace = False)
+    result = classifier.test(test_set)
+    print "\n\nTRAINING RESULT\n"
+    print result
+
+    classifier.save('classifier_svm.txt')
+    print "\n\nSaved\n"
+    loaded = SVM()
+    loaded.load('classifier_svm.txt',train_set)
+    print "\n\nLOADED\n"
+    r = loaded.test(test_set)
+    print r
 
         #test_tweet = "Traffic is hell"
         #Classify the tweet
@@ -122,11 +143,11 @@ def trainClassifier(conn, cursor, tablename):
         #print "\n\n\n"
         #print classifier
 
-    except:
+    #except:
         # Get the most recent exception
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % exceptionValue
-        lastid="0"
+        #exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        #print "Error -> %s" % exceptionValue
+        #lastid="0"
 
 
 
