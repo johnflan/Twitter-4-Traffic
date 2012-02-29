@@ -72,6 +72,7 @@ class preprocessor:
 		
 		
 	def include_bigrams(self, words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+		""" Find the bigramms and include them in the tokens """
 		bigram_finder = BigramCollocationFinder.from_words(words)
 		bigrams = bigram_finder.nbest(score_fn, n)
 		return words + bigrams
@@ -85,7 +86,7 @@ class preprocessor:
 		tokens = []
 		tokens = self.tokenazation(tweet,stopwords)
 		tokens = self.remove_reg_expr(tokens)
-		tokens = self.lemmanazation(tokens)
+		#tokens = self.lemmanazation(tokens)
 		tokens = self.include_bigrams(tokens)
 		return tokens
 		
