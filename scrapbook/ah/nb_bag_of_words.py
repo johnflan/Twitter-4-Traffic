@@ -5,8 +5,8 @@ import optparse
 import ConfigParser
 import nltk
 import re
+from preprocessor import preprocessor
 from pg8000 import DBAPI
-from nltk.corpus import stopwords
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 
@@ -23,12 +23,8 @@ def main(*args,**opts):
 	classifier = trainClassifier(conn, cursor, opts['tablename'], test_tweet)
 
 	#TO DO:: Save the classifier in a file (.pkl) so to use later. http://docs.python.org/library/shelve.html#module-shelve
-	#TO DO:: Better tokenization (remove ", . /" etc from the words) and ( req. expr. vs nltk.word_tokenize() )
-	#TO DO:: Convert emotions to strings eg. :) -> _smile_ ,  :( -> _sad_
 	#TO DO:: Apply more tests for the evaluation
-	#TO DO:: Research if the ordering on the bag of words improve the accuracy
 	#TO DO:: Test performance with lemmanization
-	#TO DO:: Apply basic text modifications on the tweets that they need to be classified
 	
 
 def connectDB(**db):
@@ -41,30 +37,7 @@ def connectDB(**db):
 		sys.exit("Database connection failed! ->%s" % (exceptionValue))
 	return cursor, conn
 
-
-def filter_tweets(unfiltered_tweets):
-	"""Remove the characters/words we don't need to check"""
-	data = []
-	stopset = set(stopwords.words('english'))
-	for tweets in unfiltered_tweets:
-		# remove from the tweets the ",)"
-		tweets = tweets[0].replace(",)","")
-		#remove from the tweets the "@username"
-		req_exp = re.compile(r'@([A-Za-z0-9_]+)')
-		tweets = req_exp.sub('',tweets)
-		data.append(tweets)
-	return data
-
-
-def form_tweets(tt,ntt):
-	""" Lower the tweets (traffic and nontraffic), split them and remove the remove the stopwords and the words with just one character """	
-	stopword_set = set(stopwords.words('english'))
-	formed_tweets = []
-       	for (tweets, label) in tt + ntt:
-               	filtered_words = [e.lower() for e in tweets.split() if len(e) >= 2 and not e in stopword_set]
-                formed_tweets.append((filtered_words, label))
-	return formed_tweets
-
+	
 	
 def features_extractor(words):
 	"""Create dictionaries mapping a feature name to a feature value(TRUE)."""
@@ -79,35 +52,27 @@ def add_label(data, label):
 	return labelled_data
 
 	
-def dist_words_order(tweets):
-	"""Create a list of the distinct words ordered descending by frequency of appearance"""
- 	dist_words = []
-	for (word, label) in tweets:
-		dist_words.extend(word)
-	return word_freq(dist_words)
-
-
-def word_freq(d_words):
-	"""Find the frequently of each word"""
-	freq_words  = nltk.FreqDist(d_words)
-	w_features = freq_words.keys()
-	return w_features
-
-	
-def include_bigrams(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
-    bigram_finder = BigramCollocationFinder.from_words(words)
-    bigrams = bigram_finder.nbest(score_fn, n)
-    return features_extractor(words + bigrams)
-
-	
 def trainClassifier(conn, cursor, tablename, test_tweet):
 	"""Train the Naive Bayes"""
 	
-	stopset = set(stopwords.words('english'))
+	stop_words = []
+	
+	# Fetch all stop_words
+	# try:
+		# query_sw = "SELECT word FROM stop_words limit 35"
+		# cursor.execute(query_sw)
+		# sw = cursor.fetchall()
+		# stop_words = filter_tweets(sw)
+		# print(stop_words)
+	# except:
+		# Get the most recent exception
+		# exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+		# print "Select Error -> %s" % exceptionValue
+		# lastid="0"
 	
 	#Fetch all the traffic tweets
 	try:
-		query_pt = "SELECT tweet FROM "+ tablename +" WHERE ptraffic='y' LIMIT 50"
+		query_pt = "SELECT tweet FROM "+ tablename +" WHERE ptraffic='y' ORDER BY tid ASC LIMIT 681"
 		cursor.execute(query_pt)
 		ttweets = cursor.fetchall()
 	except:
@@ -118,37 +83,95 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 	
 	#Fetch all the non-traffic tweets	
 	try:
-		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' LIMIT 50"
+		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' ORDER BY tid ASC LIMIT 681"
 		cursor.execute(query_nt)
 		nttweets = cursor.fetchall()
-		# print "\n\n NTWEETS"
-		# print (nttweets)
-		# print "\n"
 	except:
 		# Get the most recent exception
 		exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
 		print "Select Error -> %s" % exceptionValue
 		lastid="0"
 	
-	try:	
-		#Filter the tweets and add the label in the list for each tweet
-		data = []
-		data = filter_tweets(ttweets)
-		traffic_tweets=add_label(data, 'traffic')
-		data = []
-		data = filter_tweets(nttweets)
-		nontraffic_tweets = add_label(data, 'nontraffic')
-			
-		#Reform the tweets in a usable way and create an ordered list of the distinct words
-		ftweets = []
-		ftweets = form_tweets(traffic_tweets, nontraffic_tweets)
+	
+	#Fetch all the traffic tweets
+	try:
+		query_pt = "SELECT tweet FROM "+ tablename +" WHERE ptraffic='y' ORDER BY tid DESC LIMIT 375"
+		cursor.execute(query_pt)
+		ttweets_test = cursor.fetchall()
+	except:
+		# Get the most recent exception
+		exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+		print "Select Error -> %s" % exceptionValue
+		lastid="0"
+	
+	#Fetch all the non-traffic tweets	
+	try:
+		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' ORDER BY tid DESC LIMIT 375"
+		cursor.execute(query_nt)
+		nttweets_test = cursor.fetchall()
+	except:
+		# Get the most recent exception
+		exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+		print "Select Error -> %s" % exceptionValue
+		lastid="0"
 		
-		#Extract the features
-		temp = []
-		for i in range(len(ftweets)):
-			temp.append(((include_bigrams(ftweets[i][0])),ftweets[i][1]))
-		train_set=temp
+		
+	try:
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>> TRAIN SET <<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# Apply preprocessing on the traffic tweets for the train set
+		data=[]
+		for text in ttweets:
+			temp = preprocessor().preprocess(text[0],stop_words)
+			data.append(temp)
+		traffic_tweets=add_label(data, 'traffic')
+		
+		# Apply preprocessing on the non-traffic tweets for the train set
+		data=[]
+		for text in nttweets:
+			temp = preprocessor().preprocess(text[0],stop_words)
+			data.append(temp)
+		nontraffic_tweets=add_label(data, 'nontraffic')
+		
+		# Merge the tweets for the train set
+		combined_tweets = traffic_tweets + nontraffic_tweets
 
+		#Extract the features for the train set
+		temp = []
+		for i in range(len(combined_tweets)):
+			temp.append(((features_extractor(combined_tweets[i][0])),combined_tweets[i][1]))
+		train_set=temp
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>> TEST SET <<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# Apply preprocessing on the traffic tweets for the test set
+		data=[]
+		for text in ttweets_test:
+			temp = preprocessor().preprocess(text[0],stop_words)
+			data.append(temp)
+		traffic_tweets_test=add_label(data, 'traffic')
+		
+		# Apply preprocessing on the non-traffic tweets for the test set
+		data=[]
+		for text in nttweets_test:
+			temp = preprocessor().preprocess(text[0],stop_words)
+			data.append(temp)
+		nontraffic_tweets_test=add_label(data, 'nontraffic')
+		
+		# Merge the tweets for the test set
+		combined_tweets_test = traffic_tweets_test + nontraffic_tweets_test
+		
+		#Extract the features for the test set
+		temp = []
+		for i in range(len(combined_tweets_test)):
+			temp.append(((features_extractor(combined_tweets_test[i][0])),combined_tweets_test[i][1]))
+		test_set=temp
+		
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>> TRAIN THE CLASSIFIER <<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		
 		#Train our classifier using the training set
 		classifier = nltk.NaiveBayesClassifier.train(train_set)
 		
@@ -157,8 +180,9 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		print "\nThe tweet '%s' is about: %s \n" % (test_tweet, classifier.classify(test))
 		
 		#Evaluation of the classification
-		#print classifier.show_most_informative_features(10)
-		#print nltk.classify.accuracy(classifier, train_set)
+		print 'accuracy:', nltk.classify.util.accuracy(classifier, test_set)
+		print nltk.classify.accuracy(classifier, train_set)
+		classifier.show_most_informative_features()
 		
 	except:	
 		# Get the most recent exception
