@@ -25,8 +25,11 @@ class preprocessor:
 		url_req_exp = re.compile(r'(?i)\b((?:(?:https?|ftp)://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\(?:[^\s(?:)<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xc2\xab\xc2\xbb\xe2\x80\x9c\xe2\x80\x9d\xe2\x80\x98\xe2\x80\x99]))')
 		try:
 			strDif = 0
+			index = 0
+			numberOfURL = len(url_req_exp.findall(tweet))
 			for m in url_req_exp.finditer(tweet):
-				if m and m.groups() > 0:
+				index = index + 1
+				if m and index < numberOfURL and m.groups() > 0:
 					url = tldextract.extract(m.group(0))
 					repl = url.domain + '_' + url.tld
 					url_start = m.start(1)-strDif
@@ -100,7 +103,7 @@ class preprocessor:
 		
 		
 	def preprocess(self, tweet, stopwords):
-		#tweet = self.convert_links(tweet) # Need correction for the Big Data
+		tweet = self.convert_links(tweet) # Need correction for the Big Data
 		tweet = self.replace_emoticons(tweet)
 		tweet = self.remove_puncuation(tweet)
 		tweet = [tweet]
