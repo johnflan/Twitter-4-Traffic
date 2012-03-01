@@ -25,6 +25,9 @@ import oauth.signpost.http.HttpRequest;
 import oauth.signpost.signature.OAuthMessageSigner;
 import oauth.signpost.signature.SigningStrategy;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -32,12 +35,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ReportQuickEventActivity extends Activity {
 	private static final String TAG = UpdaterService.class.getSimpleName();
+	
 	private ImageButton trafficBtn;
 	private ImageButton roadworksBtn;
 	private ImageButton lightsOOOBtn;
@@ -50,22 +58,29 @@ public class ReportQuickEventActivity extends Activity {
 	private OAuthProvider mProvider;
 	private OAuthSignpostClient oauthClient;
 	
-	private static final String CONSUMER_KEY = "5ZE33feiaV82U6WpkBdP6Q";
-	private static final String CONSUMER_SECRET = "C60uB1YTai8HRHlKLSDfK16UcvmEcwGGFDcw3GYiWBM";
+	private LocationMgr locationMgr;
+	private List<Address> addresses;
 	
+	private static final String CONSUMER_KEY = "5ZE33feiaV82U6WpkBdP6Q";
+	private static final String CONSUMER_SECRET = "C60uB1YTai8HRHlKLSDfK16UcvmEcwGGFDcw3GYiWBM";	
 	private static final String OAUTH_KEY = "467904369-ojK1Gr0oW4Ydnb8fvn5XpXHC34O0fiPGDDO2XFUN";
 	private static final String OAUTH_SECRET = "HM7GLfdZkW6eOQsXB73H8l2tdwCyLToGBXAhpoIrEw";
-	
-	//Response token: HkXiaEFt0Qgbby5VPOLvojpB3nOYgnOph1APat0
-	//Response verifier: 5vHvfKZsKBneJ0AYmd5Y3DohtMcAw8bfIP0JIYKIAv4
-
-	
 	private static final String CALLBACK_URL = "right-turn://twitter";
 	
 	private static final String APP_HASH_TAG = "#RightTurn";
 	
-	private LocationMgr locationMgr;
-	private List<Address> addresses;
+	private static final String REPORT_TEXT_TRAFFIC_CONGESTION = "Traffic congestion";
+	private static final String REPORT_TEXT_ROAD_WORKS = "Road works";
+	private static final String REPORT_TEXT_TRAFFIC_LIGHTS = "Traffic lights out of order";
+	private static final String REPORT_TEXT_TRAFFIC_ACCIDENT = "Traffic accident";
+	private static final String REPORT_TEXT_DANGERIOUS_CONDITIONS= "Dangerious driving conditions";
+	private static final String REPORT_TEXT_ROAD_CLOSED = "Road closed";
+	
+	private static final String REPORT_TEXT_MINOR = "minor";
+	private static final String REPORT_TEXT_MODERATE = "moderate";
+	private static final String REPORT_TEXT_SEVERE = "severe";
+	
+	private String eventTypeMsg;
 
 	
     @Override
@@ -101,7 +116,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic jam");
-				postTweet("Heavy traffic");
+				reportEvent(REPORT_TEXT_TRAFFIC_CONGESTION);
 				
 			}
 		});
@@ -110,7 +125,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting roadworks");
-				postTweet("Road works");
+				reportEvent(REPORT_TEXT_ROAD_WORKS);
 				
 			}
 		});
@@ -119,7 +134,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic lights our of order");
-				postTweet("Traffic lights out of order");
+				reportEvent(REPORT_TEXT_TRAFFIC_LIGHTS);
 				
 			}
 		});
@@ -128,7 +143,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic accident");
-				postTweet("Traffic accident");
+				reportEvent(REPORT_TEXT_TRAFFIC_ACCIDENT);
 				
 			}
 		});
@@ -137,7 +152,7 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting dangerous driving conditions");
-				postTweet("Dangerious driving conditions");
+				reportEvent(REPORT_TEXT_DANGERIOUS_CONDITIONS);
 				
 			}
 		});
@@ -146,120 +161,69 @@ public class ReportQuickEventActivity extends Activity {
 			@Override
 			public void onClick(View v) {			
 				Log.i(TAG, "Reporting road closed");
-				postTweet("Road closed");
+				reportEvent(REPORT_TEXT_ROAD_CLOSED);
 			}
 		});
         
     }
     
-    private void postTweet(String msg){
+    private void reportEvent(String msg){
     	
-    	
-    	Log.d(TAG, "Auth token: " + PreferencesHelper.getTwitterOAuthToken(this));
-    	Log.d(TAG, "Auth verifier: " + PreferencesHelper.getTwitterOAuthVerifier(this));
-    	
-    	if (PreferencesHelper.getTwitterUsername(this).equals("")){
-    		Log.i(TAG, "No twitter username configured");
-    		Toast.makeText(ReportQuickEventActivity.this, "Error twitter not configured, you must enter your twitter username in the configuration screen.",Toast.LENGTH_LONG).show();
+    	this.eventTypeMsg = msg;
+    	if (verifiedTwitterAccount()) {
     		
-    		//remove any existing oauth tokens
-    		PreferencesHelper.setTwitterOAuthToken(this, "");
-	    	PreferencesHelper.setTwitterOAuthVerifier(this, "");
-	    	
-	    	return;
-    	}
-    	
-    	if (PreferencesHelper.getTwitterOAuthToken(this).equals("") || PreferencesHelper.getTwitterOAuthVerifier(this).equals("") ){
-    		Log.i(TAG, "Requesting twitter oauth credentials");
-    		String authUrl = null;
-			try {
+    		Dialog dialog = new Dialog(this);
+    		dialog.requestWindowFeature(dialog.getWindow().FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.report_question_popup);
+
+            dialog.setCancelable(true);
+            //there are a lot of settings, for dialog, check them all out!
+            
+            //wire up the selection options
+            Button minorBtn = (Button) dialog.findViewById(R.id.reportMinorEvent);
+            Button moderateBtn = (Button) dialog.findViewById(R.id.reportModerateEvent);
+            Button seriousBtn = (Button) dialog.findViewById(R.id.reportSevereEvent);
+
+            TextView eventDescription = (TextView) dialog.findViewById(R.id.reportEventType);
+            eventDescription.setText( "Reporting " + eventTypeMsg + "\nPlease rate the severity");
+            //eventDescription.setText( "Rate the severity of the " + eventTypeMsg.toLowerCase());
+            
+            minorBtn.setOnClickListener(new OnClickListener() {
+            @Override
+                public void onClick(View v) {
+            		sendTweet(REPORT_TEXT_MINOR);
+                    finish();
+                }
+            });
+            
+            moderateBtn.setOnClickListener(new OnClickListener() {
+                @Override
+                    public void onClick(View v) {
+                		sendTweet(REPORT_TEXT_MODERATE);
+                        finish();
+                    }
+            });
+            
+            seriousBtn.setOnClickListener(new OnClickListener() {
+                @Override
+                    public void onClick(View v) {
+                		sendTweet(REPORT_TEXT_SEVERE);
+                        finish();
+                    }
+            });
+            
+            dialog.setOnCancelListener(new OnCancelListener() {
 				
-				Log.d(TAG, "mConsumer: " + mConsumer);
-		        Log.d(TAG, "mProvider: " + mProvider);
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					eventTypeMsg = null;
+					
+				}
+			});
+            
+            dialog.show();
 
-				authUrl = mProvider.retrieveRequestToken(mConsumer, CALLBACK_URL);
-				PreferencesHelper.setTwitterTempToken(this, mConsumer.getToken());
-				PreferencesHelper.setTwitterTempTokenSecret(this, mConsumer.getTokenSecret());
-			} catch (OAuthMessageSignerException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (OAuthNotAuthorizedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (OAuthExpectationFailedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (OAuthCommunicationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-    		//oauthClient = new OAuthSignpostClient(CONSUMER_KEY, CONSUMER_SECRET, CALLBACK_URL);
-    		
-        	try {
-        		//URI url = oauthClient.authorizeUrl();
-        		//startActivity( new Intent(Intent.ACTION_VIEW, Uri.parse(url.toString())) );
-        		startActivity( new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)) );
-        	} catch (TwitterException e){
-        		e.printStackTrace();
-        	}
-        	
-    	} else {
-    		
-    		Log.i(TAG, "logging in for " + PreferencesHelper.getTwitterUsername(this));
-    		Log.d(TAG, " with Response token: " + PreferencesHelper.getTwitterOAuthToken(this));
-            Log.d(TAG, " and Response verifier: " + PreferencesHelper.getTwitterOAuthVerifier(this));
-    		
-    		oauthClient = new OAuthSignpostClient(
-    				CONSUMER_KEY,
-    				CONSUMER_SECRET,
-    				PreferencesHelper.getTwitterOAuthToken(this),
-    				PreferencesHelper.getTwitterOAuthVerifier(this) );
-
-    		twitter = new Twitter(null, oauthClient);
-    		
-        	try
-        	{
-    	    	//Status to post in Twitter
-        		
-        		double location[] = {locationMgr.getLatitude(), locationMgr.getLongitude()};
-        		twitter.setMyLocation(location);
-        		
-        		String tweet;
-        		
-        		if (addresses.size() > 0)
-        			tweet = msg + " near " + addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getAddressLine(1);
-        		else
-        			tweet = msg;
-        		
-        		Log.i(TAG, "Tweet: " + tweet);
-        		
-        		if (tweet.length() > 129)
-        			tweet = tweet.substring(0, 130);
-
-    	    	twitter.setStatus(tweet + " " + APP_HASH_TAG);
-    	    	
-    	    	Toast.makeText(ReportQuickEventActivity.this, "Posted to Twitter", Toast.LENGTH_LONG).show();
-        	}
-        	catch(TwitterException.E401 e)
-        	{
-    	    	// comes here when username or password is wrongs
-    	    	Toast.makeText(ReportQuickEventActivity.this, "Wrong Username or Password",Toast.LENGTH_LONG).show();
-    	    	//PreferencesHelper.setTwitterOAuthToken(this, "");
-    	    	//PreferencesHelper.setTwitterOAuthVerifier(this, "");
-    	    	e.printStackTrace();
-        	}
-        	catch(Exception e)
-        	{
-        		Log.e(TAG, "Twitter exception: " + e.getMessage());
-        		e.printStackTrace();
-        		Toast.makeText(ReportQuickEventActivity.this, "Error posting to twitter",Toast.LENGTH_LONG).show();
-        		
-        	}
-    		
     	}
-    	
-    	//ONCE THE MESSAGE HAS BEEN POSTED SHOULD FINISH THIS ACTIVITY
-
     }
 
 	@Override
@@ -324,19 +288,116 @@ public class ReportQuickEventActivity extends Activity {
 	        e.printStackTrace();
 	      }
 	    }
-		
-//        if (uri != null) {
-//        	Log.i(TAG, "Response data: " + uri);
-//        	 String token = uri.getQueryParameter("oauth_token");
-//             String verifier = uri.getQueryParameter("oauth_verifier");
-//             
-//             PreferencesHelper.setTwitterOAuthToken(this, token);
-//             PreferencesHelper.setTwitterOAuthVerifier(this, verifier);
-//             Log.d(TAG, "Response token: " + token);
-//             Log.d(TAG, "Response verifier: " + verifier);
-//        }
-
-       
+		       
 	}
-    
+	
+	public boolean verifiedTwitterAccount(){
+		
+		Log.d(TAG, "Auth token: " + PreferencesHelper.getTwitterOAuthToken(this));
+    	Log.d(TAG, "Auth verifier: " + PreferencesHelper.getTwitterOAuthVerifier(this));
+    	
+    	if (PreferencesHelper.getTwitterUsername(this).equals("")){
+    		Log.i(TAG, "No twitter username configured");
+    		Toast.makeText(ReportQuickEventActivity.this, "Error twitter not configured, you must enter your twitter username in the configuration screen.",Toast.LENGTH_LONG).show();
+    		
+    		//remove any existing oauth tokens
+    		PreferencesHelper.setTwitterOAuthToken(this, "");
+	    	PreferencesHelper.setTwitterOAuthVerifier(this, "");
+	    	
+	    	return false;
+    	}
+    	
+    	if (PreferencesHelper.getTwitterOAuthToken(this).equals("") || PreferencesHelper.getTwitterOAuthVerifier(this).equals("") ){
+    		Log.i(TAG, "Requesting twitter oauth credentials");
+    		String authUrl = null;
+			try {
+				
+				Log.d(TAG, "mConsumer: " + mConsumer);
+		        Log.d(TAG, "mProvider: " + mProvider);
+
+				authUrl = mProvider.retrieveRequestToken(mConsumer, CALLBACK_URL);
+				PreferencesHelper.setTwitterTempToken(this, mConsumer.getToken());
+				PreferencesHelper.setTwitterTempTokenSecret(this, mConsumer.getTokenSecret());
+			} catch (OAuthMessageSignerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (OAuthNotAuthorizedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (OAuthExpectationFailedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (OAuthCommunicationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+    		
+        	try {
+        		startActivity( new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)) );
+        	} catch (TwitterException e){
+        		e.printStackTrace();
+        	}
+        	
+        	return false;       	
+    	} 
+    	
+    	return true;
+		
+	}
+	
+	
+	public void sendTweet(String severity){
+		
+		String eventText = this.eventTypeMsg;
+		String severityText = " causing " + severity + " problems ";
+		
+       	try {
+    		Log.i(TAG, "logging in for " + PreferencesHelper.getTwitterUsername(this));
+    		Log.d(TAG, " with Response token: " + PreferencesHelper.getTwitterOAuthToken(this));
+            Log.d(TAG, " and Response verifier: " + PreferencesHelper.getTwitterOAuthVerifier(this));
+    		
+    		oauthClient = new OAuthSignpostClient(
+    				CONSUMER_KEY,
+    				CONSUMER_SECRET,
+    				PreferencesHelper.getTwitterOAuthToken(this),
+    				PreferencesHelper.getTwitterOAuthVerifier(this) );
+
+    		twitter = new Twitter(null, oauthClient);
+    		
+    		double location[] = {locationMgr.getLatitude(), locationMgr.getLongitude()};
+    		twitter.setMyLocation(location);
+    		
+    		String tweet;
+    		
+    		if (addresses.size() > 0)
+    			tweet = eventText + severityText + " near " + addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getAddressLine(1);
+    		else
+    			tweet = eventText;
+    		
+    		Log.i(TAG, "Tweet: " + tweet);
+    		
+    		if (tweet.length() > 129)
+    			tweet = tweet.substring(0, 130);
+
+	    	twitter.setStatus(tweet + " " + APP_HASH_TAG);
+	    	
+	    	Toast.makeText(ReportQuickEventActivity.this, "Posted to Twitter", Toast.LENGTH_LONG).show();
+    	}
+    	catch(TwitterException.E401 e)
+    	{
+	    	// comes here when username or password is wrongs
+	    	Toast.makeText(ReportQuickEventActivity.this, "Wrong Username or Password",Toast.LENGTH_LONG).show();
+	    	PreferencesHelper.setTwitterOAuthToken(this, "");
+	    	PreferencesHelper.setTwitterOAuthVerifier(this, "");
+	    	e.printStackTrace();
+    	}
+    	catch(Exception e)
+    	{
+    		Log.e(TAG, "Twitter exception: " + e.getMessage());
+    		e.printStackTrace();
+    		Toast.makeText(ReportQuickEventActivity.this, "Error posting to twitter",Toast.LENGTH_LONG).show();
+    		
+    	}
+	}
+	
 }
