@@ -73,6 +73,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         restClient = new DataMgr(this);
         restClient.addObserver(this);
         
+        
         location = new LocationMgr(this);
         location.addLocationObserver(restClient); 
        
@@ -83,6 +84,10 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
         eventOverlay = new EventOverlay(drawable, this);
+        
+        //if location not yet available request
+        //events from cache
+        restClient.requestEvents();
         
     }
 
@@ -95,6 +100,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 		Log.i(TAG, "Updating event list");
 		eventItems = (List<EventItem>) data;
 		
+
 		addEventOverlay(eventItems);
 		
 	}

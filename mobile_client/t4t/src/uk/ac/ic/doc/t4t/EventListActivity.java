@@ -49,6 +49,7 @@ public class EventListActivity extends Activity implements Observer {
         restClient = new DataMgr(this);
         restClient.addObserver(this);
         
+        
         location = new LocationMgr(this);
         location.addLocationObserver(restClient); 
         
@@ -80,6 +81,8 @@ public class EventListActivity extends Activity implements Observer {
 				
 			}
 		});
+        
+        restClient.requestEvents();
         
     }
 

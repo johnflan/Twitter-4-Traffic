@@ -63,7 +63,7 @@ public class JSONParser {
 		if ( responseStr == null )
 			return null;
 		
-		Log.i(TAG, "Response: " + responseStr);
+		//Log.i(TAG, "Response: " + responseStr);
 		
 		JSONObject response = null;
 		try {
@@ -72,7 +72,7 @@ public class JSONParser {
 			Log.e(TAG, "Error parsing server response: " + responseStr);
 		}
 		
-		Log.i(TAG, "REST Event response: " + responseStr);
+		//Log.i(TAG, "REST Event response: " + responseStr);
 		
 		List<EventItem> parsedEventItems = new ArrayList<EventItem>();
 		JSONArray disruptions = null;
