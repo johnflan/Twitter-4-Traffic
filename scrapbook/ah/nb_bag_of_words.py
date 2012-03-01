@@ -20,12 +20,12 @@ def main(*args,**opts):
 	# The tweet that need to be classified
 	test_tweet = opts['text']
 	
-	# Enable for testin the data
+	# Enable to test the data
 	enable_evaluation = opts['test']
 
 	cursor,conn = connectDB(**db)
 
-	#Train and test the classifier
+	#Train and/or test the classifier
 	classifier = trainClassifier(conn, cursor, tablename, test_tweet, enable_evaluation)
 
 	#TO DO:: Implement cross-validation and ROC Cur from PyML
