@@ -1,31 +1,32 @@
 #! /usr/bin/env python
 
+import os, os.path, re
+import cPickle as pickle
 import sys
 import optparse
 import ConfigParser
 import nltk
-import re
+import collections
 from preprocessor import preprocessor
 from pg8000 import DBAPI
-from nltk.collocations import BigramCollocationFinder
-from nltk.metrics import BigramAssocMeasures
 
 def main(*args,**opts):
 	db = dict([ ['host',opts['host']], ['database',opts['database']],
 		['user',opts['user']], ['password',opts['password']]])
-
-	#The tweet that need to be classified
+	
+	# The name of the table which have the labelled tweets
+	tablename = 'labelled_tweets'
+	
+	# The tweet that need to be classified
 	test_tweet = opts['text']
 
 	cursor,conn = connectDB(**db)
 
 	#Train and test the classifier
-	classifier = trainClassifier(conn, cursor, opts['tablename'], test_tweet)
+	classifier = trainClassifier(conn, cursor, tablename, test_tweet)
 
-	#TO DO:: Save the classifier in a file (.pkl) so to use later. http://docs.python.org/library/shelve.html#module-shelve
-	#TO DO:: Apply more tests for the evaluation
-	#TO DO:: Test performance with lemmanization
-	
+	#TO DO:: Save the classifier in a file (.pkl) so to use later. http://docs.python.org/library/shelve.html#module-shelve	
+	#TO DO:: Implement cross-validation and ROC Cur from PyML
 
 def connectDB(**db):
 	"""Connect to the Database"""
@@ -37,7 +38,6 @@ def connectDB(**db):
 		sys.exit("Database connection failed! ->%s" % (exceptionValue))
 	return cursor, conn
 
-	
 	
 def features_extractor(words):
 	"""Create dictionaries mapping a feature name to a feature value(TRUE)."""
@@ -52,12 +52,26 @@ def add_label(data, label):
 	return labelled_data
 
 	
+def dump_classifier(classifier, file_name):
+	"""Save the classifier into a .pickle file for later use"""
+	dirname = os.path.dirname(file_name)
+
+	if dirname and not os.path.exists(dirname):
+		print 'Creating directory %s' % dirname
+		os.makedirs(dirname)
+
+	print 'Dumping Naive Bayes classifier to %s' % (file_name)
+
+	f = open(file_name, 'wb')
+	pickle.dump(classifier, f)
+	f.close()
+	
 def trainClassifier(conn, cursor, tablename, test_tweet):
 	"""Train the Naive Bayes"""
 	
 	stop_words = []
 	
-	# Fetch all stop_words
+	# Fetch all the stop words
 	# try:
 		# query_sw = "SELECT word FROM stop_words limit 35"
 		# cursor.execute(query_sw)
@@ -70,7 +84,7 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		# print "Select Error -> %s" % exceptionValue
 		# lastid="0"
 	
-	#Fetch all the traffic tweets
+	# Fetch all the traffic tweets
 	try:
 		query_pt = "SELECT tweet FROM "+ tablename +" WHERE ptraffic='y' ORDER BY tid ASC LIMIT 681"
 		cursor.execute(query_pt)
@@ -81,9 +95,9 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		print "Select Error -> %s" % exceptionValue
 		lastid="0"
 	
-	#Fetch all the non-traffic tweets	
+	# Fetch all the non-traffic tweets	
 	try:
-		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' ORDER BY tid ASC LIMIT 681"
+		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' ORDER BY tid ASC LIMIT 10875"
 		cursor.execute(query_nt)
 		nttweets = cursor.fetchall()
 	except:
@@ -93,7 +107,7 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		lastid="0"
 	
 	
-	#Fetch all the traffic tweets
+	# Fetch all the traffic tweets
 	try:
 		query_pt = "SELECT tweet FROM "+ tablename +" WHERE ptraffic='y' ORDER BY tid DESC LIMIT 375"
 		cursor.execute(query_pt)
@@ -104,9 +118,9 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		print "Select Error -> %s" % exceptionValue
 		lastid="0"
 	
-	#Fetch all the non-traffic tweets	
+	# Fetch all the non-traffic tweets	
 	try:
-		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' ORDER BY tid DESC LIMIT 375"
+		query_nt = "SELECT tweet FROM "+ tablename +" WHERE ntraffic='y' ORDER BY tid DESC LIMIT 3625"
 		cursor.execute(query_nt)
 		nttweets_test = cursor.fetchall()
 	except:
@@ -117,6 +131,7 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		
 		
 	try:
+	
 		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		# >>>>>>>>>>>>>>>>>>>>>>>>>> TRAIN SET <<<<<<<<<<<<<<<<<<<<<<<<<<
 		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -137,11 +152,12 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		# Merge the tweets for the train set
 		combined_tweets = traffic_tweets + nontraffic_tweets
 
-		#Extract the features for the train set
+		# Extract the features for the train set
 		temp = []
 		for i in range(len(combined_tweets)):
 			temp.append(((features_extractor(combined_tweets[i][0])),combined_tweets[i][1]))
 		train_set=temp
+		
 		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		# >>>>>>>>>>>>>>>>>>>>>>>>>> TEST SET <<<<<<<<<<<<<<<<<<<<<<<<<<<
 		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -162,7 +178,7 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		# Merge the tweets for the test set
 		combined_tweets_test = traffic_tweets_test + nontraffic_tweets_test
 		
-		#Extract the features for the test set
+		# Extract the features for the test set
 		temp = []
 		for i in range(len(combined_tweets_test)):
 			temp.append(((features_extractor(combined_tweets_test[i][0])),combined_tweets_test[i][1]))
@@ -172,17 +188,57 @@ def trainClassifier(conn, cursor, tablename, test_tweet):
 		# >>>>>>>>>>>>>>>>>>>>>>>>>> TRAIN THE CLASSIFIER <<<<<<<<<<<<<<<<<<<<<<<<<<<
 		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 		
-		#Train our classifier using the training set
+		# Train our classifier using the training set
 		classifier = nltk.NaiveBayesClassifier.train(train_set)
 		
-		#Classify the tweet
-		test = features_extractor(test_tweet.lower().split())
-		print "\nThe tweet '%s' is about: %s \n" % (test_tweet, classifier.classify(test))
+		# Save the classifier in a .pickle file
+		name = 'naive_bayes.pickle'
+		fname = os.path.join(os.path.expanduser('~/nltk_data/classifiers'), name)
+		dump_classifier(classifier, fname)
 		
-		#Evaluation of the classification
-		print 'accuracy:', nltk.classify.util.accuracy(classifier, test_set)
-		print nltk.classify.accuracy(classifier, train_set)
-		classifier.show_most_informative_features()
+		# Classify the tweet
+		test_tweet1 = preprocessor().preprocess(test_tweet,stop_words)
+		test = features_extractor(test_tweet1)
+		print "\nThe tweet '%s' is about: %s \n" % (test_tweet1, classifier.classify(test))
+		
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>> TEST THE CLASSIFIER <<<<<<<<<<<<<<<<<<<<<<<<<<<
+		# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		
+		referenceSet = collections.defaultdict(set)
+		testSet = collections.defaultdict(set)
+		referenceSet_cm = []
+		testSet_cm = []
+		
+		for index, (tweets, actualLabel) in enumerate(test_set):
+			referenceSet[actualLabel].add(index)
+			referenceSet_cm.append(actualLabel)
+			predictedLabel = classifier.classify(tweets)
+			testSet[predictedLabel].add(index)
+			testSet_cm.append(predictedLabel)
+
+		# Evaluation of the classification
+		# Accuracy is the percentage of the correct classifications of the test_test (fraction of the labelled data)
+		# Recall describes the completeness of the retrieval. It is defined as the portion of the positive examples retrieved by the process versus the  
+		# total  number of existing positive examples (including the ones not retrieved by the process). 
+		# Precision describes the actual accuracy of the retrieval, and is defined as the portion of the positive examples that exist in the total number of 
+		# examples retrieved.
+		
+		print 'Accuracy of the classifier:  ', nltk.classify.util.accuracy(classifier, test_set)
+		print '\nTraffic precision:           ', nltk.metrics.precision(referenceSet['traffic'], testSet['traffic'])
+		print 'Traffic recall:              ', nltk.metrics.recall(referenceSet['traffic'], testSet['traffic'])
+		print 'Traffic F-measure:           ', nltk.metrics.f_measure(referenceSet['traffic'], testSet['traffic'])
+		print '\nNon-Traffic precision:       ', nltk.metrics.precision(referenceSet['nontraffic'], testSet['nontraffic'])
+		print 'Non-Traffic recall:          ', nltk.metrics.recall(referenceSet['nontraffic'], testSet['nontraffic'])
+		print 'Non-Traffic F-measure:       ', nltk.metrics.f_measure(referenceSet['nontraffic'], testSet['nontraffic'])
+		print "\n"
+		
+		# Find the Confusion Matrix for the test set
+		cm = nltk.ConfusionMatrix(referenceSet_cm, testSet_cm)
+		print cm.pp(sort_by_count=True, show_percents=True, truncate=9) 
+		
+		# Show the 10 features with the greatest gain
+		# classifier.show_most_informative_features()
 		
 	except:	
 		# Get the most recent exception
@@ -200,8 +256,6 @@ if __name__ == "__main__":
     password = Config.get(configSection, "password")
     database = Config.get(configSection, "database")
     host = Config.get(configSection, "server")
-    action = 'noAction'
-    tablename = 'labelled_tweets'
 
     # Parse options from the command line
     parser = optparse.OptionParser("usage: %prog [options] [action] [tables]")
@@ -221,14 +275,6 @@ if __name__ == "__main__":
                     dest='password',
                     default=password,
                     help='The password for the DB')
-    parser.add_option('-a','--action',
-                    dest='action',
-                    default=action,
-                    help='The action the classifier will execute')
-    parser.add_option('-t','--tablename',
-                    dest='tablename',
-                    default=tablename,
-                    help='Training and testing set tablename')
     parser.add_option('-e','--text',
                     dest='text',
                     default="text",

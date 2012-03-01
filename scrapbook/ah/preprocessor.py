@@ -13,14 +13,34 @@
 
 import re
 import nltk
+import tldextract
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 
 
 class preprocessor:
+
+	def convert_links(self, tweet):
+		"""Replace the urls in the tweets with their domains"""
+		url_req_exp = re.compile(r'(?i)\b((?:(?:https?|ftp)://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\((?:[^\s()<>]+|(?:\(?:[^\s(?:)<>]+\)))*\))+(?:\((?:[^\s()<>]+|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?\xc2\xab\xc2\xbb\xe2\x80\x9c\xe2\x80\x9d\xe2\x80\x98\xe2\x80\x99]))')
+		try:
+			strDif = 0
+			for m in url_req_exp.finditer(tweet):
+				if m and m.groups() > 0:
+					url = tldextract.extract(m.group(0))
+					repl = url.domain + '_' + url.tld
+					url_start = m.start(1)-strDif
+					url_end = m.end(1)-strDif
+					tweet = tweet[0:url_start] + repl + tweet[url_end:len(tweet)]
+					strDif = len(m.group(0)) - len(repl)
+		except:
+			exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+			sys.exit("The URL conversion failed! ->%s" % (exceptionValue))
+		return tweet
+
 					
 	def replace_emoticons(self, emoticons_tweet):
-		"""Replace the emoticonsin of the input string with the corresponding string"""
+		"""Replace the emoticons of the input string with the corresponding string"""
 		#Many-to-one dictionary
 		conv_dict_multi = { ('>:]', ':-)', ':)', ':o)', ':]', ':3', ':c', ':>', '=]', '8)', '=)', ':}', ':^)', ':)','|;-)', '|-o):', '>^_^<', '<^!^>', '^/^', '(*^_^*)', '(^<^)', '(^.^)', '(^?^)', '(^?^)', '(^_^.)', '(^_^)', '(^^)', '(^J^)', '(*^?^*)', '^_^', '(^-^)', '(?^o^?)', '(^v^)', '(^u^)', '(^?^)', '( ^)o(^ )', '(^O^)', '(^o^)', '(^?^)', ')^o^('):'_HAPPY_',
 		('>:[', ':-(', ':(', ':-c', ':c', ':-<', ':<', ':-[', ':[', ':{', '>.>', '<.<', '>.<', '(\'_\')', '(/_;)', '(T_T)', '(;_;)', '(;_:)', '(;O;)', '(:_;)', '(ToT)', '(T?T)', '(>_<)', '>:\\', '>:/', ':-/', ':-.', ':/', ':\\', '=/', '=\\', ':S'):'_SAD_',
@@ -36,6 +56,7 @@ class preprocessor:
 			emoticons_tweet = emoticons_tweet.replace(smiley, conv_str)
 		return emoticons_tweet
 	
+		
 	def remove_puncuation(self, tweet):
 		"""Remove all the puncuation except the symbol #,@,' from the tweet"""
 		punctuation = re.compile(r'[-.?!,":;()|$%&*+/<=>[\]^`{}~]')
@@ -58,7 +79,7 @@ class preprocessor:
 		for tweets in tokens:
 			#Remove from the tweets the "@username"
 			req_exp = re.compile(r'@([A-Za-z0-9_]+)')
-			tweets = req_exp.sub('',tweets)
+			tweets = req_exp.sub('',tweets)			
 			if tweets!='':
 				data.append(tweets)
 		return data
@@ -79,14 +100,14 @@ class preprocessor:
 		
 		
 	def preprocess(self, tweet, stopwords):
+		#tweet = self.convert_links(tweet) # Need correction for the Big Data
 		tweet = self.replace_emoticons(tweet)
-		# tweet = self.convert_links(tweet)
 		tweet = self.remove_puncuation(tweet)
 		tweet = [tweet]
 		tokens = []
 		tokens = self.tokenazation(tweet,stopwords)
 		tokens = self.remove_reg_expr(tokens)
-		#tokens = self.lemmanazation(tokens)
+		tokens = self.lemmanazation(tokens)
 		tokens = self.include_bigrams(tokens)
 		return tokens
 		
