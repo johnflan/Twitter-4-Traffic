@@ -1,15 +1,11 @@
 package uk.ac.ic.doc.t4t;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
-import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import winterwell.jtwitter.OAuthSignpostClient;
 import winterwell.jtwitter.Twitter;
 import winterwell.jtwitter.TwitterException;
@@ -20,10 +16,6 @@ import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
-import oauth.signpost.http.HttpParameters;
-import oauth.signpost.http.HttpRequest;
-import oauth.signpost.signature.OAuthMessageSigner;
-import oauth.signpost.signature.SigningStrategy;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -36,15 +28,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class ReportQuickEventActivity extends Activity {
-	private static final String TAG = UpdaterService.class.getSimpleName();
+	private static final String TAG = ReportQuickEventActivity.class.getSimpleName();
 	
 	private ImageButton trafficBtn;
 	private ImageButton roadworksBtn;
@@ -81,7 +71,7 @@ public class ReportQuickEventActivity extends Activity {
 	private static final String REPORT_TEXT_SEVERE = "severe";
 	
 	private String eventTypeMsg;
-
+	private Dialog dialog;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,7 +162,7 @@ public class ReportQuickEventActivity extends Activity {
     	this.eventTypeMsg = msg;
     	if (verifiedTwitterAccount()) {
     		
-    		Dialog dialog = new Dialog(this);
+    		dialog = new Dialog(ReportQuickEventActivity.this);
     		dialog.requestWindowFeature(dialog.getWindow().FEATURE_NO_TITLE);
             dialog.setContentView(R.layout.report_question_popup);
 
@@ -225,6 +215,21 @@ public class ReportQuickEventActivity extends Activity {
 
     	}
     }
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		
+		if(dialog != null){
+			try{
+				dialog.dismiss();
+			} catch (Exception e){
+				e.printStackTrace();
+			}
+			
+		}
+	}
 
 	@Override
 	protected void onResume() {
@@ -347,6 +352,9 @@ public class ReportQuickEventActivity extends Activity {
 	
 	
 	public void sendTweet(String severity){
+		
+		if (this.eventTypeMsg == null)
+			return;
 		
 		String eventText = this.eventTypeMsg;
 		String severityText = " causing " + severity + " problems ";

@@ -18,8 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import uk.ac.ic.doc.t4t.UpdaterService;
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
+import uk.ac.ic.doc.t4t.common.services.data.JSONParser;
+import uk.ac.ic.doc.t4t.common.services.location.LocationObserver;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
@@ -29,9 +30,9 @@ import android.location.LocationManager;
 import android.text.format.Time;
 import android.util.Log;
 
-public class RESTClient extends Observable implements LocationObserver {
+public class DataMgr extends Observable implements LocationObserver {
 	
-	private static final String TAG = UpdaterService.class.getSimpleName();
+	private static final String TAG = DataMgr.class.getSimpleName();
 	private Context context;
 	private HttpClient httpclient;
 	private HttpGet request;
@@ -48,7 +49,7 @@ public class RESTClient extends Observable implements LocationObserver {
 	
 	List<EventItem> eventItems = new ArrayList<EventItem>();
 	
-	public RESTClient(Context context){
+	public DataMgr(Context context){
 		  this.context = context;
 		  URL = PreferencesHelper.getServerURL(context) + ":" + 
 				  PreferencesHelper.getServerPort(context);
@@ -57,7 +58,7 @@ public class RESTClient extends Observable implements LocationObserver {
 	}
 	
 	public void requestEvents(){
-		
+				
 		httpclient = new DefaultHttpClient();
 
 		String query = apiVersion + disruptionsEndpoint + "latitude=" + latitude + "&longitude=" + longitude + "&radius=10";

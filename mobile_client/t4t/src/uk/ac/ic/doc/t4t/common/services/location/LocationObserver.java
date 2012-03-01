@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.t4t.common.services;
+package uk.ac.ic.doc.t4t.common.services.location;
 
 public interface LocationObserver {
 	

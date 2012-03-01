@@ -3,7 +3,7 @@ package uk.ac.ic.doc.t4t;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.ic.doc.t4t.common.services.RESTClient;
+import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItemAdapter;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
@@ -56,7 +56,7 @@ public class EventDetailsActivity extends Activity {
 
 	private void populateTweets(EventItem eventDetails) {
 
-		RESTClient restClient = new RESTClient(this);
+		DataMgr restClient = new DataMgr(this);
 		tweets = restClient.requestTweets(eventDetails.getEventID());
 		if (tweets != null){
 			tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));

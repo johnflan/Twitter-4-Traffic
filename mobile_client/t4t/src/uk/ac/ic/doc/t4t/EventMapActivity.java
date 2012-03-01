@@ -6,7 +6,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
-import uk.ac.ic.doc.t4t.common.services.RESTClient;
+import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventmap.EventOverlay;
 
@@ -31,10 +31,10 @@ import android.view.View;
 import android.widget.ImageButton;
 
 public class EventMapActivity extends MapActivity implements Observer {
-	private static final String TAG = UpdaterService.class.getSimpleName();
+	private static final String TAG = EventMapActivity.class.getSimpleName();
 	private ImageButton reportEventBtn;
 	private LocationMgr location;
-	private RESTClient restClient;
+	private DataMgr restClient;
 	private List<EventItem> eventItems = new ArrayList<EventItem>();
 	private MapView mapView;
 	private List<Overlay> mapOverlays;
@@ -70,7 +70,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         //Here we set the rest client as a listener for the location service
         //so once a location is returned, we can make a HTTP request.       
-        restClient = new RESTClient(this);
+        restClient = new DataMgr(this);
         restClient.addObserver(this);
         
         location = new LocationMgr(this);

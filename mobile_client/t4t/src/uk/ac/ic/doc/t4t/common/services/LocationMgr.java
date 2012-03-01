@@ -3,7 +3,7 @@ package uk.ac.ic.doc.t4t.common.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.ic.doc.t4t.UpdaterService;
+import uk.ac.ic.doc.t4t.common.services.location.LocationObserver;
 
 import com.google.android.maps.GeoPoint;
 
@@ -17,7 +17,7 @@ import android.util.Log;
 import android.widget.Button;
 
 public class LocationMgr implements LocationListener{
-	private static final String TAG = UpdaterService.class.getSimpleName();
+	private static final String TAG = LocationMgr.class.getSimpleName();
 	private static final long MINIMUM_DISTANCE_CHANGE_FOR_UPDATES = 1; 
 	private static final long MINIMUM_TIME_BETWEEN_UPDATES = 1000; 	
 	protected LocationManager locationManager;
@@ -30,7 +30,6 @@ public class LocationMgr implements LocationListener{
 	public LocationMgr(Context context){
 		
 		this.context = context;
-		
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);       
         locationManager.requestLocationUpdates(
         		LocationManager.NETWORK_PROVIDER, 

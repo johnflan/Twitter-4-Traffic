@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import uk.ac.ic.doc.t4t.EventDetailsActivity;
 import uk.ac.ic.doc.t4t.EventListActivity;
-import uk.ac.ic.doc.t4t.UpdaterService;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
 import android.app.AlertDialog;
@@ -17,7 +16,7 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
 public class EventOverlay extends ItemizedOverlay<OverlayItem> {
-	private static final String TAG = UpdaterService.class.getSimpleName();
+	private static final String TAG = EventOverlay.class.getSimpleName();
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	private Context mContext;
 	

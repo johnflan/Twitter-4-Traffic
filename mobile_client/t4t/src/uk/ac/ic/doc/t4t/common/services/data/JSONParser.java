@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.t4t.common.services;
+package uk.ac.ic.doc.t4t.common.services.data;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,12 +13,13 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
 
+import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
 public class JSONParser {
 	
-	private final static String TAG = "JSONParser";
+	private final static String TAG = JSONParser.class.getSimpleName();
 	
 	//Disruption event parameters
 	private final static String EVENT_ID = "eventID";

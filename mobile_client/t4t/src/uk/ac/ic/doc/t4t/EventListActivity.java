@@ -12,7 +12,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
-import uk.ac.ic.doc.t4t.common.services.RESTClient;
+import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 
@@ -36,7 +36,7 @@ public class EventListActivity extends Activity implements Observer {
 	private ListView eventList;
 	private List<EventItem> eventItems = new ArrayList<EventItem>();
 	private LocationMgr location;
-	private RESTClient restClient;
+	private DataMgr restClient;
 	private ImageButton reportEventBtn;
 	
     @Override
@@ -46,7 +46,7 @@ public class EventListActivity extends Activity implements Observer {
         
         //Here we set the rest client as a listener for the location service
         //so once a location is returned, we can make a HTTP request.       
-        restClient = new RESTClient(this);
+        restClient = new DataMgr(this);
         restClient.addObserver(this);
         
         location = new LocationMgr(this);
