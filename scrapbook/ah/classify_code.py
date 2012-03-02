@@ -1,8 +1,8 @@
 import nltk.data
-from preprocessor import preprocessor
+from classifier_files.preprocessor import preprocessor
 
 # Classify the text from the Search API
-classifier = nltk.data.load("classifiers/naive_bayes.pickle")
+classifier = nltk.data.load("/srv/t4t/classifier_files/naive_bayes.pickle")
 text = preprocessor().preprocess(textt,[])
 label = features_extractor(text)
 
