@@ -48,6 +48,7 @@ def tweets(  conn,
         since_id = most_recent_id
         results = None
         page = 0
+        hashtagRT = '#RightTurn'
         print "Getting results since ", since_id
         while results != [] and page <= 15:
             page += 1
@@ -66,20 +67,24 @@ def tweets(  conn,
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
 					
                     text = text.encode('ascii','ignore')
-                    
-                    #>>>>>>>>>>>>>>>>>>CLASSIFY THE TWEET<<<<<<<<<<<<<<<<<<<<<<<
-                    isTraffic, probability = classify_traffic(text,classifier)    
+                    probability = 1.0
+                    isTraffic = True
+                    isRetweet = False
+                    if hashtagRT not in text: 
+				        #>>>>>>>>>>>>>>>>>>CLASSIFY THE TWEET<<<<<<<<<<<<<<<<<<<<<<<
+                        isTraffic, probability = classify_traffic(text,classifier)    
 
-                    now = datetime.now()
-                    nowstr = datetime.strftime(now, DATETIME_STRING_FORMAT)
-                    #print (tid,uname,created_at,location,text,geo)
+                        #now = datetime.now()
+                        #nowstr = datetime.strftime(now, DATETIME_STRING_FORMAT)
+                        #print (tid,uname,created_at,location,text,geo)
 
-                    # If the tweet is a retweet drop it, this method is not
-                    # 100%. But the API is not returning if r.retweet
-                    isRetweet = re.search('RT\s@', r.text, re.IGNORECASE)
-                    if isRetweet or not isTraffic:
+                        # If the tweet is a retweet drop it, this method is not
+                        # 100%. But the API is not returning if r.retweet
+                        isRetweet = re.search('RT\s@', r.text, re.IGNORECASE)
+						
+                    if isRetweet or not isTraffic or probability < 0.98:
                         continue
-                    print "Found one"
+					
                     # geo part
                     if not geo is None and geo.get('type') == 'Point':
                         geolat,geolong, = geo['coordinates']
