@@ -1,10 +1,10 @@
 import nltk.data
-from classifier_files.preprocessor import preprocessor
+from preprocessor import preprocessor
 
 # Classify the text from the Search API
-classifier = nltk.data.load("/srv/t4t/classifier_files/naive_bayes.pickle")
+classifier = nltk.data.load("classifiers/naive_bayes.pickle")
 text = preprocessor().preprocess(textt,[])
-label = features_extractor(text)
+label = classifier.classify(features_extractor(text))
 
 # Find its Probability
 if label == 'traffic':
