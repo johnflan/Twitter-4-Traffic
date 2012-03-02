@@ -100,8 +100,8 @@ public class EventMapActivity extends MapActivity implements Observer {
 		Log.i(TAG, "Updating event list");
 		eventItems = (List<EventItem>) data;
 		
-
-		addEventOverlay(eventItems);
+		if (eventItems != null)
+			addEventOverlay(eventItems);
 		
 	}
 	

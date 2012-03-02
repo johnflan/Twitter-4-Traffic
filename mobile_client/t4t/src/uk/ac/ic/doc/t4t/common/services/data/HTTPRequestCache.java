@@ -46,13 +46,14 @@ public class HTTPRequestCache {
 			int eventListCol = cursor.getColumnIndex("eventlist");
 			
 			// Check if our result was valid.
-			cursor.moveToFirst();
-			if (cursor != null) {		
-				do {
-					response = cursor.getString(eventListCol);
-				} while(cursor.moveToNext());
+			if (cursor.getCount() > 0){
+				cursor.moveToFirst();
+				if (cursor != null) {		
+					do {
+						response = cursor.getString(eventListCol);
+					} while(cursor.moveToNext());
+				}	
 			}
-			
 		
 		} catch(Exception e) {
 			Log.e(TAG, "Error", e);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Observable;
 
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
+import uk.ac.ic.doc.t4t.common.services.data.EventPostProcessor;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequestCache;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequester;
 import uk.ac.ic.doc.t4t.common.services.data.JSONParser;
@@ -31,6 +32,7 @@ public class DataMgr extends Observable implements LocationObserver {
 	
 	private JSONParser jsonParser;
 	private HTTPRequestCache requestCache;
+	private EventPostProcessor eventPostProcessor;
 	
 	List<EventItem> eventItems = new ArrayList<EventItem>();
 	
@@ -40,6 +42,7 @@ public class DataMgr extends Observable implements LocationObserver {
 				  PreferencesHelper.getServerPort(context);
 		  
 		  requestCache = new HTTPRequestCache(this.context);
+		  eventPostProcessor = new EventPostProcessor(this.context);
 	}
 	
 	public void requestEvents(){
@@ -70,6 +73,8 @@ public class DataMgr extends Observable implements LocationObserver {
 		    eventItems = jsonParser.parseDisruptionEvents(response);
 		    
 		}
+		
+		
         
         Log.i(TAG, "Notifying observers of new event list");
 		setChanged();
