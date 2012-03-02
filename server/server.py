@@ -153,9 +153,8 @@ def loadResponseData(respDir):
             print "Error unable to open: ", fileName
 
 def main(*args,**kwargs):
-    #loadResponseData(kwargs['resp'])
-    
-    app.run(host=kwargs['host'],port=kwargs['port'])
+    loadResponseData(kwargs['resp'])
+    app.run(host=kwargs['server'],port=kwargs['port'])
 
 ###############################################################################################
 ################################ Connects to the database #####################################
@@ -375,6 +374,10 @@ if __name__ == "__main__":
             default='55003',
             help='The server port',
             type=int)
+    parser.add_option('-s', '--server',
+            dest='server',
+            default='0.0.0.0',
+            help='The server address')
     parser.add_option('-r','--resp',
             dest='resp',
             default='/responses',
@@ -398,6 +401,6 @@ if __name__ == "__main__":
     (options, args)=parser.parse_args()
     
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
-    db = dict([[k,v] for k,v in kwargs.iteritems() if k!='port' and k!='resp'])        
+    db = dict([[k,v] for k,v in kwargs.iteritems() if k!='port' and k!='resp' and k!='server'])        
     cursor, conn = connect(**db)
     main(*args,**kwargs)
