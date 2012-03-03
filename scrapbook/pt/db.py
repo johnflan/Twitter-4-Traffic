@@ -96,7 +96,7 @@ def setup(cursor, conn, *args):
                                 )""")
                 cursor.execute("CREATE INDEX tfl_index ON tfl USING GIST (lonlat)")
                 print "> Table tfl created"
-            elif args[i]=="labelled_tweets":                
+            elif args[i]=="labelled_tweets":
                 cursor.execute("""CREATE TABLE labelled_tweets(
                                 tid BIGINT NOT NULL,
                                 tweet TEXT NOT NULL,
@@ -133,6 +133,17 @@ def setup(cursor, conn, *args):
                                 PRIMARY KEY (tid)
                                 )""")
                 cursor.execute("CREATE INDEX tweets_index ON tweets(tid)")
+                cursor.execute("CREATE INDEX tweets_geo_index ON tweets USING GIST (geolocation)")
+                print "> Table tweets created"
+            elif args[i]=="cameras":
+                cursor.execute("""CREATE TABLE cameras(
+                                title TEXT,
+                                link TEXT,
+                                placemark_name TEXT,
+                                placemark_description TEXT,
+                                geolocation GEOGRAPHY(POINT, 4326)
+                                )""")
+                cursor.execute("CREATE INDEX cameras_index ON cameras USING GIST (geolocation)")
                 print "> Table tweets created"
                         
         

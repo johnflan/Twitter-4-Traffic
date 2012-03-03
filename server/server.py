@@ -135,8 +135,23 @@ def tweets():
                                request.args['latitude'],
                                request.args['radius'])
         
-    return "Invalid tweet request", 400
+    return "Invalid tweets request", 400
 
+@app.route("/t4t/0.2/cameras", methods=['GET'])
+def tweets():
+    if ('disruptionID' in request.args):
+        print "[INFO] Valid cameras request"
+        return findCamerasDisruption(request.args['disruptionID'])
+    
+    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
+           in request.args):
+        print "[INFO] Valid cameras request"
+        return findCamerasRadius(request.args['longitude'], 
+                               request.args['latitude'],
+                               request.args['radius'])
+        
+    return "Invalid cameras request", 400
+	
 @app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
 def report():
     if (request.mimetype == "application/json"):
@@ -443,7 +458,76 @@ def tweetRows2JSON(tweetRows):
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText
+
+###############################################################################################
+#################### Returns a JSON text for the area that is selected ########################
+###############################################################################################
+
+def findCamerasRadius(lon, lat, radius):
+    try:
+        query = """SELECT title,
+							link,
+                            ST_AsText(geolocation)
+                    FROM tweets
+                    WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
+
+        cursor.execute(query)
+        cameraRows = cursor.fetchall()
         
+        jsonText = cameraRows2JSON(cameraRows)
+        
+        return jsonText        
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        # Exit the script and print an error telling what happened.
+        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        
+###############################################################################################
+################## Returns a JSON text for the area around a disruption #######################
+###############################################################################################
+
+def findCamerasDisruption(ltisid, radius=1000):
+    try:
+        query = """SELECT title,
+							link,
+                            ST_AsText(geolocation)
+                    FROM tweets
+                    WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
+
+        cursor.execute(query)
+        cameraRows = cursor.fetchall()
+        
+        jsonText = cameraRows2JSON(cameraRows)
+        
+        return jsonText        
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        # Exit the script and print an error telling what happened.
+        sys.exit("Database select failed! -> %s" % (exceptionValue))
+
+###############################################################################################
+##################### Returns a JSON text for the rows of the table ###########################
+###############################################################################################
+        
+def cameraRows2JSON(cameraRows):
+    jsonRow = ""
+    for row in cameraRows:
+        coordinates = row[-1][6:-1]
+        lonlatArray = coordinates.split(" ")
+        longitude = lonlatArray[0]
+        latitude = lonlatArray[1]
+        jsonRow += """    {
+        \"title\": \"%s\",
+        \"link\": \"%s\",
+        \"longitude\": \"%s\",
+        \"latitude\": \"%s\"
+    },\n""" % (row[0],row[1],longitude,latitude)
+    
+    jsonText = "{\"cameras\":[\n%s\n]}" % jsonRow[:-2]
+    return jsonText
+
 if __name__ == "__main__":
     configSection = "Local database"
     Config = ConfigParser.ConfigParser()
