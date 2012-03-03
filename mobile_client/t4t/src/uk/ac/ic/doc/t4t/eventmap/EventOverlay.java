@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import uk.ac.ic.doc.t4t.EventDetailsActivity;
 import uk.ac.ic.doc.t4t.EventListActivity;
+import uk.ac.ic.doc.t4t.EventMapActivity;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
 import android.app.AlertDialog;
@@ -15,24 +16,24 @@ import android.util.Log;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
-public class EventOverlay extends ItemizedOverlay<OverlayItem> {
+public class EventOverlay extends ItemizedOverlay<EventOverlayItem> {
 	private static final String TAG = EventOverlay.class.getSimpleName();
-	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
-	private Context mContext;
+	private ArrayList<EventOverlayItem> mOverlays = new ArrayList<EventOverlayItem>();
+	private Context context;
 	
 	public EventOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
-		mContext = context;
+		this.context = context;
 	}
 	
-	public void addOverlay(OverlayItem overlay) {
+	public void addOverlay(EventOverlayItem overlay) {
 	    mOverlays.add(overlay);
 	    populate();
 	    Log.v(TAG, "Adding overlay item, currently have " + mOverlays.size() + " items");
 	}
 
 	@Override
-	protected OverlayItem createItem(int i) {
+	protected EventOverlayItem createItem(int i) {
 		return mOverlays.get(i);
 	}
 
@@ -42,18 +43,18 @@ public class EventOverlay extends ItemizedOverlay<OverlayItem> {
 	}
 	
 	public void clearOverlays(){
-		mOverlays = new ArrayList<OverlayItem>();
+		mOverlays = new ArrayList<EventOverlayItem>();
 	}
 	
 	
 	@Override
 	protected boolean onTap(int index) {
-		OverlayItem item = mOverlays.get(index);
-		AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-		dialog.setTitle(item.getTitle());
-		dialog.setMessage(item.getSnippet());
-		dialog.show();
-		return true;
+		EventOverlayItem item = mOverlays.get(index);
+//		AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+//		dialog.setTitle(item.getTitle());
+//		dialog.setMessage(item.getSnippet());
+//		dialog.show();
+//		return true;
 		
 //		May need to subclass OverlayItem to have EventItem params
 //		OverlayItem item = mOverlays.get(index);
@@ -61,10 +62,10 @@ public class EventOverlay extends ItemizedOverlay<OverlayItem> {
 //		
 //		Log.i(TAG, "Opening event: " + currentItem.getTitle());
 //		
-//		Intent i = new Intent(EventListActivity.this, EventDetailsActivity.class);
-//		i.putExtra("EventDetails", currentItem);
-//		startActivity(i);
-//		return true;
+		Intent i = new Intent(context, EventDetailsActivity.class);
+		i.putExtra("EventDetails", item.getEventItem());
+		context.startActivity(i);
+		return true;
 	}
 
 }

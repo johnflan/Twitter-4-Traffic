@@ -9,6 +9,7 @@ import uk.ac.ic.doc.t4t.common.services.LocationMgr;
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventmap.EventOverlay;
+import uk.ac.ic.doc.t4t.eventmap.EventOverlayItem;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -115,10 +116,11 @@ public class EventMapActivity extends MapActivity implements Observer {
 			GeoPoint point = new GeoPoint(
 					(int) (event.getLatitude() * 1E6),
 					(int) (event.getLongitude() * 1E6) );
-			OverlayItem overlayitem = new OverlayItem(
+			EventOverlayItem overlayitem = new EventOverlayItem(
 												point,
 												event.getTitle(),
-												event.getDescription());
+												event.getDescription(),
+												event);
 			
 			eventOverlay.addOverlay(overlayitem);
 			
