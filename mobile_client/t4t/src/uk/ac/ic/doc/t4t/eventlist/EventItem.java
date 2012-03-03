@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
-public class EventItem implements Serializable{
+public class EventItem implements Serializable, Cloneable{
 
 	private static final long serialVersionUID = 3305037298459804021L;
 	
@@ -150,6 +150,16 @@ public class EventItem implements Serializable{
 	public double getCurrentDistanceFromEvent(){
 		
 		return distanceFromEventKM;
+	}
+	
+	public EventItem clone(){
+		try {
+			return (EventItem) super.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
