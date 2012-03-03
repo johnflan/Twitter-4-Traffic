@@ -121,6 +121,19 @@ def setup(cursor, conn, *args):
                                 tid BIGINT NOT NULL REFERENCES geolondon(tid)
                                 )""")
                 print "> Table cluster_data created"
+            elif args[i]=="tweets":
+                cursor.execute("""CREATE TABLE tweets(
+                                tid BIGINT NOT NULL,
+                                uname VARCHAR(40) NOT NULL,
+                                created_at TIMESTAMP,
+                                location VARCHAR(128),
+                                text VARCHAR(200),
+                                geolocation GEOGRAPHY(POINT, 4326),
+                                probability DECIMAL,
+                                PRIMARY KEY (tid)
+                                )""")
+                cursor.execute("CREATE INDEX tweets_index ON tweets(tid)")
+                print "> Table tweets created"
                         
         
         print "> Giving privileges"
