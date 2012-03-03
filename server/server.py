@@ -119,13 +119,22 @@ def disruptionsRoute():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         points = getPointsFromJson(str(request.json))
-        return findDisruptionsRoute(points,100)
+        return findDisruptionsRoute(points,1000)
     return "Invalid request", 400
 
 @app.route("/t4t/0.2/tweets", methods=['GET'])
 def tweets():
     if ('disruptionID' in request.args):
-        return getResponse('tweets_disruption_id.txt')
+        print "[INFO] Valid tweets request"
+        return findTweetsDisruption(request.args['disruptionID'])
+    
+    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
+           in request.args):
+        print "[INFO] Valid tweets request"
+        return findTweetsRadius(request.args['longitude'], 
+                               request.args['latitude'],
+                               request.args['radius'])
+        
     return "Invalid tweet request", 400
 
 @app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
@@ -273,7 +282,7 @@ def getPointsFromJson(json_data):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
         
-def findDisruptionsRoute(points, radius):
+def findDisruptionsRoute(points, radius=1000):
     try:
         route = "LINESTRING("
         for point in points:
@@ -299,8 +308,6 @@ def findDisruptionsRoute(points, radius):
                             remarkdate,
                             remarktime,
                             remark,
-                            grideasting,
-                            gridnorthing,
                             ST_AsText(lonlat)
                     FROM tfl 
                     WHERE ST_DWithin(lonlat,'%s', %s)""" % (route,radius)
@@ -348,17 +355,95 @@ def disruptionRows2JSON(disruptionRows):
         \"remarkdate\": \"%s\",
         \"remarktime\": \"%s\",
         \"remark\": \"%s\",
-        \"grideasting\": \"%s\",
-        \"gridnorthing\": \"%s\",
         \"longitude\": \"%s\",
         \"latitude\": \"%s\"
     },\n""" % (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
-                row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],row[20],
+                row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
                 longitude, latitude)
     
     jsonText = "{\"disruptions\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText
+
+###############################################################################################
+#################### Returns a JSON text for the area that is selected ########################
+###############################################################################################
+
+def findTweetsRadius(lon, lat, radius):
+    try:
+        query = """SELECT tid,
+                            uname,
+                            created_at,
+                            location,
+                            text,
+                            probability,
+							ST_AsText(geolocation)
+                    FROM tweets
+                    WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
+
+        cursor.execute(query)
+        tweetRows = cursor.fetchall()
+        
+        jsonText = tweetRows2JSON(tweetRows)
+        
+        return jsonText        
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        # Exit the script and print an error telling what happened.
+        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        
+###############################################################################################
+################## Returns a JSON text for the area around a disruption #######################
+###############################################################################################
+
+def findTweetsDisruption(ltisid, radius=1000):
+    try:
+        query = """SELECT tid,
+                            uname,
+                            created_at,
+                            location,
+                            text,
+                            probability,
+                            ST_AsText(geolocation)
+                    FROM tweets
+                    WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
+
+        cursor.execute(query)
+        tweetRows = cursor.fetchall()
+        
+        jsonText = tweetRows2JSON(tweetRows)
+        
+        return jsonText        
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        # Exit the script and print an error telling what happened.
+        sys.exit("Database select failed! -> %s" % (exceptionValue))
+
+###############################################################################################
+##################### Returns a JSON text for the rows of the table ###########################
+###############################################################################################
+        
+def tweetRows2JSON(tweetRows):
+    jsonRow = ""
+    for row in tweetRows:
+        coordinates = row[-1][6:-1]
+        lonlatArray = coordinates.split(" ")
+        longitude = lonlatArray[0]
+        latitude = lonlatArray[1]
+        jsonRow += """    {
+        \"tid\": \"%s\",
+        \"uname\": \"%s\",
+        \"created_at\": \"%s\",
+        \"location\": \"%s\",
+        \"text\": \"%s\",
+        \"longitude\": \"%s\",
+        \"latitude\": \"%s\"
+    },\n""" % (row[0],row[1],row[2],row[3],row[4],longitude,latitude)
     
+    jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
+    return jsonText
+        
 if __name__ == "__main__":
     configSection = "Local database"
     Config = ConfigParser.ConfigParser()
@@ -371,7 +456,7 @@ if __name__ == "__main__":
     parser=optparse.OptionParser()
     parser.add_option('-p','--port',
             dest='port',
-            default='55003',
+            default='55004',
             help='The server port',
             type=int)
     parser.add_option('-s', '--server',

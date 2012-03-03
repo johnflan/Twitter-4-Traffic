@@ -18,3 +18,7 @@ curl -X GET "localhost:55004/t4t/0.2/disruptions?topleftlat=51.50&topleftlong=-0
 curl -X GET "localhost:55004/t4t/0.2/disruptions?latitude=51.50&longitude=-0.18&radius=1000"
 
 curl -H "Content-Type:application/json" -X POST "localhost:55004/t4t/0.2/disruptions/route/" -d '{"points":[{"lon":"-0.18","lat":"51.51"},{"lon":"-0.10","lat":"51.47"}]}'
+
+curl -X GET "localhost:55004/t4t/0.2/tweets?latitude=51.50&longitude=-0.37&radius=1000"
+
+curl -X GET "localhost:55004/t4t/0.2/tweets?disruptionID=230074"
