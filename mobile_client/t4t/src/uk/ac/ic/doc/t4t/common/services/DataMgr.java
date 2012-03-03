@@ -57,10 +57,14 @@ public class DataMgr extends Observable implements LocationObserver {
 		} else {
 			
 			String query = apiVersion + DISRUPTIONS_ENDPOINT + "latitude=" +
-					latitude + "&longitude=" + longitude + "&radius=4000";
+					latitude + "&longitude=" + longitude + "&radius=5000";
 
 			response = HTTPRequester.httpGet(URL + query);
 			
+			if (response == null){
+				Log.i(TAG, "Received no response ");
+				return;
+			}
 			Log.i(TAG, "Response length " + response.length());
 			
 			requestCache.setEventItems(response);
@@ -95,6 +99,9 @@ public class DataMgr extends Observable implements LocationObserver {
         
 		return JSONParser.parseTweets(response);
 	}
+
 }
+
+
 
 

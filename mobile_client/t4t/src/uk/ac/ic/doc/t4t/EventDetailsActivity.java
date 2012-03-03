@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
+import uk.ac.ic.doc.t4t.common.services.TrafficCameraImageDownloader;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItemAdapter;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +27,9 @@ public class EventDetailsActivity extends Activity {
 	private List<TweetItem> tweets = new ArrayList<TweetItem>();
 	private ListView tweetList;
 	private ImageButton reportEventBtn;
+	private ImageView trafficCameras;
+	private Dialog dialog;
+	private EventItem eventDetails;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,9 +37,10 @@ public class EventDetailsActivity extends Activity {
         
         setContentView(R.layout.eventdetails);
         tweetList = (ListView)findViewById(R.id.tweetList);
+        trafficCameras = (ImageView) findViewById(R.id.eventTrafficCameras);
         
     	Bundle extras = getIntent().getExtras();
-    	EventItem eventDetails = null;
+    	
     	if(extras !=null) {
     		eventDetails = (EventItem) extras.getSerializable("EventDetails");
     	}
@@ -47,6 +53,14 @@ public class EventDetailsActivity extends Activity {
 				
 				Intent i = new Intent(EventDetailsActivity.this, ReportQuickEventActivity.class);
 				startActivity(i);	
+			}
+		});
+        
+        trafficCameras.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				displayTrafficCamera();
 			}
 		});
     	
@@ -78,6 +92,7 @@ public class EventDetailsActivity extends Activity {
 		TextView textCurrentDistanceType;
 		ImageView imageEventCategory;
 		ImageView imageEventSeverity;
+		ImageView imageTrafficCamera;
 
 		try {
 	    	textTitle = (TextView) findViewById(R.id.eventTitle);
@@ -88,6 +103,8 @@ public class EventDetailsActivity extends Activity {
 	    	
 	    	imageEventCategory = (ImageView) findViewById(R.id.eventTypeIcon);
 	    	imageEventSeverity = (ImageView) findViewById(R.id.severityIcon);
+	    	
+	    	imageTrafficCamera = (ImageView) findViewById(R.id.eventTrafficCameras);
 	    	
 	    } catch( ClassCastException e ) {
 	    	Log.e(TAG, "Layout must provide an image and a text view with ID's icon and text.", e);
@@ -123,5 +140,31 @@ public class EventDetailsActivity extends Activity {
 	    	imageEventSeverity.setImageResource(R.drawable.event_orange);
 	    else if (eventDetails.getSeverity().equalsIgnoreCase("severe"))
 	    	imageEventSeverity.setImageResource(R.drawable.event_red);
+	    
+	    Log.v(TAG, "Number of traffic cameras " + eventDetails.getTrafficCameras().size());
+	    
+	    if (eventDetails.getTrafficCameras().size() == 0)
+	    	imageTrafficCamera.setVisibility(View.INVISIBLE);
+
+	    	
+	}
+	
+	private void displayTrafficCamera(){
+		TrafficCameraImageDownloader downloader = new TrafficCameraImageDownloader();	
+		Log.i(TAG, "Displaying traffic camera images");
+
+		dialog = new Dialog(EventDetailsActivity.this);
+		dialog.requestWindowFeature(dialog.getWindow().FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.event_details_traffic_cam_imageview_popup);
+        dialog.setCancelable(true);
+        
+        Log.i(TAG, "Displaying URL " + eventDetails.getTrafficCameras().get(0).getLink());
+        
+        dialog.show();
+        
+        ImageView imageView = (ImageView) dialog.findViewById(R.id.trafficCameraImage);
+        Log.e(TAG, "ref to image view " + imageView);
+        
+        downloader.download(eventDetails.getTrafficCameras().get(0).getLink(), imageView);
 	}
 }

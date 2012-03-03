@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import java.util.List;
 
 public class EventItem implements Serializable, Cloneable{
 
@@ -33,6 +34,8 @@ public class EventItem implements Serializable, Cloneable{
 	
 	private double latitude;
 	private double longitude;
+	
+	private List<TrafficCamera> trafficCameras;
 	
 	private double distanceFromEventKM;
 	
@@ -141,6 +144,13 @@ public class EventItem implements Serializable, Cloneable{
 	public void setSector(String sector) {
 		this.sector = sector;
 	}
+	public List<TrafficCamera> getTrafficCameras() {
+		return trafficCameras;
+	}
+	public void setTrafficCameras(List<TrafficCamera> trafficCameras) {
+		this.trafficCameras = trafficCameras;
+	}
+	
 	public void setCurrentDistanceFromEvent(double f) {
 		BigDecimal bd = new BigDecimal(f).setScale(1, RoundingMode.HALF_EVEN);
 		f = bd.doubleValue();
@@ -161,5 +171,6 @@ public class EventItem implements Serializable, Cloneable{
 		}
 		return null;
 	}
+
 
 }

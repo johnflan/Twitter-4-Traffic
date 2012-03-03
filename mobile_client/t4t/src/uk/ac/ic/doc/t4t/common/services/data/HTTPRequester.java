@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.t4t.common.services.data;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -33,6 +34,8 @@ public class HTTPRequester {
 
         } catch (HttpHostConnectException e) {
         	Log.e(TAG, "Error contacting server: " + e.getMessage());
+        } catch (UnknownHostException e){
+        	e.printStackTrace();
         } catch (ClientProtocolException e) {  
             e.printStackTrace();  
         } catch (IOException e) {  
