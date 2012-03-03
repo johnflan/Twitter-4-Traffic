@@ -473,7 +473,6 @@ def calculateRank(tid, lon, lat, prob):
     tweetDistance=float(tweetDistance[0])
     if tweetDistance==0:
         tweetDistance=1
-    print tweetDistance
     tweetRank=0.6*(1/tweetDistance)+0.4*float(prob);
     return tweetRank
 		
