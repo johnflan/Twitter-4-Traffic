@@ -87,15 +87,21 @@ def loadResponseData(respDir):
 @app.route("/t4t/0.2/disruptions", methods=['GET'])
 def disruptions():
     
+    closestcam = "n"
+    if ( 'closestcam' in request.args ):
+        if request.args['closestcam'] == "y":
+            closestcam = "y"
+    
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid disruptions request:"
         print "\tRadius: ", request.args['radius'], ", Latitude: ",\
             request.args['latitude'], ", Longitude: ",\
             request.args['longitude']
+            
         return findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'])
+                               request.args['radius'], closestcam)
 
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
@@ -108,7 +114,7 @@ def disruptions():
     return findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
-                               request.args['bottomrightlat'])
+                               request.args['bottomrightlat'], closestcam)
 
     return "Invalid disruptions request", 400
 
@@ -119,7 +125,7 @@ def disruptionsRoute():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         points = getPointsFromJson(str(request.json))
-        return findDisruptionsRoute(points,1000)
+        return findDisruptionsRoute(points,"n",1000)
     return "Invalid request", 400
 
 @app.route("/t4t/0.2/tweets", methods=['GET'])
@@ -141,7 +147,11 @@ def tweets():
 def cameras():
     if ('disruptionID' in request.args):
         print "[INFO] Valid cameras request"
-        return findCamerasDisruption(request.args['disruptionID'])
+        if ('closestcam' in request.args):
+            if request.args['closestcam']=="y":
+                return findCamerasDisruptionClosest(request.args['disruptionID'])
+        else:
+            return findCamerasDisruption(request.args['disruptionID'])
     
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
@@ -151,7 +161,7 @@ def cameras():
                                request.args['radius'])
         
     return "Invalid cameras request", 400
-	
+    
 @app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
 def report():
     if (request.mimetype == "application/json"):
@@ -201,7 +211,7 @@ def connect(**db):
 ############# Returns a JSON text for the rectangular area that is selected ###################
 ###############################################################################################
         
-def findDisruptionsRect(lonTL, latTL, lonBR, latBR):
+def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
     try:
         rectangle = "%s %s, %s %s, %s %s, %s %s, %s %s" % (lonTL,latTL, lonTL,latBR, lonBR,latBR, lonBR,latTL, lonTL,latTL)
         query = """SELECT updated_at,
@@ -232,7 +242,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR):
         cursor.execute(query)
         disruptionRows = cursor.fetchall()
         
-        jsonText = disruptionRows2JSON(disruptionRows)
+        jsonText = disruptionRows2JSON(disruptionRows, closestcam)
         
         return jsonText        
     except:
@@ -245,7 +255,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
         
-def findDisruptionsRadius(lon, lat, radius):
+def findDisruptionsRadius(lon, lat, radius, closestcam):
     try:
         query = """SELECT updated_at,
                             ltisid, 
@@ -275,7 +285,7 @@ def findDisruptionsRadius(lon, lat, radius):
         cursor.execute(query)
         disruptionRows = cursor.fetchall()
         
-        jsonText = disruptionRows2JSON(disruptionRows)
+        jsonText = disruptionRows2JSON(disruptionRows, closestcam)
         
         return jsonText        
     except:
@@ -297,7 +307,7 @@ def getPointsFromJson(json_data):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
         
-def findDisruptionsRoute(points, radius=1000):
+def findDisruptionsRoute(points, closestcam, radius=1000):
     try:
         route = "LINESTRING("
         for point in points:
@@ -330,7 +340,7 @@ def findDisruptionsRoute(points, radius=1000):
         cursor.execute(query)
         disruptionRows = cursor.fetchall()
         
-        jsonText = disruptionRows2JSON(disruptionRows)
+        jsonText = disruptionRows2JSON(disruptionRows, closestcam)
         
         return jsonText        
     except:
@@ -343,7 +353,7 @@ def findDisruptionsRoute(points, radius=1000):
 ###################### Returns a JSON text for the rows of the table ##########################
 ###############################################################################################
         
-def disruptionRows2JSON(disruptionRows):
+def disruptionRows2JSON(disruptionRows, closestcam):
     jsonRow = ""
     for row in disruptionRows:
         coordinates = row[-1][6:-1]
@@ -371,10 +381,19 @@ def disruptionRows2JSON(disruptionRows):
         \"remarktime\": \"%s\",
         \"remark\": \"%s\",
         \"longitude\": \"%s\",
-        \"latitude\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
+        \"latitude\": \"%s\",
+        """ % (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
                 row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
                 longitude, latitude)
+        
+        if closestcam=="y":
+            cameras = findCamerasDisruptionClosest(row[1])
+        elif closestcam=="n":
+            cameras = findCamerasDisruption(row[1])
+        
+        jsonRow += "    " + cameras[1:-1]
+        jsonRow +="""\n    },\n"""
+        
     
     jsonText = "{\"disruptions\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText
@@ -391,7 +410,7 @@ def findTweetsRadius(lon, lat, radius):
                             location,
                             text,
                             probability,
-							ST_AsText(geolocation)
+                            ST_AsText(geolocation)
                     FROM tweets
                     WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
 
@@ -466,7 +485,7 @@ def tweetRows2JSON(tweetRows):
 def findCamerasRadius(lon, lat, radius):
     try:
         query = """SELECT title,
-							link,
+                            link,
                             ST_AsText(geolocation)
                     FROM cameras
                     WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
@@ -487,10 +506,10 @@ def findCamerasRadius(lon, lat, radius):
 ################## Returns a JSON text for the area around a disruption #######################
 ###############################################################################################
 
-def findCamerasDisruption(ltisid, radius=1000):
+def findCamerasDisruption(ltisid, radius=500):
     try:
         query = """SELECT title,
-							link,
+                            link,
                             ST_AsText(geolocation)
                     FROM cameras
                     WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
@@ -507,6 +526,33 @@ def findCamerasDisruption(ltisid, radius=1000):
         # Exit the script and print an error telling what happened.
         sys.exit("Database select failed! -> %s" % (exceptionValue))
 
+###############################################################################################
+############## Returns a JSON text for the closest camera around a disruption #################
+###############################################################################################
+
+def findCamerasDisruptionClosest(ltisid, radius=500):
+    try:
+        query = """SELECT title, link, st_distance, geolocation FROM (SELECT title,
+                            link,
+                            ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
+                            ST_AsText(geolocation) AS geolocation
+                    FROM cameras
+                    ORDER BY st_distance ASC
+                    LIMIT(1)) AS closestcam WHERE st_distance<=%s""" % (ltisid,radius)
+                    
+        cursor.execute(query)
+        cameraRows = cursor.fetchall()
+        
+        jsonText = cameraRows2JSON(cameraRows)
+        
+        return jsonText        
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        # Exit the script and print an error telling what happened.
+        sys.exit("Database select failed! -> %s" % (exceptionValue))
+
+        
 ###############################################################################################
 ##################### Returns a JSON text for the rows of the table ###########################
 ###############################################################################################
