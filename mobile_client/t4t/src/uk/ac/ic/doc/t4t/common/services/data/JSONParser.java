@@ -8,12 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.location.Location;
-import android.location.LocationManager;
 import android.util.Log;
 
-import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 
@@ -22,7 +18,7 @@ public class JSONParser {
 	private final static String TAG = JSONParser.class.getSimpleName();
 	
 	//Disruption event parameters
-	private final static String EVENT_ID = "eventID";
+	private final static String EVENT_ID = "ltisid";
 	private final static String EVENT_START_DATE = "eventstartdate";
 	private final static String EVENT_START_TIME = "eventstarttime";
 	private final static String EVENT_END_DATE = "eventenddate";
@@ -35,13 +31,13 @@ public class JSONParser {
 	private final static String DESCRIPTION = "description";
 	private final static String LAST_MODIFIED_TIME = "lastmodifiedtime";
 	private final static String SEVERITY = "severity";
-	private final static String POST_CODE_START = "PostCodeStart";
-	private final static String POST_CODE_END = "PostCodeEnd";
-	private final static String REMARK_DATE = "remarkDate";
-	private final static String REMARK_TIME = "remarkTime";
+	private final static String POST_CODE_START = "postcodestart";
+	private final static String POST_CODE_END = "postcodeend";
+	private final static String REMARK_DATE = "remarkdate";
+	private final static String REMARK_TIME = "remarktime";
 	private final static String REMARK = "remark";
-	private final static String LATITUDE = "lat";
-	private final static String LONGITUDE = "lon";
+	private final static String LATITUDE = "latitude";
+	private final static String LONGITUDE = "longitude";
 	
 	//Tweet parameters
 	private final static String TWEET_ID = "tweetID";
@@ -52,18 +48,13 @@ public class JSONParser {
 	private final static String TWEET_LATITUDE = "lat";
 	private final static String TWEET_LONGITUDE = "long";
 	
-	private LocationManager locationManager;
-	private Context context;
-	
-	public JSONParser(Context context){
-		this.context = context;
-	}
-	
-	public List<EventItem> parseDisruptionEvents(String responseStr){
+
+	public static List<EventItem> parseDisruptionEvents(String responseStr){
+		
 		if ( responseStr == null )
 			return null;
 		
-		//Log.i(TAG, "Response: " + responseStr);
+		Log.v(TAG, "Response: " + responseStr);
 		
 		JSONObject response = null;
 		try {
@@ -72,7 +63,7 @@ public class JSONParser {
 			Log.e(TAG, "Error parsing server response: " + responseStr);
 		}
 		
-		//Log.i(TAG, "REST Event response: " + responseStr);
+		Log.v(TAG, "REST Event response: " + responseStr);
 		
 		List<EventItem> parsedEventItems = new ArrayList<EventItem>();
 		JSONArray disruptions = null;
@@ -127,31 +118,6 @@ public class JSONParser {
 				event.setLatitude(JsonEvent.getDouble(LATITUDE));
 				event.setLongitude(JsonEvent.getDouble(LONGITUDE));
 				
-				//Distance to event
-				if (locationManager == null && context != null)
-					locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
-				Location lastKnownLocation = null;
-				
-				if (locationManager != null)
-					lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-			    
-				if (lastKnownLocation != null){
-					Log.i(TAG, "Current lat: " + lastKnownLocation.getLatitude() + ", long: " + lastKnownLocation.getLongitude());
-			    Log.i(TAG, "Event lat: " + event.getLatitude() + ", long: " + event.getLongitude());
-			    
-			    float[] results = new float[3];
-			    Location.distanceBetween(
-			    		lastKnownLocation.getLatitude(), 
-			    		lastKnownLocation.getLongitude(), 
-			    		event.getLatitude(),
-			    		event.getLongitude(),
-			    		results);
-
-			    	Log.i(TAG, "Distance to event: " + results[0] / 1000);
-			    	event.setCurrentDistanceFromEvent(results[0] / 1000);
-				}
-			    
-				
 				parsedEventItems.add(event);
 				
 			} catch (JSONException e) {
@@ -167,13 +133,16 @@ public class JSONParser {
 	 * Date converter for JSON strings
 	 * return Date
 	 */
-	private Date stringToDate(String date){
+	private static Date stringToDate(String date){
+		
+		Log.v(TAG, "Parsing date: " + date);
+		
 		//Date Format YYYY-MM-DD
 		//may occasionally have time then the format is
 		//YYYY-MM-DDTHHMM
 		int year, month, day, hour, minute;
 		
-		if (date == null || date.equals(""))
+		if (date == null || date.equals("") || date.equals("None"))
 			return null;
 		
 		try {
@@ -196,15 +165,16 @@ public class JSONParser {
 		return null;
 	}
 	
-	private Date stringToDate(String date, String time){
+	private static Date stringToDate(String date, String time){
 		
-		if ( date.equals("NULL") && time.equals("NULL"))
+		if ( (date.equals("NULL") && time.equals("NULL")) || 
+				(date.equals("None") && time.equals("None")) )
 			return null;
 		
-		else if (time.equals("NULL"))
+		else if (time.equals("NULL") || time.equals("None"))
 			return stringToDate(date);
 		
-		else if (date.equals("NULL"))
+		else if (date.equals("NULL") || date.equals("None"))
 			return stringToDate("0000-00-00T" + time);
 		
 		return stringToDate(date + "T" + time);
@@ -215,7 +185,7 @@ public class JSONParser {
 		if ( tweets == null )
 			return null;
 		
-		Log.i(TAG, "Response: " + tweets);
+		Log.v(TAG, "Response: " + tweets);
 		
 		JSONObject response = null;
 		try {
@@ -231,35 +201,35 @@ public class JSONParser {
 		try {
 			disruptions = response.getJSONArray("tweets");
 		} catch (JSONException e) {
-			Log.e(TAG, "Error parsing disruptions array: " + tweets);
+			Log.e(TAG, "Error parsing tweets array: " + tweets);
 		}
 		
 		List<TweetItem> tweetList = new ArrayList<TweetItem>();
 		
-		Log.i(TAG, "REST Tweets response: " + tweets);
+		Log.v(TAG, "REST Tweets response: " + tweets);
 		
-		
-		for (int i = 0; i < disruptions.length(); i++ ){
-			TweetItem tweet = new TweetItem();
-			
-			try {
-				JSONObject JsonTweet = disruptions.getJSONObject(i);
+		if (disruptions != null)
+			for (int i = 0; i < disruptions.length(); i++ ){
+				TweetItem tweet = new TweetItem();
 				
-				tweet.setTweetID(JsonTweet.getString(TWEET_ID));
-				tweet.setAccountName(JsonTweet.getString(USER_NAME));
-				tweet.setCreatedAt(JsonTweet.getString(CREATED_AT));
-				tweet.setAccountLocation(JsonTweet.getString(ACCOUNT_LOCATION));
-				tweet.setMessageText(JsonTweet.getString(MESSAGE_TEXT));
-				tweet.setLatitude(JsonTweet.getDouble(TWEET_LATITUDE));
-				tweet.setLongitude(JsonTweet.getDouble(TWEET_LONGITUDE));
-				
-				tweetList.add(tweet);
-				
-			} catch (JSONException e) {
-				Log.e(TAG, "Error parsing tweets: " + tweets);
+				try {
+					JSONObject JsonTweet = disruptions.getJSONObject(i);
+					
+					tweet.setTweetID(JsonTweet.getString(TWEET_ID));
+					tweet.setAccountName(JsonTweet.getString(USER_NAME));
+					tweet.setCreatedAt(JsonTweet.getString(CREATED_AT));
+					tweet.setAccountLocation(JsonTweet.getString(ACCOUNT_LOCATION));
+					tweet.setMessageText(JsonTweet.getString(MESSAGE_TEXT));
+					tweet.setLatitude(JsonTweet.getDouble(TWEET_LATITUDE));
+					tweet.setLongitude(JsonTweet.getDouble(TWEET_LONGITUDE));
+					
+					tweetList.add(tweet);
+					
+				} catch (JSONException e) {
+					Log.e(TAG, "Error parsing tweets: " + tweets);
+				}
+					
 			}
-				
-		}
 		
 		return tweetList;
 	}

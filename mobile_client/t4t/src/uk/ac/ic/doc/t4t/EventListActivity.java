@@ -26,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,6 +40,7 @@ public class EventListActivity extends Activity implements Observer {
 	private LocationMgr location;
 	private DataMgr restClient;
 	private ImageButton reportEventBtn;
+	private ImageView headerLogo;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,16 @@ public class EventListActivity extends Activity implements Observer {
 				
 				Intent i = new Intent(EventListActivity.this, ReportQuickEventActivity.class);
 				startActivity(i);
+				
+			}
+		});
+        
+        headerLogo = (ImageView) findViewById(R.id.headerLogo);
+        headerLogo.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				eventList.smoothScrollToPosition(0);
 				
 			}
 		});

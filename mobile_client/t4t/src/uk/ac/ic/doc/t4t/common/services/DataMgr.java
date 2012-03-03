@@ -25,12 +25,11 @@ public class DataMgr extends Observable implements LocationObserver {
 	private double latitude;
 	private double longitude;
 	
-	private String apiVersion = "/t4t/0.1/";
+	private String apiVersion = "/t4t/0.2/";
 	private static final String DISRUPTIONS_ENDPOINT = "disruptions?";	
 	private static final String TWEETS_ENDPOINT = "tweets?disruptionID=";
 	private final String URL;
 	
-	private JSONParser jsonParser;
 	private HTTPRequestCache requestCache;
 	private EventPostProcessor eventPostProcessor;
 	
@@ -52,29 +51,26 @@ public class DataMgr extends Observable implements LocationObserver {
 		if (hasLocation == false){
 			
 			response = requestCache.getEventItems();
-			
-			if (jsonParser == null)
-		    	jsonParser = new JSONParser(context);
 		    
-		    eventItems = jsonParser.parseDisruptionEvents(response);
+		    eventItems = JSONParser.parseDisruptionEvents(response);
 			
 		} else {
 			
 			String query = apiVersion + DISRUPTIONS_ENDPOINT + "latitude=" +
-					latitude + "&longitude=" + longitude + "&radius=10";
+					latitude + "&longitude=" + longitude + "&radius=4000";
 
 			response = HTTPRequester.httpGet(URL + query);
 			
+			Log.i(TAG, "Response length " + response.length());
+			
 			requestCache.setEventItems(response);
-		    
-		    if (jsonParser == null)
-		    	jsonParser = new JSONParser(context);
-		    
-		    eventItems = jsonParser.parseDisruptionEvents(response);
+
+		    eventItems = JSONParser.parseDisruptionEvents(response);
 		    
 		}
 		
-		
+		eventItems = eventPostProcessor.processEvents(eventItems);
+		Log.i(TAG, "Parsed " + eventItems.size() + " event items");
         
         Log.i(TAG, "Notifying observers of new event list");
 		setChanged();

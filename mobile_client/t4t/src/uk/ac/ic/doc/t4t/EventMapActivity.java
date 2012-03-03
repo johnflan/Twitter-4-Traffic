@@ -80,7 +80,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         mapController = mapView.getController();
         Log.i(TAG, "Moving map to users current loc : " + location.getGeoPoint());
         mapController.animateTo(location.getGeoPoint());
-        mapController.setZoom(13);
+        mapController.setZoom(14);
         
         Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
         eventOverlay = new EventOverlay(drawable, this);
