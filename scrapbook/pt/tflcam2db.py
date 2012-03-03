@@ -42,7 +42,8 @@ def periodically_sample_feed(cursor, conn, **kw):
     while True:
         try:
             tStart = time.time()
-            
+            updated_at = strftime("%d/%m/%y %H:%M:%S")
+
             req = urllib2.Request(url)
             data = urllib2.urlopen(req).read()
             dom = parseString(data.encode("ascii", "ignore"))
@@ -65,41 +66,31 @@ def periodically_sample_feed(cursor, conn, **kw):
 ###############################################################################################
 
 def store_tfl_data(cursor, conn, dom):
-    cameras = dom.getElementsByTagName('kml')[0].getElementsByTagName('Cameras')[0].getElementsByTagName('Camera')
+    cameras = dom.getElementsByTagName('rss')[0].getElementsByTagName('channel')[0].getElementsByTagName('item')
 
     cursor.execute("DELETE FROM cameras")    
 
     for camera in cameras:
         cam = {}
         cam['title'] = camera.getElementsByTagName("title")[0].firstChild.data
-        cam['link'] = camera.getElementsByTagName("Link")[0].firstChild.data
-        cam['placemarkname'] = camera.getElementsByTagName("Placemark")[0].getElementsByTagName("name")[0].firstChild.data
-        cam['placemarkdescription'] = camera.getElementsByTagName("Placemark")[0].getElementsByTagName("description")[0].firstChild.data
-        cam['geolocation'] = camera.getElementsByTagName("Placemark")[0].getElementsByTagName("Point")[0].getElementsByTagName("Coordinates")[0].firstChild.data
+        cam['link'] = camera.getElementsByTagName("link")[0].firstChild.data
+        cam['description'] = camera.getElementsByTagName("description")[0].firstChild.data
+        cam['geolocation'] = camera.getElementsByTagName("georss:point")[0].firstChild.data
         cursor, conn = updatecam(cursor, conn, **cam)
 
     conn.commit()
 
 def updatecam(cursor, conn, **cam):
-    lon,lat = cam['geolocation'].split(',')
-    geoValue = "ST_GeographyFromText('SRID=4326; POINT(%s %s)'))" % (lon, lat)
-    
+    lat, lon = cam['geolocation'].split(' ')
+    geoValue = "ST_GeographyFromText('SRID=4326; POINT(%s %s)')" % (lon, lat)
+    if lat=="NaN" or lon=="NaN":
+        return cursor, conn
+
     try:
-        queryColumns = "("
-        queryValues = " VALUES("
-
-        for key in rrevent:
-            queryColumns+="%s," % key
-            if(rrevent[key]!='NULL'): queryValues+="'%s'," % rrevent[key]
-            else: queryValues+="NULL,"
-
-        queryColumns += "lonlat)"
-        query_archive = "INSERT INTO archive" + queryColumns + queryValues + geoValue
-
-        cursor.execute(query_archive)
-
-        query_tfl = "INSERT INTO tfl" + queryColumns + queryValues + geoValue
-        cursor.execute(query_tfl)
+        query_tfl = "INSERT INTO cameras(title,link,description,geolocation) VALUES(%s,%s,%s,"+geoValue+")"
+        params = (cam['title'],cam['link'],cam['description'])
+        
+        cursor.execute(query_tfl,params)
         return cursor, conn
     except:
         # Get the most recent exception

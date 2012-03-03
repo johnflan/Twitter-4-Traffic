@@ -138,7 +138,7 @@ def tweets():
     return "Invalid tweets request", 400
 
 @app.route("/t4t/0.2/cameras", methods=['GET'])
-def tweets():
+def cameras():
     if ('disruptionID' in request.args):
         print "[INFO] Valid cameras request"
         return findCamerasDisruption(request.args['disruptionID'])
@@ -468,7 +468,7 @@ def findCamerasRadius(lon, lat, radius):
         query = """SELECT title,
 							link,
                             ST_AsText(geolocation)
-                    FROM tweets
+                    FROM cameras
                     WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
 
         cursor.execute(query)
@@ -492,7 +492,7 @@ def findCamerasDisruption(ltisid, radius=1000):
         query = """SELECT title,
 							link,
                             ST_AsText(geolocation)
-                    FROM tweets
+                    FROM cameras
                     WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
 
         cursor.execute(query)

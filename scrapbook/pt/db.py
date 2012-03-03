@@ -139,8 +139,7 @@ def setup(cursor, conn, *args):
                 cursor.execute("""CREATE TABLE cameras(
                                 title TEXT,
                                 link TEXT,
-                                placemark_name TEXT,
-                                placemark_description TEXT,
+                                description TEXT,
                                 geolocation GEOGRAPHY(POINT, 4326)
                                 )""")
                 cursor.execute("CREATE INDEX cameras_index ON cameras USING GIST (geolocation)")
