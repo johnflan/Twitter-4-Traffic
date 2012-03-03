@@ -532,13 +532,15 @@ def findCamerasDisruption(ltisid, radius=500):
 
 def findCamerasDisruptionClosest(ltisid, radius=500):
     try:
-        query = """SELECT title, link, st_distance, geolocation FROM (SELECT title,
+        query = """SELECT title, link, st_distance, geolocation
+                    FROM (SELECT title,
                             link,
                             ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
                             ST_AsText(geolocation) AS geolocation
-                    FROM cameras
+                            FROM cameras) AS closestcam
+                    WHERE st_distance<=%s 
                     ORDER BY st_distance ASC
-                    LIMIT(1)) AS closestcam WHERE st_distance<=%s""" % (ltisid,radius)
+                    LIMIT(1)""" % (ltisid,radius)
                     
         cursor.execute(query)
         cameraRows = cursor.fetchall()
