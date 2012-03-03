@@ -416,8 +416,8 @@ def findTweetsRadius(lon, lat, radius):
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
-        
-        jsonText = tweetRows2JSON(tweetRows)
+				
+        jsonText = tweetRows2JSON(tweetRows,lon,lat)
         
         return jsonText        
     except:
@@ -432,6 +432,7 @@ def findTweetsRadius(lon, lat, radius):
 
 def findTweetsDisruption(ltisid, radius=1000):
     try:
+        
         query = """SELECT tid,
                             uname,
                             created_at,
@@ -444,9 +445,17 @@ def findTweetsDisruption(ltisid, radius=1000):
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
-        
-        jsonText = tweetRows2JSON(tweetRows)
-        
+				
+				#Calculate lon, lat from the disruption ID
+        query = "SELECT ST_AsText(lonlat) FROM tfl WHERE ltisid="+ltisid
+        cursor.execute(query)
+        lonlat = cursor.fetchone()
+        coordinates = lonlat[-1][6:-1]
+        lonlatArray = coordinates.split(" ")
+        lon = lonlatArray[0]
+        lat = lonlatArray[1]	
+				
+        jsonText = tweetRows2JSON(tweetRows,lon,lat)      
         return jsonText        
     except:
         # Get the most recent exception
@@ -457,10 +466,21 @@ def findTweetsDisruption(ltisid, radius=1000):
 ###############################################################################################
 ##################### Returns a JSON text for the rows of the table ###########################
 ###############################################################################################
-        
-def tweetRows2JSON(tweetRows):
+def calculateRank(tid, lon, lat, prob):
+    query = """select ST_Distance('POINT(%s %s)',( select geolocation from tweets where tid=%s))""" % (lon, lat, tid);
+    cursor.execute(query);
+    tweetDistance=cursor.fetchone()
+    tweetDistance=float(tweetDistance[0])
+    if tweetDistance==0:
+        tweetDistance=1
+    print tweetDistance
+    tweetRank=0.6*(1/tweetDistance)+0.4*float(prob);
+    return tweetRank
+		
+def tweetRows2JSON(tweetRows,lon,lat):
     jsonRow = ""
     for row in tweetRows:
+        ranking=calculateRank(row[0],lon,lat,row[5]);
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -472,8 +492,9 @@ def tweetRows2JSON(tweetRows):
         \"location\": \"%s\",
         \"text\": \"%s\",
         \"longitude\": \"%s\",
-        \"latitude\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3],row[4],longitude,latitude)
+        \"latitude\": \"%s\",
+				\"ranking\": \"%s\"
+    },\n""" % (row[0],row[1],row[2],row[3],row[4],longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText
