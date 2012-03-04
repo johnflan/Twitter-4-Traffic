@@ -8,6 +8,15 @@
         <ImageView
             android:id="@+id/trafficCameraImage"
             android:layout_width="352px"
-            android:layout_height="288px" />
+            android:layout_height="288px"
+            android:src="@drawable/traffic_camera_loading" />
+
+        <TextView
+            android:id="@+id/cameraCountText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 of 0 traffic cameras"
+            android:gravity="center"
+            android:padding="8dp"/>
 
     </LinearLayout>

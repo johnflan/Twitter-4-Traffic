@@ -91,8 +91,6 @@ public class TrafficCameraImageDownloader {
 	        if (imageViewReference != null) {
 	            ImageView imageView = imageViewReference.get();
 	            
-	            Log.e(TAG, "ImageView ref:" + imageView);
-	            
 	            if (imageView != null) {
 	            	Log.i(TAG, "Setting image view to downloaded image");
 	                imageView.setImageBitmap(bitmap);

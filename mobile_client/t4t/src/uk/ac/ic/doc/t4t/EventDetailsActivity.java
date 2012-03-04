@@ -8,12 +8,10 @@ import uk.ac.ic.doc.t4t.common.services.TrafficCameraImageDownloader;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItemAdapter;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
-import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -30,6 +28,8 @@ public class EventDetailsActivity extends Activity {
 	private ImageView trafficCameras;
 	private Dialog dialog;
 	private EventItem eventDetails;
+	private int displayTrafficImage = 0;
+	private TrafficCameraImageDownloader downloader;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,7 +150,7 @@ public class EventDetailsActivity extends Activity {
 	}
 	
 	private void displayTrafficCamera(){
-		TrafficCameraImageDownloader downloader = new TrafficCameraImageDownloader();	
+		downloader = new TrafficCameraImageDownloader();	
 		Log.i(TAG, "Displaying traffic camera images");
 
 		dialog = new Dialog(EventDetailsActivity.this);
@@ -163,8 +163,39 @@ public class EventDetailsActivity extends Activity {
         dialog.show();
         
         ImageView imageView = (ImageView) dialog.findViewById(R.id.trafficCameraImage);
-        Log.e(TAG, "ref to image view " + imageView);
+        TextView caption = (TextView) dialog.findViewById(R.id.cameraCountText);
         
-        downloader.download(eventDetails.getTrafficCameras().get(0).getLink(), imageView);
+        String captionText = (displayTrafficImage + 1)  + " of " +  eventDetails.getTrafficCameras().size() + " traffic cameras";
+        caption.setText(captionText);
+        
+        downloader.download(eventDetails.getTrafficCameras().get(displayTrafficImage).getLink(), imageView);
+        
+        imageView.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				getNextTrafficCamera();				
+			}
+		});
+        
+	}
+	
+	private void getNextTrafficCamera(){
+		
+		if (eventDetails.getTrafficCameras().size() == 1)
+			return;
+		
+		displayTrafficImage++;
+		
+		if (displayTrafficImage >= eventDetails.getTrafficCameras().size())
+			displayTrafficImage = 0;
+		
+		ImageView imageView = (ImageView) dialog.findViewById(R.id.trafficCameraImage);
+		TextView caption = (TextView) dialog.findViewById(R.id.cameraCountText);
+		
+		downloader.download(eventDetails.getTrafficCameras().get(displayTrafficImage).getLink(), imageView);
+		
+		String captionText = (displayTrafficImage + 1) + " of " +  eventDetails.getTrafficCameras().size() + " traffic cameras";
+        caption.setText(captionText);
 	}
 }

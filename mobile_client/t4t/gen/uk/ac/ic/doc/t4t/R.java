@@ -58,14 +58,16 @@ public final class R {
         public static final int splash_bg=0x7f020022;
         public static final int splash_clouds=0x7f020023;
         public static final int splash_logo=0x7f020024;
-        public static final int tweet_profile_placeholder=0x7f020025;
-        public static final int what_people_are_saying_bg=0x7f020026;
+        public static final int traffic_camera_loading=0x7f020025;
+        public static final int tweet_profile_placeholder=0x7f020026;
+        public static final int what_people_are_saying_bg=0x7f020027;
     }
     public static final class id {
         public static final int TweetAge=0x7f090028;
         public static final int TweetText=0x7f090027;
         public static final int TweetUserIcon=0x7f090024;
         public static final int TweetUsername=0x7f090026;
+        public static final int cameraCountText=0x7f090007;
         public static final int eventDescription=0x7f09000f;
         public static final int eventDistance=0x7f090012;
         public static final int eventDistanceType=0x7f090013;
@@ -78,7 +80,6 @@ public final class R {
         public static final int eventTitle=0x7f09000d;
         public static final int eventTrafficCameras=0x7f090014;
         public static final int eventTypeIcon=0x7f090011;
-        public static final int gallery1=0x7f090006;
         public static final int headerLogo=0x7f090002;
         public static final int header_share_button=0x7f090003;
         public static final int imageView1=0x7f090004;
@@ -105,23 +106,22 @@ public final class R {
         public static final int tableRow1=0x7f09001d;
         public static final int textView1=0x7f090009;
         public static final int trafficCamLayout=0x7f090005;
-        public static final int trafficCameraImage=0x7f090007;
+        public static final int trafficCameraImage=0x7f090006;
         public static final int tweetList=0x7f090015;
     }
     public static final class layout {
         public static final int about=0x7f030000;
         public static final int app_header=0x7f030001;
         public static final int app_header_no_share=0x7f030002;
-        public static final int event_details_traffic_cam_gallery_popup=0x7f030003;
-        public static final int event_details_traffic_cam_imageview_popup=0x7f030004;
-        public static final int eventdetails=0x7f030005;
-        public static final int eventitem=0x7f030006;
-        public static final int eventlist=0x7f030007;
-        public static final int eventmap=0x7f030008;
-        public static final int report_question_popup=0x7f030009;
-        public static final int reportevent=0x7f03000a;
-        public static final int splash=0x7f03000b;
-        public static final int tweetitem=0x7f03000c;
+        public static final int event_details_traffic_cam_imageview_popup=0x7f030003;
+        public static final int eventdetails=0x7f030004;
+        public static final int eventitem=0x7f030005;
+        public static final int eventlist=0x7f030006;
+        public static final int eventmap=0x7f030007;
+        public static final int report_question_popup=0x7f030008;
+        public static final int reportevent=0x7f030009;
+        public static final int splash=0x7f03000a;
+        public static final int tweetitem=0x7f03000b;
     }
     public static final class menu {
         public static final int event_list_options_menu=0x7f080000;
