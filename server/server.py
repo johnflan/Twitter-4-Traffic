@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, send_file
 import sys
 import optparse
 import ConfigParser
@@ -11,16 +11,26 @@ response_data = {   'disruption_radius.txt': None,
                     'disruption_rect.txt': None,
                     'tweets_disruption_id.txt': None,
                     'route_disruptions.txt':None,
-                    'instructions.txt': None}
+                    'test.html': None}
 
 @app.route("/", methods=['GET'])
 def instructions():
-    return getResponse('instructions.txt')
+    return getResponse('test.html')
 
+@app.route("/favicon.ico")
+def get_favicon():
+    return send_file('responses/images/favicon.ico',mimetype='image/x-icon')
+	
+@app.route("/header_bg.png")
+def get_header():
+    return send_file('responses/images/header_bg.png',mimetype='image/png')
+	
+
+	
 #--- API V0.1 ----------------------------------------------------
 
 @app.route("/t4t/0.1/disruptions", methods=['GET'])
-def disruptions():
+def disruptions01():
     
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
@@ -45,21 +55,21 @@ def disruptions():
 #POST is for creating
 #PUT is for creating/updating
 @app.route("/t4t/0.1/disruptions/route/", methods=['PUT','POST'])
-def disruptionsRoute():
+def disruptionsRoute01():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         return getResponse('route_disruptions.txt')
     return "Invalid request", 400
 
 @app.route("/t4t/0.1/tweets", methods=['GET'])
-def tweets():
+def tweets01():
     if ('disruptionID' in request.args):
         return getResponse('tweets_disruption_id.txt')
     return "Invalid tweet request", 400
 
 
 @app.route("/t4t/0.1/report", methods=['PUT', 'POST'])
-def report():
+def report01():
     if (request.mimetype == "application/json"):
         print "[INFO] received json body, ", request.json
         return "Success"
@@ -85,7 +95,7 @@ def loadResponseData(respDir):
 #--- API V0.2 ----------------------------------------------------
 
 @app.route("/t4t/0.2/disruptions", methods=['GET'])
-def disruptions():
+def disruptions02():
     
     closestcam = "n"
     if ( 'closestcam' in request.args ):
@@ -121,7 +131,7 @@ def disruptions():
 #POST is for creating
 #PUT is for creating/updating
 @app.route("/t4t/0.2/disruptions/route/", methods=['PUT','POST'])
-def disruptionsRoute():
+def disruptionsRoute02():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         points = getPointsFromJson(str(request.json))
@@ -129,7 +139,7 @@ def disruptionsRoute():
     return "Invalid request", 400
 
 @app.route("/t4t/0.2/tweets", methods=['GET'])
-def tweets():
+def tweets02():
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
         return findTweetsDisruption(request.args['disruptionID'])
@@ -144,7 +154,7 @@ def tweets():
     return "Invalid tweets request", 400
 
 @app.route("/t4t/0.2/cameras", methods=['GET'])
-def cameras():
+def cameras02():
     if ('disruptionID' in request.args):
         print "[INFO] Valid cameras request"
         if ('closestcam' in request.args):
@@ -163,7 +173,7 @@ def cameras():
     return "Invalid cameras request", 400
     
 @app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
-def report():
+def report02():
     if (request.mimetype == "application/json"):
         print "[INFO] received json body, ", request.json
         return "Success"
