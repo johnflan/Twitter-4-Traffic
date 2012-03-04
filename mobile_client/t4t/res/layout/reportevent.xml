@@ -89,10 +89,10 @@
             android:paddingTop="20px">
 
             <ImageButton
-                android:id="@+id/reportWeather"
+                android:id="@+id/reportHazard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/btn_report_event_weather"
+                android:src="@drawable/btn_report_event_hazard"
                 android:background="@null"
                 android:paddingRight="20px"/>
             

@@ -78,9 +78,6 @@ public class EventDetailsActivity extends Activity {
 			
 			//No tweets found
 		}
-			
-        //tweetList.setClickable(true);
-		
 	}
 
 	private void populateEvent(EventItem eventDetails) {

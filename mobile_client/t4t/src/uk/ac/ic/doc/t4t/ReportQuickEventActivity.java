@@ -36,12 +36,12 @@ import android.widget.Toast;
 public class ReportQuickEventActivity extends Activity {
 	private static final String TAG = ReportQuickEventActivity.class.getSimpleName();
 	
-	private ImageButton trafficBtn;
-	private ImageButton roadworksBtn;
-	private ImageButton lightsOOOBtn;
-	private ImageButton accidentBtn;
-	private ImageButton weatherBtn;
-	private ImageButton roadClosedBtn;
+	private ImageButton btnTraffic;
+	private ImageButton btnRoadworks;
+	private ImageButton btnLightsOOO;
+	private ImageButton btnAccident;
+	private ImageButton btnHazard;
+	private ImageButton btnRoadClosed;
 	
 	private Twitter twitter;
 	private OAuthConsumer mConsumer;
@@ -63,8 +63,14 @@ public class ReportQuickEventActivity extends Activity {
 	private static final String REPORT_TEXT_ROAD_WORKS = "Road works";
 	private static final String REPORT_TEXT_TRAFFIC_LIGHTS = "Traffic lights out of order";
 	private static final String REPORT_TEXT_TRAFFIC_ACCIDENT = "Traffic accident";
-	private static final String REPORT_TEXT_DANGERIOUS_CONDITIONS= "Dangerious driving conditions";
+	private static final String REPORT_TEXT_HAZARD = "Hazard";
 	private static final String REPORT_TEXT_ROAD_CLOSED = "Road closed";
+	
+	private static final String REPORT_ADV_TEXT_DANGEROUS_ROAD_SURFACE = "Damaged road surface";
+	private static final String REPORT_ADV_TEXT_ICY_ROAD = "Ice on road";
+	private static final String REPORT_ADV_TEXT_SLIPARY_SURFACE = "Slipary road surface";
+	private static final String REPORT_ADV_TEXT_BURST_WATER_MAIN = "Burst water main";
+	private static final String REPORT_ADV_TEXT_ROAD_OBSTRUCTION = "Dangerous object on road";
 	
 	private static final String REPORT_TEXT_MINOR = "minor";
 	private static final String REPORT_TEXT_MODERATE = "moderate";
@@ -78,12 +84,12 @@ public class ReportQuickEventActivity extends Activity {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.reportevent);
         
-        trafficBtn = 	(ImageButton) findViewById(R.id.reportTrafficJam);
-        roadworksBtn = 	(ImageButton) findViewById(R.id.reportRoadworks);
-        lightsOOOBtn = 	(ImageButton) findViewById(R.id.reportOOOTrafficLights);
-        accidentBtn = 	(ImageButton) findViewById(R.id.reportTrafficAccident);
-        weatherBtn = 	(ImageButton) findViewById(R.id.reportWeather);
-        roadClosedBtn = (ImageButton) findViewById(R.id.reportRoadClosed);
+        btnTraffic = 	(ImageButton) findViewById(R.id.reportTrafficJam);
+        btnRoadworks = 	(ImageButton) findViewById(R.id.reportRoadworks);
+        btnLightsOOO = 	(ImageButton) findViewById(R.id.reportOOOTrafficLights);
+        btnAccident = 	(ImageButton) findViewById(R.id.reportTrafficAccident);
+        btnHazard = 	(ImageButton) findViewById(R.id.reportHazard);
+        btnRoadClosed = (ImageButton) findViewById(R.id.reportRoadClosed);
         
         locationMgr = new LocationMgr(this);
         
@@ -102,52 +108,47 @@ public class ReportQuickEventActivity extends Activity {
         
         Log.d(TAG, "Location address " + addresses);
         
-        trafficBtn.setOnClickListener(new View.OnClickListener() {	
+        btnTraffic.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic jam");
 				reportEvent(REPORT_TEXT_TRAFFIC_CONGESTION);
-				
 			}
 		});
         
-        roadworksBtn.setOnClickListener(new View.OnClickListener() {	
+        btnRoadworks.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting roadworks");
 				reportEvent(REPORT_TEXT_ROAD_WORKS);
-				
 			}
 		});
         
-        lightsOOOBtn.setOnClickListener(new View.OnClickListener() {	
+        btnLightsOOO.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic lights our of order");
 				reportEvent(REPORT_TEXT_TRAFFIC_LIGHTS);
-				
 			}
 		});
         
-        accidentBtn.setOnClickListener(new View.OnClickListener() {	
+        btnAccident.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Reporting traffic accident");
 				reportEvent(REPORT_TEXT_TRAFFIC_ACCIDENT);
-				
 			}
 		});
         
-        weatherBtn.setOnClickListener(new View.OnClickListener() {	
+        btnHazard.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {
-				Log.i(TAG, "Reporting dangerous driving conditions");
-				reportEvent(REPORT_TEXT_DANGERIOUS_CONDITIONS);
-				
+				Log.i(TAG, "Reporting driving hazard");
+				reportComplexEvent(REPORT_TEXT_HAZARD);
 			}
 		});
         
-        roadClosedBtn.setOnClickListener(new View.OnClickListener() {	
+        btnRoadClosed.setOnClickListener(new View.OnClickListener() {	
 			@Override
 			public void onClick(View v) {			
 				Log.i(TAG, "Reporting road closed");
@@ -167,7 +168,6 @@ public class ReportQuickEventActivity extends Activity {
             dialog.setContentView(R.layout.report_question_popup);
 
             dialog.setCancelable(true);
-            //there are a lot of settings, for dialog, check them all out!
             
             //wire up the selection options
             Button minorBtn = (Button) dialog.findViewById(R.id.reportMinorEvent);
@@ -176,7 +176,6 @@ public class ReportQuickEventActivity extends Activity {
 
             TextView eventDescription = (TextView) dialog.findViewById(R.id.reportEventType);
             eventDescription.setText( "Reporting " + eventTypeMsg + "\nPlease rate the severity");
-            //eventDescription.setText( "Rate the severity of the " + eventTypeMsg.toLowerCase());
             
             minorBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -215,6 +214,87 @@ public class ReportQuickEventActivity extends Activity {
 
     	}
     }
+    
+    public void reportComplexEvent(String msg){
+    	this.eventTypeMsg = msg;
+    	
+    	if (verifiedTwitterAccount()) {
+    		
+    		dialog = new Dialog(ReportQuickEventActivity.this);
+    		dialog.requestWindowFeature(dialog.getWindow().FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.report_question_advanced_popup);
+
+            dialog.setCancelable(true);
+            //there are a lot of settings, for dialog, check them all out!
+            
+            TextView eventDescription = (TextView) dialog.findViewById(R.id.reportEventType);
+            eventDescription.setText( "Reporting hazardous conditions");
+    		
+            //map buttons
+            Button btnDangerousRoadSurface = (Button) dialog.findViewById(R.id.reportAdvDangerousRoadSurface);
+            Button btnIcyRoad = (Button) dialog.findViewById(R.id.reportAdvIcyConditions);
+            Button btnSliparySurface = (Button) dialog.findViewById(R.id.reportAdvSliparySurface);
+            Button btnBurstWaterMain = (Button) dialog.findViewById(R.id.reportAdvBurstWaterMain);
+            Button btnRoadObstruction = (Button) dialog.findViewById(R.id.reportAdvRoadObstruction);
+            
+            btnDangerousRoadSurface.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendTweet(REPORT_ADV_TEXT_DANGEROUS_ROAD_SURFACE);
+					finish();
+				}
+			});
+            
+            btnIcyRoad.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendTweet(REPORT_ADV_TEXT_ICY_ROAD);
+					finish();
+				}
+			});
+            
+            btnSliparySurface.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendTweet(REPORT_ADV_TEXT_SLIPARY_SURFACE);
+					finish();
+				}
+			});
+            
+            btnBurstWaterMain.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendTweet(REPORT_ADV_TEXT_BURST_WATER_MAIN);
+					finish();
+				}
+			});
+            
+            btnRoadObstruction.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					sendTweet(REPORT_ADV_TEXT_ROAD_OBSTRUCTION);
+					finish();
+				}
+			});
+            
+            dialog.setOnCancelListener(new OnCancelListener() {
+				
+				@Override
+				public void onCancel(DialogInterface dialog) {
+						eventTypeMsg = null;
+					
+				}
+			});
+            
+            dialog.show();
+    	}
+    	
+    }
 
 	@Override
 	protected void onPause() {
@@ -246,29 +326,18 @@ public class ReportQuickEventActivity extends Activity {
 		}
 		
 		Uri uri = this.getIntent().getData();
-		//if (uri != null && uri.getScheme().equals(CALLBACK_URL)) {
 	    if (uri != null ) {
 	      Log.d(TAG, "callback: " + uri.getPath());
 
 	      String verifier = uri.getQueryParameter(OAuth.OAUTH_VERIFIER);
 	      Log.d(TAG, "verifier: " + verifier);
 
-
 	      try {
 	        // Get the token
-	        Log.d(TAG, "mConsumer: " + mConsumer);
-	        Log.d(TAG, "mProvider: " + mProvider);
 	        mProvider.retrieveAccessToken(mConsumer, verifier);
 	        String token = mConsumer.getToken();
 	        String tokenSecret = mConsumer.getTokenSecret();
 	        mConsumer.setTokenWithSecret(token, tokenSecret);
-
-	        Log.d(TAG, String.format("verifier: %s, token: %s, tokenSecret: %s",
-	            verifier, token, tokenSecret));
-
-	        // Store token in prefs
-	        //prefs.edit().putString("token", token).putString("tokenSecret",
-	        //    tokenSecret).commit();
 	        
 	        PreferencesHelper.setTwitterOAuthToken(this, token);
 	        PreferencesHelper.setTwitterOAuthVerifier(this, tokenSecret);
@@ -278,7 +347,6 @@ public class ReportQuickEventActivity extends Activity {
 	            tokenSecret);
 	        twitter = new Twitter("MarkoGargenta", oauthClient);
 
-	        Log.d(TAG, "token: " + token);
 	      } catch (oauth.signpost.exception.OAuthMessageSignerException e) {
 
 	        e.printStackTrace();
@@ -303,7 +371,8 @@ public class ReportQuickEventActivity extends Activity {
     	
     	if (PreferencesHelper.getTwitterUsername(this).equals("")){
     		Log.i(TAG, "No twitter username configured");
-    		Toast.makeText(ReportQuickEventActivity.this, "Error twitter not configured, you must enter your twitter username in the configuration screen.",Toast.LENGTH_LONG).show();
+    		Toast.makeText(ReportQuickEventActivity.this,
+    				"Error twitter not configured",Toast.LENGTH_LONG).show();
     		
     		//remove any existing oauth tokens
     		PreferencesHelper.setTwitterOAuthToken(this, "");
@@ -312,7 +381,8 @@ public class ReportQuickEventActivity extends Activity {
 	    	return false;
     	}
     	
-    	if (PreferencesHelper.getTwitterOAuthToken(this).equals("") || PreferencesHelper.getTwitterOAuthVerifier(this).equals("") ){
+    	if (PreferencesHelper.getTwitterOAuthToken(this).equals("") || 
+    			PreferencesHelper.getTwitterOAuthVerifier(this).equals("") ){
     		Log.i(TAG, "Requesting twitter oauth credentials");
     		String authUrl = null;
 			try {
@@ -353,13 +423,43 @@ public class ReportQuickEventActivity extends Activity {
 	
 	public void sendTweet(String severity){
 		
+		// Normal tweet format:
+		// (EVENT_TYPE) causing (SEVERITY) problems near (ADDRESS) #RightTurn
+		// Hazard tweet format:
+		// (HAZARD TYPE) near (ADDRESS) #RightTurn
+		
 		if (this.eventTypeMsg == null)
 			return;
 		
-		String eventText = this.eventTypeMsg;
-		String severityText = " causing " + severity + " problems ";
+		String tweet;
 		
-       	try {
+		// different tweet format for hazards
+		if (this.eventTypeMsg.equals(REPORT_TEXT_HAZARD))
+			tweet = severity;
+		else
+			tweet = this.eventTypeMsg + " causing " + severity + " problems";
+		
+		if (addresses.size() > 0)
+			tweet = tweet + " near " + addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getAddressLine(1);
+
+		Log.i(TAG, "Tweet: " + tweet);
+		
+		// A much more comprehensive mechanism was suggested by Luke for shortening
+		// the tweet if its too long, we could look for and replace the following
+		// street with st
+		// road with rd
+		// London with Ldn
+		
+		if (tweet.length() > 129)
+			tweet = tweet.substring(0, 130);
+
+	    postTweet( tweet + APP_HASH_TAG );
+	    
+	    this.eventTypeMsg = null;
+	}
+	
+	private void postTweet(String message){
+		try {
     		Log.i(TAG, "logging in for " + PreferencesHelper.getTwitterUsername(this));
     		Log.d(TAG, " with Response token: " + PreferencesHelper.getTwitterOAuthToken(this));
             Log.d(TAG, " and Response verifier: " + PreferencesHelper.getTwitterOAuthVerifier(this));
@@ -373,21 +473,9 @@ public class ReportQuickEventActivity extends Activity {
     		twitter = new Twitter(null, oauthClient);
     		
     		double location[] = {locationMgr.getLatitude(), locationMgr.getLongitude()};
+    		
     		twitter.setMyLocation(location);
-    		
-    		String tweet;
-    		
-    		if (addresses.size() > 0)
-    			tweet = eventText + severityText + " near " + addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getAddressLine(1);
-    		else
-    			tweet = eventText;
-    		
-    		Log.i(TAG, "Tweet: " + tweet);
-    		
-    		if (tweet.length() > 129)
-    			tweet = tweet.substring(0, 130);
-
-	    	twitter.setStatus(tweet + " " + APP_HASH_TAG);
+	    	twitter.setStatus( message );
 	    	
 	    	Toast.makeText(ReportQuickEventActivity.this, "Posted to Twitter", Toast.LENGTH_LONG).show();
     	}
@@ -404,8 +492,6 @@ public class ReportQuickEventActivity extends Activity {
     		Log.e(TAG, "Twitter exception: " + e.getMessage());
     		e.printStackTrace();
     		Toast.makeText(ReportQuickEventActivity.this, "Error posting to twitter",Toast.LENGTH_LONG).show();
-    		
     	}
 	}
-	
 }
