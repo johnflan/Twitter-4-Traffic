@@ -404,20 +404,21 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 
 def findTweetsRadius(lon, lat, radius):
     try:
-        query = """SELECT tid,
+        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             created_at,
                             location,
                             text,
                             probability,
-                            ST_AsText(geolocation)
-                    FROM tweets
-                    WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
+                            ST_Distance(geolocation,'POINT(%s %s)') AS st_distance,
+                            ST_AsText(geolocation) as geolocation
+                    FROM tweets) AS distances
+                    WHERE st_distance <= %s""" % (lon,lat,radius)
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
-				
-        jsonText = tweetRows2JSON(tweetRows,lon,lat,radius)
+                
+        jsonText = tweetRows2JSON(tweetRows, radius)
         
         return jsonText        
     except:
@@ -432,30 +433,21 @@ def findTweetsRadius(lon, lat, radius):
 
 def findTweetsDisruption(ltisid, radius=1000):
     try:
-        
-        query = """SELECT tid,
+        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             created_at,
                             location,
                             text,
                             probability,
-                            ST_AsText(geolocation)
-                    FROM tweets
-                    WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
+                            ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
+                            ST_AsText(geolocation) as geolocation
+                    FROM tweets) AS distances
+                    WHERE st_distance <= %s""" % (ltisid,radius)
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
-				
-				#Calculate lon, lat from the disruption ID
-        query = "SELECT ST_AsText(lonlat) FROM tfl WHERE ltisid="+ltisid
-        cursor.execute(query)
-        lonlat = cursor.fetchone()
-        coordinates = lonlat[-1][6:-1]
-        lonlatArray = coordinates.split(" ")
-        lon = lonlatArray[0]
-        lat = lonlatArray[1]	
-				
-        jsonText = tweetRows2JSON(tweetRows,lon,lat,radius)      
+                
+        jsonText = tweetRows2JSON(tweetRows, radius)      
         return jsonText        
     except:
         # Get the most recent exception
@@ -466,18 +458,15 @@ def findTweetsDisruption(ltisid, radius=1000):
 ###############################################################################################
 ##################### Returns a JSON text for the rows of the table ###########################
 ###############################################################################################
-def calculateRank(tid, lon, lat, prob,radius):
-    query = """select ST_Distance('POINT(%s %s)',( select geolocation from tweets where tid=%s))""" % (lon, lat, tid);
-    cursor.execute(query);
-    tweetDistance=cursor.fetchone()
-    tweetDistance=float(tweetDistance[0])
-    tweetRank=0.6 * (radius-tweetDistance)/radius+0.4*float(prob);
+def calculateRank(prob, distance, radius):
+    tweetRank=0.6 * (radius-distance)/radius + 0.4 * prob;
     return tweetRank
-		
-def tweetRows2JSON(tweetRows,lon,lat,radius):
+        
+def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(row[0],lon,lat,row[5],radius);
+        ranking=calculateRank(float(row[5]), float(row[6]), float(radius));
+
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -490,7 +479,7 @@ def tweetRows2JSON(tweetRows,lon,lat,radius):
         \"text\": \"%s\",
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
-				\"ranking\": \"%s\"
+                \"ranking\": \"%s\"
     },\n""" % (row[0],row[1],row[2],row[3],row[4],longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
