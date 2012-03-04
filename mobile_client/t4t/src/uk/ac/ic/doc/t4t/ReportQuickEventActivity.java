@@ -453,7 +453,7 @@ public class ReportQuickEventActivity extends Activity {
 		if (tweet.length() > 129)
 			tweet = tweet.substring(0, 130);
 
-	    postTweet( tweet + APP_HASH_TAG );
+	    postTweet( tweet + " " + APP_HASH_TAG );
 	    
 	    this.eventTypeMsg = null;
 	}
