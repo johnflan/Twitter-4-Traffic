@@ -108,19 +108,22 @@ def setup(cursor, conn, *args):
                                 PRIMARY KEY (tid)
                                 )""")
                 print "> Table labelled_tweets created"
-            elif args[i]=="event":
-                cursor.execute("""CREATE TABLE event(
+            elif args[i]=="static_events":
+                cursor.execute("""CREATE TABLE static_events(
                                 eid SERIAL NOT NULL,
-                                lonlat GEOGRAPHY(POINT, 4326),
+                                varianceX DECIMAL,
+                                meanX DECIMAL,
+                                varianceY DECIMAL,
+                                meanY DECIMAL,
                                 PRIMARY KEY (eid)
                                 )""")
-                print "> Table event created"
-            elif args[i]=="cluster_data":
-                cursor.execute("""CREATE TABLE cluster_data(
-                                eid BIGINT NOT NULL REFERENCES event(eid),
+                print "> Table static_events created"
+            elif args[i]=="cluster_static_data":
+                cursor.execute("""CREATE TABLE cluster_static_data(
+                                eid BIGINT NOT NULL REFERENCES static_events(eid),
                                 tid BIGINT NOT NULL REFERENCES geolondon(tid)
                                 )""")
-                print "> Table cluster_data created"
+                print "> Table cluster_static_data created"
             elif args[i]=="tweets":
                 cursor.execute("""CREATE TABLE tweets(
                                 tid BIGINT NOT NULL,
