@@ -10,7 +10,7 @@ public class PreferencesHelper {
 	public final static String PREFS_NAME = "t4t_prefs";
 	
 	private final static String DEFAULT_SERVER_URL = "http://vm-project-g1153006.doc.ic.ac.uk";
-	private final static String DEFAULT_SERVER_PORT = "55003";
+	private final static String DEFAULT_SERVER_PORT = "55004";
 	private final static String DEFAULT_VIEW = "map";
 	
     public static String getServerURL(Context context) {

@@ -51,7 +51,6 @@ public class EventPostProcessor {
 		    		results);
 
 	    	event.setCurrentDistanceFromEvent(results[0] / 1000);
-	    	
 		}
 	    
 		return eventList;

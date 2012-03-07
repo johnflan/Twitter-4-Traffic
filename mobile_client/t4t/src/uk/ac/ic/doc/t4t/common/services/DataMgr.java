@@ -73,12 +73,16 @@ public class DataMgr extends Observable implements LocationObserver {
 		    
 		}
 		
-		eventItems = eventPostProcessor.processEvents(eventItems);
-		Log.i(TAG, "Parsed " + eventItems.size() + " event items");
-        
-        Log.i(TAG, "Notifying observers of new event list");
-		setChanged();
-		notifyObservers(eventItems);
+		if (eventItems != null){
+			
+			eventItems = eventPostProcessor.processEvents(eventItems);
+			Log.i(TAG, "Parsed " + eventItems.size() + " event items");
+	        
+	        Log.i(TAG, "Notifying observers of new event list");
+			setChanged();
+			notifyObservers(eventItems);
+		}
+		
 	}
 
 	@Override
