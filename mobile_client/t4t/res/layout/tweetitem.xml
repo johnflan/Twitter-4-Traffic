@@ -15,7 +15,7 @@
 
          <LinearLayout
              android:id="@+id/linearLayout2"
-             android:layout_width="234dp"
+             android:layout_width="218dp"
              android:layout_height="wrap_content"
              android:orientation="vertical" >
 
@@ -48,7 +48,9 @@
                  android:id="@+id/TweetAge"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
+                 android:gravity="right"
                  android:paddingRight="10dip"
+                 android:paddingLeft="5dip"
                  android:paddingTop="10dip"
                  android:text="10 min" />
 

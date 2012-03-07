@@ -9,6 +9,7 @@ import uk.ac.ic.doc.t4t.common.services.data.EventPostProcessor;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequestCache;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequester;
 import uk.ac.ic.doc.t4t.common.services.data.JSONParser;
+import uk.ac.ic.doc.t4t.common.services.data.TweetPostProcessor;
 import uk.ac.ic.doc.t4t.common.services.location.LocationObserver;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
@@ -32,6 +33,7 @@ public class DataMgr extends Observable implements LocationObserver {
 	
 	private HTTPRequestCache requestCache;
 	private EventPostProcessor eventPostProcessor;
+	private TweetPostProcessor tweetPostProcessor;
 	
 	List<EventItem> eventItems = new ArrayList<EventItem>();
 	
@@ -42,6 +44,7 @@ public class DataMgr extends Observable implements LocationObserver {
 		  
 		  requestCache = new HTTPRequestCache(this.context);
 		  eventPostProcessor = new EventPostProcessor(this.context);
+		  tweetPostProcessor = new TweetPostProcessor();
 	}
 	
 	public List<EventItem> requestEvents(){
@@ -107,7 +110,16 @@ public class DataMgr extends Observable implements LocationObserver {
 		String query = apiVersion + TWEETS_ENDPOINT + eventID;       
         String response = HTTPRequester.httpGet(URL + query);
         
-		return JSONParser.parseTweets(response);
+        List<TweetItem> tweets = JSONParser.parseTweets(response);
+        
+        if (tweets != null){
+			
+			tweets = tweetPostProcessor.processTweets(tweets);
+			Log.i(TAG, "Parsed " + tweets.size() + " tweets");
+	        
+		}
+        
+		return tweets;
 	}
 
 }

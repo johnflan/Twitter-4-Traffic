@@ -54,6 +54,7 @@ public class JSONParser {
 	private final static String MESSAGE_TEXT = "text";
 	private final static String TWEET_LATITUDE = "latitude";
 	private final static String TWEET_LONGITUDE = "longitude";
+	private final static String TWEET_RANKING = "ranking";
 	
 
 	public static List<EventItem> parseDisruptionEvents(String responseStr){
@@ -260,11 +261,12 @@ public class JSONParser {
 					tweet.setMessageText(JsonTweet.getString(MESSAGE_TEXT));
 					tweet.setLatitude(JsonTweet.getDouble(TWEET_LATITUDE));
 					tweet.setLongitude(JsonTweet.getDouble(TWEET_LONGITUDE));
+					tweet.setRanking(JsonTweet.getDouble(TWEET_RANKING));
 					
 					tweetList.add(tweet);
 					
 				} catch (JSONException e) {
-					Log.e(TAG, "Error parsing tweets: " + tweets);
+					Log.e(TAG, "Error parsing tweets: " + tweets + "\n Error\n"+ e.getMessage());
 				}
 					
 			}
