@@ -10,7 +10,9 @@ import uk.ac.ic.doc.t4t.eventdetails.TweetItemAdapter;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -64,20 +66,20 @@ public class EventDetailsActivity extends Activity {
 			}
 		});
     	
+        
+        
     	populateEvent(eventDetails);  	
-    	populateTweets(eventDetails);
+
+    	FetchTweets fetchTweets = new FetchTweets(this);
+    	fetchTweets.execute(eventDetails);
+    	
     }
 
-	private void populateTweets(EventItem eventDetails) {
+	private void populateTweets(List<TweetItem> tweets) {
 
-		DataMgr restClient = new DataMgr(this);
-		tweets = restClient.requestTweets(eventDetails.getEventID());
-		if (tweets != null){
+		if (tweets != null)
 			tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
-		} else {
-			
-			//No tweets found
-		}
+
 	}
 
 	private void populateEvent(EventItem eventDetails) {
@@ -194,5 +196,29 @@ public class EventDetailsActivity extends Activity {
 		
 		String captionText = (displayTrafficImage + 1) + " of " +  eventDetails.getTrafficCameras().size() + " traffic cameras";
         caption.setText(captionText);
+	}
+	
+	private class FetchTweets extends AsyncTask<EventItem, Void, List<TweetItem>>{
+
+		private Context context;
+		private DataMgr restClient;
+		
+		public FetchTweets(Context context){
+			this.context = context;
+			restClient = new DataMgr(context);
+		}
+
+		
+		@Override
+		protected List<TweetItem> doInBackground(EventItem... params) {
+			params[0].getEventID();
+			return restClient.requestTweets(eventDetails.getEventID());
+		}
+		
+		@Override
+	    protected void onPostExecute(List<TweetItem> tweets) {
+	        populateTweets(tweets);
+	    }
+		
 	}
 }
