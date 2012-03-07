@@ -439,7 +439,7 @@ public class ReportQuickEventActivity extends Activity {
 		else
 			tweet = this.eventTypeMsg + " causing " + severity + " problems";
 		
-		if (addresses.size() > 0)
+		if (addresses != null && addresses.size() > 0)
 			tweet = tweet + " near " + addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getAddressLine(1);
 
 		Log.i(TAG, "Tweet: " + tweet);

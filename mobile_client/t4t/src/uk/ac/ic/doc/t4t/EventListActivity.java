@@ -11,15 +11,21 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.ClientProtocolException;
 import org.xml.sax.SAXException;
 
+import com.markupartist.android.widget.PullToRefreshListView;
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
+
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
+import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -35,7 +41,7 @@ import android.widget.Toast;
 
 public class EventListActivity extends Activity implements Observer {
 	private final static String TAG = "EventListActivity";
-	private ListView eventList;
+	private PullToRefreshListView eventList;
 	private List<EventItem> eventItems = new ArrayList<EventItem>();
 	private LocationMgr location;
 	private DataMgr restClient;
@@ -56,7 +62,7 @@ public class EventListActivity extends Activity implements Observer {
         location = new LocationMgr(this);
         location.addLocationObserver(restClient); 
         
-        eventList = (ListView)findViewById(R.id.eventList);
+        eventList = (PullToRefreshListView)findViewById(R.id.eventList);
         
         //make the event clickable
         eventList.setOnItemClickListener( new AdapterView.OnItemClickListener() {
@@ -85,17 +91,30 @@ public class EventListActivity extends Activity implements Observer {
 			}
 		});
         
-        headerLogo = (ImageView) findViewById(R.id.headerLogo);
-        headerLogo.setOnClickListener(new View.OnClickListener() {
+//        headerLogo = (ImageView) findViewById(R.id.headerLogo);
+//        headerLogo.setOnClickListener(new View.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				eventList.smoothScrollToPosition(2);
+//				
+//			}
+//		});
+        
+        
+        eventList.setOnRefreshListener(new OnRefreshListener() {
 			
 			@Override
-			public void onClick(View v) {
-				eventList.smoothScrollToPosition(0);
-				
+			public void onRefresh() {
+				Context context = getApplicationContext();
+				new FetchEvents(context).execute(null);
 			}
 		});
         
-        restClient.requestEvents();
+        eventList.setAdapter(new EventItemAdapter(this, R.layout.eventitem, eventItems));
+        eventList.setClickable(true);
+        
+        new FetchEvents(this).execute(null);
         
     }
 
@@ -108,10 +127,11 @@ public class EventListActivity extends Activity implements Observer {
 		Log.i(TAG, "Updating event list");
 		eventItems = (List<EventItem>) data;
 
-
-        eventList.setAdapter(new EventItemAdapter(this, R.layout.eventitem, eventItems));
+	}
+	
+	private void populateEvents(List<EventItem> events){
+		eventList.setAdapter(new EventItemAdapter(this, R.layout.eventitem, eventItems));
         eventList.setClickable(true);
-		
 	}
 	
 	@Override  
@@ -143,5 +163,36 @@ public class EventListActivity extends Activity implements Observer {
         }
         return true;
     }
+	
+	private class FetchEvents extends AsyncTask<Void, Void, List<EventItem>>{
+
+		private Context context;
+		private DataMgr restClient;
+		
+		public FetchEvents(Context context){
+			this.context = context;
+			restClient = new DataMgr(context);
+		}
+
+		
+		@Override
+		protected List<EventItem> doInBackground(Void... params) {
+			return restClient.requestEvents();
+		}
+		
+		@Override
+	    protected void onPostExecute(List<EventItem> events) {
+			Log.i(TAG, "Populating list view");
+	        //populateEvents(events);
+			eventItems.clear();
+			
+			if (events != null)
+				eventItems.addAll(events);
+			
+	        eventList.onRefreshComplete();
+	    }
+
+		
+	}
 
 }

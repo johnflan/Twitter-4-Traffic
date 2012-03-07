@@ -73,10 +73,11 @@ public class LocationMgr implements LocationListener{
 		latitude = location.getLatitude();
 		longitude = location.getLongitude();
 		
+		Log.i(TAG, "Got location, lat " + latitude + ", long " + longitude + ", having " + locationObservers.size() + " observers");
+		
 		for (LocationObserver locObserver : locationObservers)
 			locObserver.notifyLocationUpdate(latitude, longitude);
-		
-		Log.i(TAG, "Got location, lat " + latitude + ", long " + longitude);
+
 	}
 
 	@Override

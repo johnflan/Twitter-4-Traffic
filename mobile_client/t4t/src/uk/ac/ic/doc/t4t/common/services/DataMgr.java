@@ -44,7 +44,7 @@ public class DataMgr extends Observable implements LocationObserver {
 		  eventPostProcessor = new EventPostProcessor(this.context);
 	}
 	
-	public void requestEvents(){
+	public List<EventItem> requestEvents(){
 		
 		String response;
 		
@@ -63,7 +63,7 @@ public class DataMgr extends Observable implements LocationObserver {
 			
 			if (response == null){
 				Log.i(TAG, "Received no response ");
-				return;
+				return null;
 			}
 			Log.i(TAG, "Response length " + response.length());
 			
@@ -78,24 +78,30 @@ public class DataMgr extends Observable implements LocationObserver {
 			eventItems = eventPostProcessor.processEvents(eventItems);
 			Log.i(TAG, "Parsed " + eventItems.size() + " event items");
 	        
-	        Log.i(TAG, "Notifying observers of new event list");
-			setChanged();
-			notifyObservers(eventItems);
 		}
+		return eventItems;
 		
 	}
 
 	@Override
 	public void notifyLocationUpdate(double latitude, double longitude) {
 		
-		Log.i(TAG, "notifyLocationUpdate");
+		Log.i(TAG, "Got new location");
 		this.hasLocation = true;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		
-		requestEvents();	
+		requestEventsForObservers();
 	}
 	
+	private void requestEventsForObservers() {
+		List<EventItem> newEvents;
+		newEvents = requestEvents();
+		
+		notifyObservers(newEvents);
+		
+	}
+
 	public List<TweetItem> requestTweets(String eventID){
 
 		String query = apiVersion + TWEETS_ENDPOINT + eventID;       

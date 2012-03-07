@@ -172,5 +172,4 @@ public class EventItem implements Serializable, Cloneable{
 		return null;
 	}
 
-
 }
