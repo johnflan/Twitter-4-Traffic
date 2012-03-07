@@ -128,6 +128,7 @@ def setup(cursor, conn, *args):
                 cursor.execute("""CREATE TABLE tweets(
                                 tid BIGINT NOT NULL,
                                 uname VARCHAR(40) NOT NULL,
+                                rname VARCHAR(40),
                                 created_at TIMESTAMP,
                                 location VARCHAR(128),
                                 text VARCHAR(200),

@@ -32,22 +32,14 @@ def get_header():
 @app.route("/t4t/0.1/disruptions", methods=['GET'])
 def disruptions01():
     
-    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
-           in request.args):
+    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude' in request.args):
         print "[INFO] Valid disruptions request:"
-        print "\tRadius: ", request.args['radius'], ", Latitude: ",\
-            request.args['latitude'], ", Longitude: ",\
-            request.args['longitude']
         return getResponse('disruption_radius.txt')
 
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-        print "\tTop left latitude: ", request.args['topleftlat'], \
-                ", top left longitude: ", request.args['topleftlong'],\
-                ", Bottom right latitude: ", request.args['bottomrightlat'],\
-                ", bottom right longitude: ", request.args['bottomrightlong']
         return getResponse('disruption_rect.txt')
 
     return "Invalid disruptions request", 400
@@ -78,7 +70,6 @@ def report01():
 def getResponse(endpoint):
     response = response_data[endpoint]
     if not response == None:
-        print response
         return response
     else:
         return "Error no data found"
@@ -105,10 +96,6 @@ def disruptions02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid disruptions request:"
-        print "\tRadius: ", request.args['radius'], ", Latitude: ",\
-            request.args['latitude'], ", Longitude: ",\
-            request.args['longitude']
-            
         return findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius'], closestcam)
@@ -117,11 +104,7 @@ def disruptions02():
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-        print "\tTop left latitude: ", request.args['topleftlat'], \
-                ", top left longitude: ", request.args['topleftlong'],\
-                ", Bottom right latitude: ", request.args['bottomrightlat'],\
-                ", bottom right longitude: ", request.args['bottomrightlong']
-    return findDisruptionsRect(request.args['topleftlong'], 
+        return findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
                                request.args['bottomrightlat'], closestcam)
@@ -182,7 +165,6 @@ def report02():
 def getResponse(endpoint):
     response = response_data[endpoint]
     if not response == None:
-        print response
         return response
     else:
         return "Error no data found"
@@ -414,8 +396,9 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 
 def findTweetsRadius(lon, lat, radius):
     try:
-        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
+                            rname,
                             created_at,
                             location,
                             text,
@@ -443,8 +426,9 @@ def findTweetsRadius(lon, lat, radius):
 
 def findTweetsDisruption(ltisid, radius=1000):
     try:
-        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
+                            rname,
                             created_at,
                             location,
                             text,
@@ -475,7 +459,7 @@ def calculateRank(prob, distance, radius):
 def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(float(row[5]), float(row[6]), float(radius));
+        ranking=calculateRank(float(row[6]), float(row[7]), float(radius));
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -484,16 +468,16 @@ def tweetRows2JSON(tweetRows, radius):
         jsonRow += """    {
         \"tid\": \"%s\",
         \"uname\": \"%s\",
+        \"rname\": \"%s\",
         \"created_at\": \"%s\",
         \"location\": \"%s\",
         \"text\": \"%s\",
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
-                \"ranking\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3].replace('"',"'"),row[4].replace('"',"'"),longitude,latitude,ranking)
-    
+        \"ranking\": \"%s\" },\n""" % (row[0],row[1],row[2],row[3],row[4].replace('"',"'"),row[5].replace('"',"'"),longitude,latitude,ranking)
+
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
-    return jsonText.encode()
+    return jsonText
 
 ###############################################################################################
 #################### Returns a JSON text for the area that is selected ########################
