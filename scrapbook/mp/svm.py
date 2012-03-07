@@ -94,59 +94,60 @@ def trainClassifier(conn, cursor, tablename):
     #try:
         #Filter the tweets and add the label in the list for each tweet
 
-    traffic_data = filter_and_dict(ttweets, stop_words)
-    ntraffic_data = filter_and_dict(nttweets, stop_words)
+	traffic_data = filter_and_dict(ttweets, stop_words)
+	ntraffic_data = filter_and_dict(nttweets, stop_words)
 
-    tr_l = int(len(traffic_data)*2.0/3.0)
-    ntr_l = int(len(ntraffic_data)*2.0/3.0)
+	tr_l = int(len(traffic_data)*2.0/3.0)
+	ntr_l = int(len(ntraffic_data)*2.0/3.0)
 
-    train_labels = ['ptraffic'] * tr_l + ['ntraffic'] * ntr_l
-    train_data = traffic_data[0:tr_l] + ntraffic_data[0:ntr_l]
+	train_labels = ['ptraffic'] * tr_l + ['ntraffic'] * ntr_l
+	train_data = traffic_data[0:tr_l] + ntraffic_data[0:ntr_l]
 
-    train_set = SparseDataSet(train_data, L=train_labels)
-
-
-    test_labels = ['ptraffic'] * (len(traffic_data) - tr_l) + ['ntraffic'] * (len(ntraffic_data) - ntr_l)
-    test_data = traffic_data[tr_l:len(traffic_data)] + ntraffic_data[ntr_l:len(ntraffic_data)]
-
-    test_set = SparseDataSet(test_data, L=test_labels)
+	train_set = SparseDataSet(train_data, L=train_labels)
 
 
-    print "\n\nTRAIN SET INFO\n"
-    print train_set
+	test_labels = ['ptraffic'] * (len(traffic_data) - tr_l) + ['ntraffic'] * (len(ntraffic_data) - ntr_l)
+	test_data = traffic_data[tr_l:len(traffic_data)] + ntraffic_data[ntr_l:len(ntraffic_data)]
 
-    print "\n\nTEST SET INFO\n"
-    print test_set
+	test_set = SparseDataSet(test_data, L=test_labels)
 
-    classifier = SVM()
 
-    #train our classifier using cross validation
-    classifier.train(train_set, saveSpace = False)
-    result = classifier.test(test_set)
-    print "\n\nTRAINING RESULT\n"
-    print result
+	print "\n\nTRAIN SET INFO\n"
+	print train_set
 
-    classifier.save('classifier_svm.txt')
-    print "\n\nSaved\n"
-    loaded = SVM()
-    loaded.load('classifier_svm.txt',train_set)
-    print "\n\nLOADED\n"
-    r = loaded.test(test_set)
-    print r
+	print "\n\nTEST SET INFO\n"
+	print test_set
 
-        #test_tweet = "Traffic is hell"
-        #Classify the tweet
-        #test = filter_and_dict(test_tweet, stop_words)
+	classifier = SVM()
 
-        #print "\nThe tweet '%s' is about: %s \n" % (test_tweet, classifier.test(test))
+	#train our classifier using cross validation
+	classifier.train(train_set, saveSpace = False)
+	result = classifier.test(test_set)
+	print "\n\nTRAINING RESULT\n"
+	print result
 
-        #print "\n\n\n"
-        #print classifier
+	classifier.save('classifier_svm.txt')
+	print "\n\nSaved\n"
+	loaded = SVM()
+	loaded.load('classifier_svm.txt',train_set)
+	print "\n\nLOADED\n"
+	r = loaded.test(test_set)
+	print r
+
+	#Classify the tweet
+	test_tweet = "The website traffic is really high"
+	test = filter_and_dict(test_tweet, stop_words)
+
+	print "\nThe tweet '%s' is about: %s \n" % (test_tweet, classifier.classify([test],0))
+
+	print "\n\n\n"
+	print classifier
 
     #except:
         # Get the most recent exception
         #exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         #print "Error -> %s" % exceptionValue
+        #print exceptionTraceback
         #lastid="0"
 
 

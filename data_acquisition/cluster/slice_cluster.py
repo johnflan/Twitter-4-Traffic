@@ -4,26 +4,73 @@ import optparse
 import ConfigParser
 import time
 from datetime import datetime, timedelta
+import math
 
 def main(maxDistance,minPoints,maxTime):
     date = datetime.now()
     updated_at = date.strftime("%d/%m/%y %H:%M:%S")
-        
+
     timeToSearch = date-timedelta(minutes=maxTime)
     timeToSearch = timeToSearch.strftime("%d/%m/%y %H:%M:%S")
-    deleteClusters()
-    createClusters(maxDistance,minPoints,timeToSearch);
+    print "\nSearching from time: "+timeToSearch
+    clusters = createClusters(maxDistance,minPoints,timeToSearch)
+    print clusters
+    print "\n"
 
-    print "Calculate mean and variance"
-    calculateMeanAndVariance()
     try:
-        conn.commit()
+        query = """SELECT variancex, meanx,variancey, meany, eid FROM static_events"""
+        cursor.execute(query)
+        static_clusters = cursor.fetchall()
     except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        sys.exit("Commit error! ->%s" % (exceptionValue))
+        sys.exit("Select error! ->%s" % (exceptionValue))
 
-    print "Event Clusters Updated @%s" % updated_at
-    
+    for key in clusters.keys():
+        if key == 0:
+            continue
+        s2x = 0
+        sx = 0
+        s2y = 0
+        sy = 0
+        for value in clusters[key]:
+            sx += value[0]
+            sy += value[1]
+        mx = sx/len(clusters[key])
+        my = sy/len(clusters[key])
+        for value in clusters[key]:
+            s2x += (value[0] - mx)**2
+            s2y += (value[1] - my)**2
+        vx = s2x/len(clusters[key])
+        vy = s2y/len(clusters[key])
+
+        for static_cluster in static_clusters:
+            prob = pdfGaussian2D(mx, my, static_cluster[1], static_cluster[3],
+                    static_cluster[0], static_cluster[2])
+            print prob
+            if prob > 0.5:
+                print "Cluster with center ("+mx+","+my+") belongs to cluster with id "+static_cluster[4]+" with probability "+prob
+
+    #try:
+        #conn.commit()
+    #except:
+    #    exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+    #    sys.exit("Commit error! ->%s" % (exceptionValue))
+
+    #print "Event Slice Clusters Updated @%s" % updated_at
+
+
+def pdfGaussian2D(x, y, mx, my, vx, vy):
+    print x
+    print y
+    print mx
+    print my
+    print vx
+    print vy
+    return (1.0/
+            (2*math.pi*math.sqrt(vx)*math.sqrt(vy))*
+                math.exp(-0.5*((x-mx)*(x-mx)/vx + (y-my)*(y-my)/vy -
+                2*r*(x-mx)*(y-my)/(math.sqrt(vx)*math.sqrt(vy)))))
+
 def connect(**db):
     try:
         # get a connection, if a connect cannot be made an exception will be raised here
@@ -37,81 +84,67 @@ def connect(**db):
         sys.exit("Database connection failed! -> %s" % (exceptionValue))
     return cursor,conn
 
-def deleteClusters():
-    try:
-        query = """DELETE FROM cluster_static_data"""
-        cursor.execute(query)
-        query = """DELETE FROM static_events WHERE eid!='0'"""
-        cursor.execute(query)
-    except:
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        sys.exit("Error in deleteClusters! -> %s" % (exceptionValue))
-
 
 def createClusters(maxDistance,minPoints,timeToSearch):
-    try:
-        query = """SELECT tid, ST_AsText(geolocation) FROM geolondon WHERE
-        geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
+   # try:
+        query = """SELECT tid, ST_AsText(geolocation) FROM tweets WHERE
+            geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
 
         cursor.execute(query)
         pointRows = cursor.fetchall()
-        
-            
+
+
         clustered = []
+        counter = 1
+        clusters = {}
         for point in pointRows:
             tid, longitude, latitude = pointRow2vars(point)
-            
+
             #look if tid is already clustered
             if tid not in clustered:
                 neighbourPointRows = findNeighbourPoints(longitude,latitude,maxDistance,timeToSearch)
-            
-                if len(neighbourPointRows)>=minPoints:
-                    print len(neighbourPointRows)
+
+                if len(neighbourPointRows) >= minPoints:
                     clustered.append(tid) # add the first point of the cluster in the list
-                    createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered)
+                    cluster_temp = createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered,counter,
+                            float(longitude), float(latitude))
+                    for key in cluster_temp.keys():
+                        clusters[key] = cluster_temp[key]
+                    counter = counter + 1
                 else:
-                    addInCluster(0,tid) # eid 0 for no cluster
+                    clusters = addInCluster(0,[float(longitude),
+                        float(latitude)],clusters) # eid 0 for no cluster
                     clustered.append(tid) # add in the clustered points list
-            
-    except:
+        return clusters
+    #except:
         # Get the most recent exception
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+     #   exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script and print an error telling what happened.
-        sys.exit("Error in createClusters! -> %s" % (exceptionValue))
-        
-def createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered):
+      #  sys.exit("Error in createClusters! -> %s" % (exceptionValue))
+
+def createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered,eid, init_long, init_lat):
     try:
-        # create new cluster
-        query = """INSERT INTO static_events(meanX,varianceX,meanY,varianceY)
-        VALUES(NULL,NULL,NULL,NULL)"""
-        cursor.execute(query)
-        
-        # find the new cluster's id
-        query = """SELECT last_value FROM static_events_eid_seq"""
-        cursor.execute(query)
-        answer = cursor.fetchall()
-        eid = answer[0][0]
-        
+        cluster_list = {}
         # add tid in cluster
-        addInCluster(eid,tid)
-        
+        cluster_list = addInCluster(eid,[init_long, init_lat],cluster_list)
+
         neighbourPointList = []
         neighbourPointList.extend(neighbourPointRows)
-        
+
         for point in neighbourPointList:
             tid, longitude, latitude = pointRow2vars(point)
-            
+
             if tid not in clustered:
                 newNeighbourPointRows = findNeighbourPoints(longitude,latitude,maxDistance,timeToSearch)
-                
+
                 if len(newNeighbourPointRows)>=minPoints:
-                    addInCluster(eid,tid)
+                    cluster_list = addInCluster(eid, [float(longitude), float(latitude)], cluster_list)
                     appendDistinct(neighbourPointList,newNeighbourPointRows)
                     clustered.append(tid)
                 else:
-                    addInCluster(0,tid) # eid 0 for no cluster
+                    cluster_list = addInCluster(0, [float(longitude), float(latitude)], cluster_list) # eid 0 for no cluster
                     clustered.append(tid)
-        
+        return cluster_list
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -135,7 +168,7 @@ def pointRow2vars(point):
 def findNeighbourPoints(longitute,latitude,maxDistance,timeToSearch):
     try:
         query = """SELECT tid, ST_AsText(geolocation)
-                    FROM geolondon
+                    FROM tweets
                     WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)
                     AND created_at >= '%s'""" % (longitute,latitude,maxDistance,timeToSearch)
         cursor.execute(query)
@@ -146,46 +179,19 @@ def findNeighbourPoints(longitute,latitude,maxDistance,timeToSearch):
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script and print an error telling what happened.
         sys.exit("Error in findNeighbourPoints! -> %s" % (exceptionValue))
-    
-def addInCluster(eid, tid):
-    try:
-        query = """INSERT INTO cluster_static_data VALUES(%s,%s)""" % (eid, tid)
-        cursor.execute(query)
-    except:
-        # Get the most recent exception
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Error in addInCluster! -> %s" % (exceptionValue))
-        
 
-def calculateMeanAndVariance():
-    try:
-        query = """SELECT eid, AVG(X(ST_AsText(geolocation))),
-                    VARIANCE(X(ST_AsText(geolocation))), AVG(Y(ST_AsText(geolocation))),
-                    VARIANCE(Y(ST_AsText(geolocation))) FROM geolondon,cluster_static_data
-                    WHERE geolocation IS NOT NULL AND geolondon.tid=cluster_static_data.tid
-                    AND eid<>0 GROUP BY eid"""
-
-        cursor.execute(query)
-        clusterRows = cursor.fetchall()
-
-        for row in clusterRows:
-            query = """UPDATE static_events SET variancex=%s, meanx=%s, variancey=%s, meany=%s WHERE eid=%s""" % (row[2],row[1],row[4],row[3],row[0])
-            print query
-
-            cursor.execute(query)
-
-    except:
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-
-        sys.exit("Error in calculateMeanAndVariance! -> %s" % (exceptionValue))
-
+def addInCluster(eid, loc, clist):
+    if eid in clist.keys():
+        clist[eid].append(loc)
+    else:
+        clist[eid] = [loc]
+    return clist
 
 
 if __name__ == "__main__":
     configSection = "Local database"
     Config = ConfigParser.ConfigParser()
-    Config.read("t4t_credentials.txt")
+    Config.read("../t4t_credentials.txt")
     user = Config.get(configSection, "username")
     password = Config.get(configSection, "password")
     database = Config.get(configSection, "database")
@@ -211,15 +217,15 @@ if __name__ == "__main__":
                     help='The password for the DB')
     parser.add_option('-D','--distance',
                     dest='distance',
-                    default='50',
+                    default='5000',
                     help='Maximum event distance')
     parser.add_option('-T','--time',
                     dest='time',
-                    default='10000000',
+                    default='1440',
                     help='Minutes to search for tweets')
     parser.add_option('-N','--ntweets',
                     dest='ntweets',
-                    default='50',
+                    default='3',
                     help='Number of tweets for cluster')
 
     (options, args) = parser.parse_args()
