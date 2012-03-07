@@ -476,11 +476,11 @@ def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
         ranking=calculateRank(float(row[5]), float(row[6]), float(radius));
-
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
         latitude = lonlatArray[1]
+
         jsonRow += """    {
         \"tid\": \"%s\",
         \"uname\": \"%s\",
@@ -490,10 +490,10 @@ def tweetRows2JSON(tweetRows, radius):
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
                 \"ranking\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3],row[4],longitude,latitude,ranking)
+    },\n""" % (row[0],row[1],row[2],row[3].replace('"',"'"),row[4].replace('"',"'"),longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
-    return jsonText
+    return jsonText.encode()
 
 ###############################################################################################
 #################### Returns a JSON text for the area that is selected ########################
