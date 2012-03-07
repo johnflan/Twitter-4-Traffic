@@ -55,7 +55,7 @@ public class TweetItemAdapter extends ArrayAdapter<TweetItem> {
 		
 		tweetText.setText(item.getMessageText());
 		tweetUserName.setText(item.getAccountName());
-		//tweetAge.setText()
+		tweetAge.setText(item.getTweetAge());
 
 	    return view;
 	  }

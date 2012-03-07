@@ -1,0 +1,55 @@
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/reportQuestionHazard"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/reportEventType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_margin="10px"/>
+
+        <Button
+            android:id="@+id/reportAdvDangerousRoadSurface"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dangerious road surface"
+            android:textSize="30px"
+            android:layout_margin="10px"/>
+
+        <Button
+            android:id="@+id/reportAdvIcyConditions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Icy conditions" 
+            android:textSize="30px"
+            android:layout_margin="10px"/>
+
+        <Button
+            android:id="@+id/reportAdvSliparySurface"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10px"
+            android:text="Slipary surface"
+            android:textSize="30px" />
+        
+        <Button
+            android:id="@+id/reportAdvBurstWaterMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10px"
+            android:text="Burst water main"
+            android:textSize="30px" />
+        
+        <Button
+            android:id="@+id/reportAdvRoadObstruction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10px"
+            android:text="Obstruction on road"
+            android:textSize="30px" />
+
+    </LinearLayout>

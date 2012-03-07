@@ -28,7 +28,7 @@
 
     </LinearLayout>
     
-	<ListView
+	<com.markupartist.android.widget.PullToRefreshListView
 	    android:id="@+id/eventList"
 	    android:layout_height="fill_parent"
 	    android:layout_width="fill_parent"

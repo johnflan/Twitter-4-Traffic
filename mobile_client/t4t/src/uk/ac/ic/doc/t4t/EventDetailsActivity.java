@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
+import uk.ac.ic.doc.t4t.common.services.TrafficCameraImageDownloader;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItemAdapter;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
-import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -25,6 +27,11 @@ public class EventDetailsActivity extends Activity {
 	private List<TweetItem> tweets = new ArrayList<TweetItem>();
 	private ListView tweetList;
 	private ImageButton reportEventBtn;
+	private ImageView trafficCameras;
+	private Dialog dialog;
+	private EventItem eventDetails;
+	private int displayTrafficImage = 0;
+	private TrafficCameraImageDownloader downloader;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,9 +39,10 @@ public class EventDetailsActivity extends Activity {
         
         setContentView(R.layout.eventdetails);
         tweetList = (ListView)findViewById(R.id.tweetList);
+        trafficCameras = (ImageView) findViewById(R.id.eventTrafficCameras);
         
     	Bundle extras = getIntent().getExtras();
-    	EventItem eventDetails = null;
+    	
     	if(extras !=null) {
     		eventDetails = (EventItem) extras.getSerializable("EventDetails");
     	}
@@ -49,24 +57,29 @@ public class EventDetailsActivity extends Activity {
 				startActivity(i);	
 			}
 		});
+        
+        trafficCameras.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				displayTrafficCamera();
+			}
+		});
     	
+        
+        
     	populateEvent(eventDetails);  	
-    	populateTweets(eventDetails);
+
+    	FetchTweets fetchTweets = new FetchTweets(this);
+    	fetchTweets.execute(eventDetails);
+    	
     }
 
-	private void populateTweets(EventItem eventDetails) {
+	private void populateTweets(List<TweetItem> tweets) {
 
-		DataMgr restClient = new DataMgr(this);
-		tweets = restClient.requestTweets(eventDetails.getEventID());
-		if (tweets != null){
+		if (tweets != null)
 			tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
-		} else {
-			
-			//No tweets found
-		}
-			
-        //tweetList.setClickable(true);
-		
+
 	}
 
 	private void populateEvent(EventItem eventDetails) {
@@ -78,6 +91,7 @@ public class EventDetailsActivity extends Activity {
 		TextView textCurrentDistanceType;
 		ImageView imageEventCategory;
 		ImageView imageEventSeverity;
+		ImageView imageTrafficCamera;
 
 		try {
 	    	textTitle = (TextView) findViewById(R.id.eventTitle);
@@ -88,6 +102,8 @@ public class EventDetailsActivity extends Activity {
 	    	
 	    	imageEventCategory = (ImageView) findViewById(R.id.eventTypeIcon);
 	    	imageEventSeverity = (ImageView) findViewById(R.id.severityIcon);
+	    	
+	    	imageTrafficCamera = (ImageView) findViewById(R.id.eventTrafficCameras);
 	    	
 	    } catch( ClassCastException e ) {
 	    	Log.e(TAG, "Layout must provide an image and a text view with ID's icon and text.", e);
@@ -123,5 +139,86 @@ public class EventDetailsActivity extends Activity {
 	    	imageEventSeverity.setImageResource(R.drawable.event_orange);
 	    else if (eventDetails.getSeverity().equalsIgnoreCase("severe"))
 	    	imageEventSeverity.setImageResource(R.drawable.event_red);
+	    
+	    Log.v(TAG, "Number of traffic cameras " + eventDetails.getTrafficCameras().size());
+	    
+	    if (eventDetails.getTrafficCameras().size() == 0)
+	    	imageTrafficCamera.setVisibility(View.INVISIBLE);
+
+	    	
+	}
+	
+	private void displayTrafficCamera(){
+		downloader = new TrafficCameraImageDownloader();	
+		Log.i(TAG, "Displaying traffic camera images");
+
+		dialog = new Dialog(EventDetailsActivity.this);
+		dialog.requestWindowFeature(dialog.getWindow().FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.event_details_traffic_cam_imageview_popup);
+        dialog.setCancelable(true);
+        
+        Log.i(TAG, "Displaying URL " + eventDetails.getTrafficCameras().get(0).getLink());
+        
+        dialog.show();
+        
+        ImageView imageView = (ImageView) dialog.findViewById(R.id.trafficCameraImage);
+        TextView caption = (TextView) dialog.findViewById(R.id.cameraCountText);
+        
+        String captionText = (displayTrafficImage + 1)  + " of " +  eventDetails.getTrafficCameras().size() + " traffic cameras";
+        caption.setText(captionText);
+        
+        downloader.download(eventDetails.getTrafficCameras().get(displayTrafficImage).getLink(), imageView);
+        
+        imageView.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				getNextTrafficCamera();				
+			}
+		});
+        
+	}
+	
+	private void getNextTrafficCamera(){
+		
+		if (eventDetails.getTrafficCameras().size() == 1)
+			return;
+		
+		displayTrafficImage++;
+		
+		if (displayTrafficImage >= eventDetails.getTrafficCameras().size())
+			displayTrafficImage = 0;
+		
+		ImageView imageView = (ImageView) dialog.findViewById(R.id.trafficCameraImage);
+		TextView caption = (TextView) dialog.findViewById(R.id.cameraCountText);
+		
+		downloader.download(eventDetails.getTrafficCameras().get(displayTrafficImage).getLink(), imageView);
+		
+		String captionText = (displayTrafficImage + 1) + " of " +  eventDetails.getTrafficCameras().size() + " traffic cameras";
+        caption.setText(captionText);
+	}
+	
+	private class FetchTweets extends AsyncTask<EventItem, Void, List<TweetItem>>{
+
+		private Context context;
+		private DataMgr restClient;
+		
+		public FetchTweets(Context context){
+			this.context = context;
+			restClient = new DataMgr(context);
+		}
+
+		
+		@Override
+		protected List<TweetItem> doInBackground(EventItem... params) {
+			params[0].getEventID();
+			return restClient.requestTweets(eventDetails.getEventID());
+		}
+		
+		@Override
+	    protected void onPostExecute(List<TweetItem> tweets) {
+	        populateTweets(tweets);
+	    }
+		
 	}
 }

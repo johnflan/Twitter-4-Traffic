@@ -6,22 +6,23 @@ import time
 from datetime import datetime, timedelta
 
 def main(maxDistance,minPoints,maxTime):
-    refresh = 60 * 5 # Sleep seconds
-    while True:
-        tStart = time.time()
-        date = datetime.now()
-        updated_at = date.strftime("%d/%m/%y %H:%M:%S")
+    date = datetime.now()
+    updated_at = date.strftime("%d/%m/%y %H:%M:%S")
         
-        timeToSearch = date-timedelta(minutes=maxTime)
-        timeToSearch = timeToSearch.strftime("%d/%m/%y %H:%M:%S")
-        deleteClusters()
-        createClusters(maxDistance,minPoints,timeToSearch);
-        tEnd = time.time()
-        remain = refresh - ( tEnd - tStart )
-        print "Event Clusters Updated @%s" % updated_at
-        print "Sleeping For", remain, "Seconds"
-        if remain > 0: time.sleep(remain)
-    
+    timeToSearch = date-timedelta(minutes=maxTime)
+    timeToSearch = timeToSearch.strftime("%d/%m/%y %H:%M:%S")
+    deleteClusters()
+    createClusters(maxDistance,minPoints,timeToSearch);
+
+    print "Calculate mean and variance"
+    calculateMeanAndVariance()
+    try:
+        conn.commit()
+    except:
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        sys.exit("Commit error! ->%s" % (exceptionValue))
+
+    print "Event Clusters Updated @%s" % updated_at
     
 def connect(**db):
     try:
@@ -38,9 +39,9 @@ def connect(**db):
 
 def deleteClusters():
     try:
-        query = """DELETE FROM cluster_data"""
+        query = """DELETE FROM cluster_static_data"""
         cursor.execute(query)
-        query = """DELETE FROM event WHERE eid!='0'"""
+        query = """DELETE FROM static_events WHERE eid!='0'"""
         cursor.execute(query)
     except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -72,7 +73,6 @@ def createClusters(maxDistance,minPoints,timeToSearch):
                     addInCluster(0,tid) # eid 0 for no cluster
                     clustered.append(tid) # add in the clustered points list
             
-        conn.commit()
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -82,11 +82,12 @@ def createClusters(maxDistance,minPoints,timeToSearch):
 def createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered):
     try:
         # create new cluster
-        query = """INSERT INTO event(lonlat) VALUES(NULL)"""
+        query = """INSERT INTO static_events(meanX,varianceX,meanY,varianceY)
+        VALUES(NULL,NULL,NULL,NULL)"""
         cursor.execute(query)
         
         # find the new cluster's id
-        query = """SELECT last_value FROM event_eid_seq"""
+        query = """SELECT last_value FROM static_events_eid_seq"""
         cursor.execute(query)
         answer = cursor.fetchall()
         eid = answer[0][0]
@@ -148,8 +149,7 @@ def findNeighbourPoints(longitute,latitude,maxDistance,timeToSearch):
     
 def addInCluster(eid, tid):
     try:
-        query = """INSERT INTO cluster_data VALUES(%s,%s)""" % (eid, tid)
-        print query
+        query = """INSERT INTO cluster_static_data VALUES(%s,%s)""" % (eid, tid)
         cursor.execute(query)
     except:
         # Get the most recent exception
@@ -157,6 +157,31 @@ def addInCluster(eid, tid):
         # Exit the script and print an error telling what happened.
         sys.exit("Error in addInCluster! -> %s" % (exceptionValue))
         
+
+def calculateMeanAndVariance():
+    try:
+        query = """SELECT eid, AVG(X(ST_AsText(geolocation))),
+                    VARIANCE(X(ST_AsText(geolocation))), AVG(Y(ST_AsText(geolocation))),
+                    VARIANCE(Y(ST_AsText(geolocation))) FROM geolondon,cluster_static_data
+                    WHERE geolocation IS NOT NULL AND geolondon.tid=cluster_static_data.tid
+                    AND eid<>0 GROUP BY eid"""
+
+        cursor.execute(query)
+        clusterRows = cursor.fetchall()
+
+        for row in clusterRows:
+            query = """UPDATE static_events SET variancex=%s, meanx=%s, variancey=%s, meany=%s WHERE eid=%s""" % (row[2],row[1],row[4],row[3],row[0])
+            print query
+
+            cursor.execute(query)
+
+    except:
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+
+        sys.exit("Error in calculateMeanAndVariance! -> %s" % (exceptionValue))
+
+
+
 if __name__ == "__main__":
     configSection = "Local database"
     Config = ConfigParser.ConfigParser()
@@ -186,15 +211,15 @@ if __name__ == "__main__":
                     help='The password for the DB')
     parser.add_option('-D','--distance',
                     dest='distance',
-                    default='1000',
+                    default='50',
                     help='Maximum event distance')
     parser.add_option('-T','--time',
                     dest='time',
-                    default='60',
+                    default='10000000',
                     help='Minutes to search for tweets')
     parser.add_option('-N','--ntweets',
                     dest='ntweets',
-                    default='5',
+                    default='50',
                     help='Number of tweets for cluster')
 
     (options, args) = parser.parse_args()

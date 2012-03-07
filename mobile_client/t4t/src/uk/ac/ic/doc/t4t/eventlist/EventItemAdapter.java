@@ -43,6 +43,7 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 		TextView textCurrentDistanceType;
 		ImageView imageEventCategory;
 		ImageView imageEventSeverity;
+		ImageView trafficCameras;
 	
 	    view = inflater.inflate(resourceId, parent, false);
 	
@@ -55,6 +56,8 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	    	
 	    	imageEventCategory = (ImageView)view.findViewById(R.id.eventTypeIcon);
 	    	imageEventSeverity = (ImageView)view.findViewById(R.id.severityIcon);
+	    	
+	    	trafficCameras = (ImageView) view.findViewById(R.id.eventTrafficCameras);
 	    	
 	    } catch( ClassCastException e ) {
 	    	Log.e(TAG, "Layout must provide an image and a text view with ID's icon and text.", e);
@@ -91,6 +94,9 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	    	imageEventSeverity.setImageResource(R.drawable.event_orange);
 	    else if (item.getSeverity().equalsIgnoreCase("severe"))
 	    	imageEventSeverity.setImageResource(R.drawable.event_red);
+	    
+	    if (item.getTrafficCameras().size() == 0)
+	    	trafficCameras.setVisibility(view.INVISIBLE);
 	    
 	    return view;
 	  }

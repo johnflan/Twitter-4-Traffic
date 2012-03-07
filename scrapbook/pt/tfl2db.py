@@ -13,10 +13,7 @@ def main(**kw):
     db = dict([[k,v] for k,v in kw.iteritems() if k!='email' and k!='feedid'])
     cursor, conn = connect(**db)
 
-    t1 = time.time()
     periodically_sample_feed(cursor, conn, **kw)
-    t2 = time.time()
-    print "%0.3f" % (t2-t1)
 
 ###############################################################################################
 ############################ Creates a connection to the db ###################################
@@ -264,4 +261,3 @@ if __name__ == "__main__":
 
     kw = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
     sys.exit(main(**kw))
-

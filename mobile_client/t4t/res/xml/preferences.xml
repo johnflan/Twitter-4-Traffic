@@ -18,7 +18,7 @@
 		<ListPreference android:title="@string/pref_server_port_title"
            android:summary="@string/pref_server_port_summary"
            android:key="@string/pref_server_port_key"
-           android:defaultValue="55003"
+           android:defaultValue="55004"
            android:entries="@array/pref_service_options"
            android:entryValues="@array/pref_service_values"/>
 			

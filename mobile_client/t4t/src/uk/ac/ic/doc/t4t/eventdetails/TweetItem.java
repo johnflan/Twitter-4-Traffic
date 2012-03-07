@@ -10,9 +10,11 @@ public class TweetItem {
 	private String messageText;
 	private double latitude;
 	private double longitude;
+	private String tweetAge;
+	private double ranking;
 	
-	public String getTweetID() {
-		return tweetID;
+	public long getTweetID() {
+		return Long.parseLong(tweetID);
 	}
 	public void setTweetID(String tweetID) {
 		this.tweetID = tweetID;
@@ -59,5 +61,20 @@ public class TweetItem {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
+	
+	public String getTweetAge(){
+		return tweetAge;
+	}
+	
+	public void setTweetAge(String tweetAge){
+		this.tweetAge = tweetAge;
+	}
 
+	public void setRanking(double rank){
+		this.ranking = rank;
+	}
+	
+	public double getRanking(){
+		return this.ranking;
+	}
 }

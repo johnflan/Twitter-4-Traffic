@@ -1,0 +1,70 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{anysize}
+\usepackage[pdftex]{graphicx}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{wrapfig}
+\usepackage{color}
+\usepackage{fancyhdr}
+\usepackage[nodayofweek]{datetime}
+\usepackage[small,compact]{titlesec}
+\usepackage[pdfborder=0]{hyperref}
+\longdate
+
+\setlength{\parskip}{10pt} 
+\setlength\parindent{0pt}
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{\fancyplain{}{M.Sc.\ Group Project Report}}
+\rhead{\fancyplain{}{\today}}
+\cfoot{\fancyplain{}{\thepage}}
+
+
+\title{Twitter for traffic\\\Large{--- Final Report ---}}
+\author{Porfyrios Vasileiou, Marianna Polatoglou, Afxentios Hadjiminas,\\
+        Panagiotis Tsirigotis, Hanguang Zhou, John Flanagan.\\
+       \{pv311, mp1911, ah2411, pt1111, hz511, jf311.\}@doc.ic.ac.uk\\ \\
+       \small{Supervisors: Dr.\ Emil Lupu, Dr.\ Alessandra Russo, Luke Dickens}\\
+       \small{Course: CO533, Imperial College London}
+}
+
+
+
+%Report details http://www.doc.ic.ac.uk/~cristic/teaching/MScGroupProj/
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+	\input{introduction.tex}
+
+\section{Specification}
+	\input{specification.tex}
+
+\section{Design}
+	\input{design.tex}
+
+\section{Methodology}
+	\input{methodology.tex}
+
+\section{Group Work}
+	\input{groupwork.tex}
+	
+\section{Final Product}
+	\input{finalproduct.tex}
+
+\pagebreak
+
+\section{Appendix}
+	\input{appendix.tex}
+
+%\pagebreak	
+%\section{References}
+%	\vspace{-20pt}
+%	\def\refname{}
+%	\bibliography{references}
+%	\bibliographystyle{plain}
+
+\end{document}

@@ -12,12 +12,14 @@ import android.util.Log;
 
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
+import uk.ac.ic.doc.t4t.eventlist.TrafficCamera;
 
 public class JSONParser {
 	
 	private final static String TAG = JSONParser.class.getSimpleName();
 	
 	//Disruption event parameters
+	private final static String DISRUPTION_LIST = "disruptions";
 	private final static String EVENT_ID = "ltisid";
 	private final static String EVENT_START_DATE = "eventstartdate";
 	private final static String EVENT_START_TIME = "eventstarttime";
@@ -38,15 +40,21 @@ public class JSONParser {
 	private final static String REMARK = "remark";
 	private final static String LATITUDE = "latitude";
 	private final static String LONGITUDE = "longitude";
+	private final static String CAMERA_LIST = "cameras";
+	private final static String CAMERA_TITLE = "title";
+	private final static String CAMERA_URL = "link";
+	private final static String CAMERA_LATITUDE = "latitude";
+	private final static String CAMERA_LONGITUDE = "latitude";
 	
 	//Tweet parameters
-	private final static String TWEET_ID = "tweetID";
+	private final static String TWEET_ID = "tid";
 	private final static String USER_NAME = "uname";
 	private final static String CREATED_AT = "created_at";
 	private final static String ACCOUNT_LOCATION = "location";
 	private final static String MESSAGE_TEXT = "text";
-	private final static String TWEET_LATITUDE = "lat";
-	private final static String TWEET_LONGITUDE = "long";
+	private final static String TWEET_LATITUDE = "latitude";
+	private final static String TWEET_LONGITUDE = "longitude";
+	private final static String TWEET_RANKING = "ranking";
 	
 
 	public static List<EventItem> parseDisruptionEvents(String responseStr){
@@ -70,7 +78,7 @@ public class JSONParser {
 		if (response == null)
 			return null;
 		try {
-			disruptions = response.getJSONArray("disruptions");
+			disruptions = response.getJSONArray(DISRUPTION_LIST);
 		} catch (JSONException e) {
 			Log.e(TAG, "Error parsing disruptions array: " + responseStr);
 		}
@@ -117,6 +125,37 @@ public class JSONParser {
 				
 				event.setLatitude(JsonEvent.getDouble(LATITUDE));
 				event.setLongitude(JsonEvent.getDouble(LONGITUDE));
+				
+				List<TrafficCamera> parsedTrafficCameras = new ArrayList<TrafficCamera>();
+				JSONArray trafficCameras = null;
+
+				try {
+					if (JsonEvent.has(CAMERA_LIST)){
+						
+						trafficCameras = JsonEvent.getJSONArray(CAMERA_LIST);
+
+						Log.v(TAG, "Traffic cameras JSON Array" + trafficCameras);
+						
+						for (int j = 0; j < trafficCameras.length(); j++ ){
+							JSONObject jsonTrafficCamera = trafficCameras.getJSONObject(j);
+							TrafficCamera trafficCamera = new TrafficCamera();
+							
+							trafficCamera.setTitle(jsonTrafficCamera.getString(CAMERA_TITLE));
+							trafficCamera.setLink(jsonTrafficCamera.getString(CAMERA_URL));
+							trafficCamera.setLatitude(jsonTrafficCamera.getDouble(CAMERA_LATITUDE));
+							trafficCamera.setLongitude(jsonTrafficCamera.getDouble(CAMERA_LONGITUDE));
+							
+							parsedTrafficCameras.add(trafficCamera);
+						}
+						
+					}
+
+					
+				} catch (JSONException e) {
+					Log.e(TAG, "Error parsing traffic camera array: " + JsonEvent);
+				}
+				
+				event.setTrafficCameras(parsedTrafficCameras);
 				
 				parsedEventItems.add(event);
 				
@@ -222,11 +261,12 @@ public class JSONParser {
 					tweet.setMessageText(JsonTweet.getString(MESSAGE_TEXT));
 					tweet.setLatitude(JsonTweet.getDouble(TWEET_LATITUDE));
 					tweet.setLongitude(JsonTweet.getDouble(TWEET_LONGITUDE));
+					tweet.setRanking(JsonTweet.getDouble(TWEET_RANKING));
 					
 					tweetList.add(tweet);
 					
 				} catch (JSONException e) {
-					Log.e(TAG, "Error parsing tweets: " + tweets);
+					Log.e(TAG, "Error parsing tweets: " + tweets + "\n Error\n"+ e.getMessage());
 				}
 					
 			}

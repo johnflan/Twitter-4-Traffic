@@ -19,10 +19,12 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -82,29 +84,17 @@ public class EventMapActivity extends MapActivity implements Observer {
         Log.i(TAG, "Moving map to users current loc : " + location.getGeoPoint());
         mapController.animateTo(location.getGeoPoint());
         mapController.setZoom(14);
+
         
         Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
         eventOverlay = new EventOverlay(drawable, this);
         
         //if location not yet available request
         //events from cache
-        restClient.requestEvents();
+        new FetchEvents(this).execute(null);
         
     }
 
-
-	@Override
-	public void update(Observable observable, Object data) {
-		if (!observable.equals(restClient))
-			return;
-		
-		Log.i(TAG, "Updating event list");
-		eventItems = (List<EventItem>) data;
-		
-		if (eventItems != null)
-			addEventOverlay(eventItems);
-		
-	}
 	
 	private void addEventOverlay(List<EventItem> eventItems) {
 		Log.i(TAG, "Adding new overlay");
@@ -163,6 +153,39 @@ public class EventMapActivity extends MapActivity implements Observer {
         }
         return true;
     }
+	
+	private class FetchEvents extends AsyncTask<Void, Void, List<EventItem>>{
+
+		private Context context;
+		private DataMgr restClient;
+		
+		public FetchEvents(Context context){
+			this.context = context;
+			restClient = new DataMgr(context);
+		}
+
+		
+		@Override
+		protected List<EventItem> doInBackground(Void... params) {
+			return restClient.requestEvents();
+		}
+		
+		@Override
+	    protected void onPostExecute(List<EventItem> events) {
+			if (events != null)
+				addEventOverlay(events);
+	    }
+	}
+
+	@Override
+	public void update(Observable observable, Object data) {
+		if (!observable.equals(restClient))
+			return;
+		
+		Log.i(TAG, "Updating event list");
+		addEventOverlay( (List<EventItem>) data );
+		
+	}
 	
 
 }
