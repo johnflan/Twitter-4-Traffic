@@ -32,14 +32,14 @@ public class SplashScreenActivity extends Activity {
             	Intent mainIntent;
             	
             	if (defaultView.equals("map"))
-           		
+            		
             		mainIntent = new Intent(SplashScreenActivity.this, EventMapActivity.class);
             	else
             		mainIntent = new Intent(SplashScreenActivity.this, EventListActivity.class);
             	
-            	startActivity(mainIntent);
+            	SplashScreenActivity.this.startActivity(mainIntent);
             	                               
-            	/* Finish splash activity so user can‘t go back to it. */
+            	/* Finish splash activity so user cant go back to it. */
             	SplashScreenActivity.this.finish();
             	       
             	/* Apply our splash exit (fade out) and main

@@ -32,8 +32,7 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="fill_parent"
 		    android:clickable="true"
-		    android:apiKey="0f_cPB129_lLeW1HhOlESjy8t_Ce-AMTy9QupcQ"
-		    
+		    android:apiKey="0eVu2OpFUpeERJg0BE5vezvFr_kJ8ggyFOTDing"
 		/>
     
 </LinearLayout>
