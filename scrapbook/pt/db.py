@@ -148,6 +148,16 @@ def setup(cursor, conn, *args):
                                 )""")
                 cursor.execute("CREATE INDEX cameras_index ON cameras USING GIST (geolocation)")
                 print "> Table tweets created"
+            elif args[i]=="tweets_metrics":
+                cursor.execute("""CREATE TABLE tweets_metrics(
+                                total_tweets BIGINT,
+                                traffic_tweets BIGINT,
+                                rightturn_tweets BIGINT,
+                                retweets BIGINT,
+                                geotweets BIGINT
+                                )""")
+                cursor.execute("""INSERT INTO tweets_metrics VALUES(0,0,0,0,0)""")
+                print "> Table tweets_metrics created"
                         
         
         print "> Giving privileges"

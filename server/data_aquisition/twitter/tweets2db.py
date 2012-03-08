@@ -88,13 +88,20 @@ def tweets(rl, georadius="19.622mi", start_id=0):
     term = kwargs['terms']
     cursor = conn.cursor()
     most_recent_id = start_id
-    geocount = 0
+
     retweetRegex = re.compile('/\brt\b/i')
     
     # Load the classifier
     classifier = pickle.load(open(kwargs['classifier']))
 
     while True:
+        # Metrics for the tweets
+        total_tweets = 0
+        traffic_tweets = 0
+        rightturn_tweets = 0
+        retweets = 0
+        geotweets = 0
+
         # Get the current time
         updated_at = strftime("%d/%m/%y %H:%M:%S")
         
@@ -110,6 +117,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                 
                 # Get results from twitter
                 results = rl.FreqLimitGetSearch(**searchargs)
+		total_tweets += len(results)
 
                 for r in results:
                     most_recent_id = max(r.id,most_recent_id)
@@ -129,15 +137,22 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         # If the tweet is a retweet drop it, this method is not
                         # 100%. But the API is not returning if r.retweet
                         isRetweet = re.search('RT\s@', r.text, re.IGNORECASE)
-                        
+                    else:
+                        rightturn_tweets += 1
+
                     # Do not use the tweet if one of these conditions is true
-                    if isRetweet or not isTraffic or probability < 0.98:
+                    if not isTraffic or probability < 0.98:
+                        continue
+                    elif isRetweet:
+                        retweets += 1
                         continue
                     
+                    traffic_tweets += 1
+    
                     # If the tweet has geolocation
                     if not geo is None and geo.get('type') == 'Point':
                         geolat,geolong, = geo['coordinates']
-                        geocount += 1
+                        geotweets += 1
                         
                         geoloc = "ST_GeographyFromText('SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")')"
 
@@ -179,6 +194,24 @@ def tweets(rl, georadius="19.622mi", start_id=0):
             except URLError, e:
                 print "[ERROR] URLError: ", e, "page:",page, "since_id",since_id
                 results = []
+        try:
+            # Delete old tweets from the table
+            query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '36' hour"""
+            cursor.execute(query)
+            
+            # Update tweet metrics
+            query = """UPDATE tweets_metrics SET total_tweets=total_tweets+%s,
+                                                 traffic_tweets=traffic_tweets+%s,
+                                                 rightturn_tweets=rightturn_tweets+%s,
+                                                 retweets=retweets+%s,
+                                                 geotweets=geotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets))
+            cursor.execute(query)
+            # Commit the changes to the database
+            conn.commit()
+        except:
+            # Get the most recent exception
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            print "Error -> %s" % (exceptionValue)
 
 ###############################################################################################
 ########################## Classify a tweet to traffic or not traffic #########################

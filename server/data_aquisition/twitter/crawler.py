@@ -161,8 +161,6 @@ class RateLimiter(object ):
         """
         method = getattr(self.api,methodname)
         def freqlimitmethod(*args,**kwargs ):
-            if self.verbosity >= DEBUG:
-                print "[debug] In FreqLimit"+methodname
             if self.timefrom == None:
                 self.timefrom = time.time() - self.MaximumHitFrequency()
             waittill = self.timefrom + self.MaximumHitFrequency()
@@ -170,11 +168,8 @@ class RateLimiter(object ):
             if now > waittill:
                 pass
             else:
-                if self.verbosity >= DEBUG:
-                    print "Sleeping for "+ str(waittill-now)+ " seconds"
+                print "Sleeping for "+ str(waittill-now)+ " seconds"
                 time.sleep(waittill-now)
-                if self.verbosity >= DEBUG:
-                    print "Waking up"
             res = method(*args,**kwargs)
             self.timefrom = time.time()
             return res
