@@ -462,7 +462,7 @@ def findTweetsDisruption(ltisid, radius=1000):
 def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(float(row[5]), float(row[6]), float(radius));
+        ranking=calculateRank(float(row[5]), float(row[6]), float(radius), row[2]);
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -486,10 +486,15 @@ def tweetRows2JSON(tweetRows, radius):
 ################################ Calculate the rank of the tweet ##############################
 ###############################################################################################
     
-def calculateRank(prob, distance, radius):
+def calculateRank(prob, distance, radius, created_at):
+    # Max age of the life of each tweet is 36 hours (129600 sec)
+    max_age = 129600
+	# Find the age of the tweet
+    tweets_age = (datetime.now() - datetime.strptime(created_at,'%Y-%m-%d %H:%M:%S')).seconds
     # The rank depends on the distance of the tweet to the event
-    # and the probability of being about traffic
-    tweetRank=0.6 * (radius-distance)/radius + 0.4 * prob;
+    # on the probability of being about traffic
+    # and on its age.
+    tweetRank = 0.3 * (radius-distance)/radius + 0.4 * prob + 0.3 * (max_age - tweets_age) / max_age;
     return tweetRank    
     
 ###############################################################################################
