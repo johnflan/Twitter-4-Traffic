@@ -23,4 +23,29 @@
     </string-array>
     
     
+    <string-array name="pref_server_radius_options">
+        <item>1 km</item>
+        <item>3 km</item>
+        <item>5 km</item>
+        <item>10 km</item>
+    </string-array>
+    
+    <string-array name="pref_server_radius_values">
+        <item>1000</item>
+        <item>3000</item>
+        <item>5000</item>
+        <item>10000</item>
+    </string-array>
+    
+        <string-array name="pref_sort_tweets_options">
+        <item>Ranking</item>
+        <item>Age</item>
+    </string-array>
+    
+    <string-array name="pref_sort_tweets_values">
+        <item>ranking</item>
+        <item>age</item>
+    </string-array>
+    
+    
 </resources>

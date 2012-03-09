@@ -23,7 +23,6 @@
                 android:id="@+id/eventTitle"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Event title"
                 android:lines="1"
                 android:textStyle="bold"
                 android:textColor="#000000"
@@ -34,16 +33,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:lines="1"
-                android:text="Event location"
-                android:paddingBottom="5dip"/>
+                android:paddingBottom="4dip"
+                android:layout_marginTop="-5dip"/>
             
             <TextView
                 android:id="@+id/eventDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Event description"
                 android:textColor="#000000"
-                android:lines="4"
+                
                 android:textSize="8pt"/>
         </LinearLayout>
 
@@ -77,10 +75,10 @@
                 android:id="@+id/eventDistanceType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="KM"
                 android:textSize="6pt"
                 android:textStyle="bold"
-                android:paddingRight="10dip"/>
+                android:paddingRight="10dip"
+                android:layout_marginTop="-6dip"/>
 			
 			            
             <ImageView
