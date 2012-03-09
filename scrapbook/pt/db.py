@@ -154,9 +154,10 @@ def setup(cursor, conn, *args):
                                 traffic_tweets BIGINT,
                                 rightturn_tweets BIGINT,
                                 retweets BIGINT,
-                                geotweets BIGINT
+                                geotweets BIGINT,
+                                foundgeotweets BIGINT
                                 )""")
-                cursor.execute("""INSERT INTO tweets_metrics VALUES(0,0,0,0,0)""")
+                cursor.execute("""INSERT INTO tweets_metrics VALUES(0,0,0,0,0,0)""")
                 print "> Table tweets_metrics created"
                         
         

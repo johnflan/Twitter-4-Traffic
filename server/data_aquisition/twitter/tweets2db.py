@@ -116,6 +116,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
         rightturn_tweets = 0
         retweets = 0
         geotweets = 0
+        foundgeotweets = 0
 
         # Get the current time
         updated_at = strftime("%d/%m/%y %H:%M:%S")
@@ -132,7 +133,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                 
                 # Get results from twitter
                 results = rl.FreqLimitGetSearch(**searchargs)
-		total_tweets += len(results)
+                total_tweets += len(results)
 
                 for r in results:
                     most_recent_id = max(r.id,most_recent_id)
@@ -168,7 +169,8 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     # If the tweet does not have geolocation
                     if geo is None:
                         geolat, geolong = findGeolocation(text)
-                        print "geolat,geolong = %s, %s" % (geolat, geolong)
+                        if geolat!=None and geolong!=None:
+                            foundgeotweets += 1
                     elif not geo is None and geo.get('type') == 'Point':
                         geolat, geolong = geo['coordinates']
                     else:
@@ -228,7 +230,8 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                                                  traffic_tweets=traffic_tweets+%s,
                                                  rightturn_tweets=rightturn_tweets+%s,
                                                  retweets=retweets+%s,
-                                                 geotweets=geotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets))
+                                                 geotweets=geotweets+%s,
+                                                 foundgeotweets=foundgeotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets),str(foundgeotweets))
             cursor.execute(query)
             # Commit the changes to the database
             conn.commit()
@@ -244,7 +247,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
 def findGeolocation(text):
     # Check if the tweet contains the regex
     regexMatch = re.search(addressRegex, text, re.IGNORECASE)
-		
+        
     if not regexMatch == None:
 
         addr = regexMatch.group(0)[3:] 
@@ -252,24 +255,24 @@ def findGeolocation(text):
 
         if ("the street" in addr) or ("my street" in addr) or ("this street" in addr) or ("our street" in
             addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
-            return None, None
+            return (None, None)
 
     # Try to find the corresponding geolocation in the local table geolookup
     try:
         rows = get_db_geo(addr)
         latitude = str(rows[6:15].replace(')',''))
         longitude = str( rows[16:26].replace(')',''))
-	return latitude, longitude
+        return (latitude, longitude)
     except:
         # There is no such an address in the geolookup table so go and try to add it
         try:
             latitude, longitude = geocode(address = addr+",london", sensor = "false")
             geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
-            query2 = "INSERT INTO geolookup (streetaddress,latlon)VALUES('"+str(addr)+"',"+geoloc+")"
-            cursor.execute(query2)
-            return latitude, longitude
+            query = "INSERT INTO geolookup (streetaddress,latlon)VALUES('"+str(addr)+"',"+geoloc+")"
+            cursor.execute(query)
+            return (latitude, longitude)
         except:
-            return None, None
+            return (None, None)
 
 ###############################################################################################
 ######## Parse the json file from google map and get lat and lon for the address ##############
