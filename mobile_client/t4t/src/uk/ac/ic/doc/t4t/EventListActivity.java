@@ -1,22 +1,17 @@
 package uk.ac.ic.doc.t4t;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.http.client.ClientProtocolException;
-import org.xml.sax.SAXException;
 
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
-import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 
@@ -24,7 +19,6 @@ import uk.ac.ic.doc.t4t.eventlist.EventItemAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,12 +26,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
 
 public class EventListActivity extends Activity implements Observer {
 	private final static String TAG = "EventListActivity";
@@ -91,17 +82,7 @@ public class EventListActivity extends Activity implements Observer {
 			}
 		});
         
-//        headerLogo = (ImageView) findViewById(R.id.headerLogo);
-//        headerLogo.setOnClickListener(new View.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				eventList.smoothScrollToPosition(2);
-//				
-//			}
-//		});
-        
-        
+                
         eventList.setOnRefreshListener(new OnRefreshListener() {
 			
 			@Override

@@ -12,11 +12,42 @@
 	    android:gravity="bottom|center"
 	    android:orientation="vertical"
 	    android:background="@drawable/splash_clouds">
+
+		<TextView
+		    android:id="@+id/textView1"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/aboutVersion"
+		    android:paddingTop="20dip"
+		    android:textColor="#1F64C4"
+		    android:textAppearance="?android:attr/textAppearanceMedium"
+		    android:gravity="center" />
+		
+		<TextView
+		    android:id="@+id/textView11"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/aboutText"
+		    android:textColor="#1F64C4"
+		    android:textAppearance="?android:attr/textAppearanceMedium"
+		    android:padding="10dip"
+		    android:gravity="center"/>
+		
+		<TextView
+		    android:id="@+id/textView111"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/aboutURL"
+		    android:textColor="#1F64C4"
+		    android:textAppearance="?android:attr/textAppearanceMedium"
+		    android:padding="20dip"
+		    android:gravity="center"/>
 	
 			<ImageView
 			    android:id="@+id/splash_bg"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
-			    android:src="@drawable/splash_logo" />
+			    android:src="@drawable/splash_logo"
+			    android:layout_y="-150dp"/>
 	</LinearLayout>
 </LinearLayout>

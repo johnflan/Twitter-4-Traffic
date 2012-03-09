@@ -66,7 +66,7 @@ public class ReportQuickEventActivity extends Activity {
 	private static final String REPORT_TEXT_HAZARD = "Hazard";
 	private static final String REPORT_TEXT_ROAD_CLOSED = "Road closed";
 	
-	private static final String REPORT_ADV_TEXT_DANGEROUS_ROAD_SURFACE = "Damaged road surface";
+	private static final String REPORT_ADV_TEXT_DAMAGED_ROAD_SURFACE = "Damaged road surface";
 	private static final String REPORT_ADV_TEXT_ICY_ROAD = "Ice on road";
 	private static final String REPORT_ADV_TEXT_SLIPARY_SURFACE = "Slipary road surface";
 	private static final String REPORT_ADV_TEXT_BURST_WATER_MAIN = "Burst water main";
@@ -241,7 +241,7 @@ public class ReportQuickEventActivity extends Activity {
 				
 				@Override
 				public void onClick(View v) {
-					sendTweet(REPORT_ADV_TEXT_DANGEROUS_ROAD_SURFACE);
+					sendTweet(REPORT_ADV_TEXT_DAMAGED_ROAD_SURFACE);
 					finish();
 				}
 			});
