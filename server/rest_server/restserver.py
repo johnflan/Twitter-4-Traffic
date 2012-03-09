@@ -5,7 +5,7 @@ import ConfigParser
 from pg8000 import DBAPI
 import json
 import thread
-
+import datetime
 app = Flask(__name__)
 
 response_data = {   'disruption_radius.txt': None,
@@ -111,18 +111,29 @@ def disruptions02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid disruptions request:"
-        return findDisruptionsRadius(request.args['longitude'], 
+        # return findDisruptionsRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'], closestcam)
+        response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'], closestcam)
+                               request.args['radius'], closestcam))
+        response.mimetype='application/json'
+        return response
     # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-    return findDisruptionsRect(request.args['topleftlong'], 
+    # return findDisruptionsRect(request.args['topleftlong'], 
+                               # request.args['topleftlat'],
+                               # request.args['bottomrightlong'],
+                               # request.args['bottomrightlat'], closestcam)
+        response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
-                               request.args['bottomrightlat'], closestcam)
+                               request.args['bottomrightlat'], closestcam))
+        response.mimetype='application/json'
+        return response
 
     return "Invalid disruptions request", 400
 
@@ -141,15 +152,22 @@ def tweets02():
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
-        return findTweetsDisruption(request.args['disruptionID'])
+        response=app.make_response(findTweetsDisruption(request.args['disruptionID']))
+        response.mimetype='application/json'
+        return response
     
     # Get tweets within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid tweets request"
-        return findTweetsRadius(request.args['longitude'], 
+        # return findTweetsRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'])
+        response=app.make_response(findTweetsRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'])
+                               request.args['radius']))
+        response.mimetype='application/json'
+        return response
     return "Invalid tweets request", 400
 
 ################################## Get traffic cameras ########################################
@@ -160,17 +178,28 @@ def cameras02():
         print "[INFO] Valid cameras request"
         if ('closestcam' in request.args):
             if request.args['closestcam']=="y":
-                return findCamerasDisruptionClosest(request.args['disruptionID'])
+                #return findCamerasDisruptionClosest(request.args['disruptionID'])
+                response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
+                response.mimetype='application/json'
+                return response
         else:
-            return findCamerasDisruption(request.args['disruptionID'])
+            #return findCamerasDisruption(request.args['disruptionID'])
+            response=app.make_response(findCamerasDisruption(request.args['disruptionID']))
+            response.mimetype='application/json'
+            return response
     
     # Get cameras within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid cameras request"
-        return findCamerasRadius(request.args['longitude'], 
+        # return findCamerasRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'])
+        response=app.make_response(findCamerasRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'])
+                               request.args['radius']))
+        response.mimetype='application/json'
+        return response
     return "Invalid cameras request", 400
 
 ######################################## Report event #########################################
@@ -490,10 +519,11 @@ def calculateRank(prob, distance, radius, created_at):
     # Max age of the life of each tweet is 36 hours (129600 sec)
     max_age = 129600
 	# Find the age of the tweet
-    tweets_age = (datetime.now() - datetime.strptime(created_at,'%Y-%m-%d %H:%M:%S')).seconds
+    tweets_age = (datetime.datetime.now() - created_at).seconds
     # The rank depends on the distance of the tweet to the event
     # on the probability of being about traffic
     # and on its age.
+
     tweetRank = 0.3 * (radius-distance)/radius + 0.4 * prob + 0.3 * (max_age - tweets_age) / max_age;
     return tweetRank    
     
@@ -597,6 +627,7 @@ def cameraRows2JSON(cameraRows):
 ###############################################################################################
     
 if __name__ == "__main__":
+    configSection="Local database"
     # Read the database values from a file
     Config = ConfigParser.ConfigParser()
     Config.read("../t4t_credentials.txt")

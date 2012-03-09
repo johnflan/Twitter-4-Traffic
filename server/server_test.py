@@ -4,7 +4,8 @@ import optparse
 import ConfigParser
 from pg8000 import DBAPI
 import json
-
+import thread
+import datetime
 app = Flask(__name__)
 
 response_data = {   'disruption_radius.txt': None,
@@ -13,6 +14,10 @@ response_data = {   'disruption_radius.txt': None,
                     'route_disruptions.txt':None,
                     'test.html': None}
 
+###############################################################################################
+######################### Server requests used for the test webpage ###########################
+###############################################################################################
+                    
 @app.route("/", methods=['GET'])
 def instructions():
     return getResponse('test.html')
@@ -20,43 +25,33 @@ def instructions():
 @app.route("/favicon.ico")
 def get_favicon():
     return send_file('responses/images/favicon.ico',mimetype='image/x-icon')
-	
+    
 @app.route("/header_bg.png")
 def get_header():
     return send_file('responses/images/header_bg.png',mimetype='image/png')
-	
+    
+###############################################################################################
+############################# VERSION 0.1 Requests for the server #############################
+###############################################################################################
 
-	
-#--- API V0.1 ----------------------------------------------------
-
+########################## Get disruptions in a circle or rectangle ###########################
 @app.route("/t4t/0.1/disruptions", methods=['GET'])
 def disruptions01():
-    
+    # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid disruptions request:"
-        print "\tRadius: ", request.args['radius'], ", Latitude: ",\
-            request.args['latitude'], ", Longitude: ",\
-            request.args['longitude']
-        response=app.make_response(getResponse('disruption_radius.txt'))
-        response.mimetype='application/json'
-        return response
-        #return getResponse('disruption_radius.txt')
-
+        return getResponse('disruption_radius.txt')
+        
+    # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-        print "\tTop left latitude: ", request.args['topleftlat'], \
-                ", top left longitude: ", request.args['topleftlong'],\
-                ", Bottom right latitude: ", request.args['bottomrightlat'],\
-                ", bottom right longitude: ", request.args['bottomrightlong']
         return getResponse('disruption_rect.txt')
-
     return "Invalid disruptions request", 400
 
-#POST is for creating
-#PUT is for creating/updating
+################################ Get disruptions around a route ###############################
 @app.route("/t4t/0.1/disruptions/route/", methods=['PUT','POST'])
 def disruptionsRoute01():
     if request.mimetype == "application/json":
@@ -64,13 +59,14 @@ def disruptionsRoute01():
         return getResponse('route_disruptions.txt')
     return "Invalid request", 400
 
+######################################### Get tweets ##########################################
 @app.route("/t4t/0.1/tweets", methods=['GET'])
 def tweets01():
     if ('disruptionID' in request.args):
         return getResponse('tweets_disruption_id.txt')
     return "Invalid tweet request", 400
 
-
+######################################## Report event #########################################
 @app.route("/t4t/0.1/report", methods=['PUT', 'POST'])
 def report01():
     if (request.mimetype == "application/json"):
@@ -78,14 +74,16 @@ def report01():
         return "Success"
     return "Invalid request", 400
 
+################################## Get responses from files ###################################
 def getResponse(endpoint):
     response = response_data[endpoint]
+    # If the file is loaded
     if not response == None:
-        print response
         return response
     else:
         return "Error no data found"
 
+################################## Load responses from files ##################################    
 def loadResponseData(respDir):
     iterFilesList = response_data.copy()
     for fileName in iterFilesList:
@@ -95,44 +93,51 @@ def loadResponseData(respDir):
         except IOError:
             print "Error unable to open: ", fileName
             
-#--- API V0.2 ----------------------------------------------------
+###############################################################################################
+############################# VERSION 0.2 Requests for the server #############################
+###############################################################################################
 
+########################## Get disruptions in a circle or rectangle ###########################
 @app.route("/t4t/0.2/disruptions", methods=['GET'])
 def disruptions02():
     
     closestcam = "n"
+    # If closestcam is y then only one will be returned for each event
     if ( 'closestcam' in request.args ):
         if request.args['closestcam'] == "y":
             closestcam = "y"
     
+    # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid disruptions request:"
-        print "\tRadius: ", request.args['radius'], ", Latitude: ",\
-            request.args['latitude'], ", Longitude: ",\
-            request.args['longitude']
-            
-        return findDisruptionsRadius(request.args['longitude'], 
+        # return findDisruptionsRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'], closestcam)
+        response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'], closestcam)
-
+                               request.args['radius'], closestcam))
+        response.mimetype='application/json'
+        return response
+    # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-        print "\tTop left latitude: ", request.args['topleftlat'], \
-                ", top left longitude: ", request.args['topleftlong'],\
-                ", Bottom right latitude: ", request.args['bottomrightlat'],\
-                ", bottom right longitude: ", request.args['bottomrightlong']
-    return findDisruptionsRect(request.args['topleftlong'], 
+    # return findDisruptionsRect(request.args['topleftlong'], 
+                               # request.args['topleftlat'],
+                               # request.args['bottomrightlong'],
+                               # request.args['bottomrightlat'], closestcam)
+        response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
-                               request.args['bottomrightlat'], closestcam)
+                               request.args['bottomrightlat'], closestcam))
+        response.mimetype='application/json'
+        return response
 
     return "Invalid disruptions request", 400
 
-#POST is for creating
-#PUT is for creating/updating
+################################ Get disruptions around a route ###############################
 @app.route("/t4t/0.2/disruptions/route/", methods=['PUT','POST'])
 def disruptionsRoute02():
     if request.mimetype == "application/json":
@@ -141,40 +146,63 @@ def disruptionsRoute02():
         return findDisruptionsRoute(points,"n",1000)
     return "Invalid request", 400
 
+######################################### Get tweets ##########################################
 @app.route("/t4t/0.2/tweets", methods=['GET'])
 def tweets02():
+    # Get tweets around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
-        return findTweetsDisruption(request.args['disruptionID'])
+        response=app.make_response(findTweetsDisruption(request.args['disruptionID']))
+        response.mimetype='application/json'
+        return response
     
+    # Get tweets within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid tweets request"
-        return findTweetsRadius(request.args['longitude'], 
+        # return findTweetsRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'])
+        response=app.make_response(findTweetsRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'])
-        
+                               request.args['radius']))
+        response.mimetype='application/json'
+        return response
     return "Invalid tweets request", 400
 
+################################## Get traffic cameras ########################################
 @app.route("/t4t/0.2/cameras", methods=['GET'])
 def cameras02():
+    # Get cameras around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid cameras request"
         if ('closestcam' in request.args):
             if request.args['closestcam']=="y":
-                return findCamerasDisruptionClosest(request.args['disruptionID'])
+                #return findCamerasDisruptionClosest(request.args['disruptionID'])
+                response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
+                response.mimetype='application/json'
+                return response
         else:
-            return findCamerasDisruption(request.args['disruptionID'])
+            #return findCamerasDisruption(request.args['disruptionID'])
+            response=app.make_response(findCamerasDisruption(request.args['disruptionID']))
+            response.mimetype='application/json'
+            return response
     
+    # Get cameras within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid cameras request"
-        return findCamerasRadius(request.args['longitude'], 
+        # return findCamerasRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'])
+        response=app.make_response(findCamerasRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius'])
-        
+                               request.args['radius']))
+        response.mimetype='application/json'
+        return response
     return "Invalid cameras request", 400
-    
+
+######################################## Report event #########################################
 @app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
 def report02():
     if (request.mimetype == "application/json"):
@@ -182,43 +210,36 @@ def report02():
         return "Success"
     return "Invalid request", 400
 
-def getResponse(endpoint):
-    response = response_data[endpoint]
-    if not response == None:
-        print response
-        return response
-    else:
-        return "Error no data found"
+###############################################################################################
+################################## Starts the rest server #####################################
+###############################################################################################
 
-def loadResponseData(respDir):
-    iterFilesList = response_data.copy()
-    for fileName in iterFilesList:
-        try:
-            f = open(respDir+'/'+fileName, 'r')
-            response_data[fileName] = f.read()
-        except IOError:
-            print "Error unable to open: ", fileName
-
-def main(*args,**kwargs):
+def startServer():
+    # Connect to the database
+    connect()
+    # Load responses from files for the mock server and the test webpage
     loadResponseData(kwargs['resp'])
+    # Start the server
     app.run(host=kwargs['server'],port=kwargs['port'])
 
 ###############################################################################################
 ################################ Connects to the database #####################################
 ###############################################################################################
     
-def connect(**db):
+def connect():
+    global conn
+    global cursor
     try:
-        # get a connection, if a connect cannot be made an exception will be raised here
+        # Create a connection to the database
         conn = DBAPI.connect(**db)
-        # conn.cursor will return a cursor object, you can use this cursor to perform queries
+        # Create a cursor that will be used to execute queries
         cursor = conn.cursor()
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database connection failed! -> %s" % (exceptionValue))
-    return cursor,conn
+        # Exit the script/thread and print an error telling what happened.
+        print "Database connection failed! -> %s" % (exceptionValue)
+        sys.exit()
 
 ###############################################################################################
 ############# Returns a JSON text for the rectangular area that is selected ###################
@@ -261,8 +282,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
 
 ###############################################################################################
 #################### Returns a JSON text for the area that is selected ########################
@@ -304,8 +324,7 @@ def findDisruptionsRadius(lon, lat, radius, closestcam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
 
 ###############################################################################################
 ########################## Returns route points from a JSON file ##############################
@@ -359,8 +378,7 @@ def findDisruptionsRoute(points, closestcam, radius=1000):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))        
+        print "Error -> %s" % (exceptionValue)       
 
 ###############################################################################################
 ###################### Returns a JSON text for the rows of the table ##########################
@@ -437,8 +455,7 @@ def findTweetsRadius(lon, lat, radius):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
         
 ###############################################################################################
 ################## Returns a JSON text for the area around a disruption #######################
@@ -465,20 +482,16 @@ def findTweetsDisruption(ltisid, radius=1000):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
 
 ###############################################################################################
 ##################### Returns a JSON text for the rows of the table ###########################
 ###############################################################################################
-def calculateRank(prob, distance, radius):
-    tweetRank=0.6 * (radius-distance)/radius + 0.4 * prob;
-    return tweetRank
         
 def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(float(row[5]), float(row[6]), float(radius));
+        ranking=calculateRank(float(row[5]), float(row[6]), float(radius), row[2]);
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -498,6 +511,22 @@ def tweetRows2JSON(tweetRows, radius):
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText.encode()
 
+###############################################################################################
+################################ Calculate the rank of the tweet ##############################
+###############################################################################################
+    
+def calculateRank(prob, distance, radius, created_at):
+    # Max age of the life of each tweet is 36 hours (129600 sec)
+    max_age = 129600
+	# Find the age of the tweet
+    tweets_age = (datetime.datetime.now() - created_at).seconds
+    # The rank depends on the distance of the tweet to the event
+    # on the probability of being about traffic
+    # and on its age.
+
+    tweetRank = 0.3 * (radius-distance)/radius + 0.4 * prob + 0.3 * (max_age - tweets_age) / max_age;
+    return tweetRank    
+    
 ###############################################################################################
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
@@ -519,8 +548,7 @@ def findCamerasRadius(lon, lat, radius):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
         
 ###############################################################################################
 ################## Returns a JSON text for the area around a disruption #######################
@@ -543,8 +571,7 @@ def findCamerasDisruption(ltisid, radius=500):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
 
 ###############################################################################################
 ############## Returns a JSON text for the closest camera around a disruption #################
@@ -571,8 +598,7 @@ def findCamerasDisruptionClosest(ltisid, radius=500):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Database select failed! -> %s" % (exceptionValue))
+        print "Error -> %s" % (exceptionValue)
 
         
 ###############################################################################################
@@ -596,15 +622,23 @@ def cameraRows2JSON(cameraRows):
     jsonText = "{\"cameras\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText
 
+###############################################################################################
+######################### Executed if the script is run directly ##############################
+###############################################################################################
+    
 if __name__ == "__main__":
-    configSection = "Local database"
+    configSection="Local database"
+    # Read the database values from a file
     Config = ConfigParser.ConfigParser()
     Config.read("../t4t_credentials.txt")
-    user = Config.get(configSection, "username")
-    password = Config.get(configSection, "password")
-    database = Config.get(configSection, "database")
-    host = Config.get(configSection, "server")
+    
+    db = dict()
+    db['user'] = Config.get(configSection, "username")
+    db['password'] = Config.get(configSection, "password")
+    db['database'] = Config.get(configSection, "database")
+    db['host'] = Config.get(configSection, "server")
 
+    # Parse the command line arguments
     parser=optparse.OptionParser()
     parser.add_option('-p','--port',
             dest='port',
@@ -619,25 +653,25 @@ if __name__ == "__main__":
             dest='resp',
             default='/responses',
             help='The directory where the responses are saved')
-    parser.add_option('-H','--host',
-            dest='host',
-            default=host,
-            help='The hostname of the DB')
-    parser.add_option('-d','--database',
-            dest='database',
-            default=database,
-            help='The name of the DB')
-    parser.add_option('-U','--user',
-            dest='user',
-            default=user,
-            help='The username for the DB')
-    parser.add_option('-P','--password',
-            dest='password',
-            default=password,
-            help='The password for the DB')
+    parser.add_option('-v','--verbosity',
+            dest='verbosity',
+            default=0,
+            help='How to display information',
+            type=int)
     (options, args)=parser.parse_args()
     
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
-    db = dict([[k,v] for k,v in kwargs.iteritems() if k!='port' and k!='resp' and k!='server'])        
-    cursor, conn = connect(**db)
-    main(*args,**kwargs)
+
+    startServer()
+
+###############################################################################################
+############################ Executed if the script is imported ###############################
+###############################################################################################
+
+else:
+    db = dict()
+    kwargs = dict()
+
+def startThread():
+    # Create a new thread
+    thread.start_new_thread(startServer, ())
