@@ -46,12 +46,6 @@ public class EventMapActivity extends MapActivity implements Observer {
 	private MapController mapController;
 	private MyLocationOverlay myLocationOverlay;
 
-	@Override
-	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,8 +78,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         location.addLocationObserver(restClient); 
        
         mapController = mapView.getController();
-        Log.i(TAG, "Moving map to users current loc : " + location.getGeoPoint());
-        mapController.animateTo(location.getGeoPoint());
+ 
         mapController.setZoom(15);
 
         
@@ -94,8 +87,6 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         findMyLocation(location);
         
-        //if location not yet available request
-        //events from cache
         new FetchEvents(this).execute(null);
         
     }
@@ -199,6 +190,12 @@ public class EventMapActivity extends MapActivity implements Observer {
 		Log.i(TAG, "Updating event list");
 		addEventOverlay( (List<EventItem>) data );
 		
+	}
+
+	@Override
+	protected boolean isRouteDisplayed() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 

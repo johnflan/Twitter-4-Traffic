@@ -124,7 +124,7 @@
     <TextView
         android:id="@+id/textView11"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:text="@string/what_people_are_saying"
         android:textStyle="bold"
         android:textColor="#F0F0F0"
@@ -135,6 +135,17 @@
         android:id="@+id/tweetList"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:cacheColorHint="#00000000" />
+        android:cacheColorHint="#00000000"
+    	 />
+
+    <TextView
+        android:id="@+id/noTweetsAvailable"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Sorry, no tweets available"
+        android:textSize="8pt"
+        android:paddingTop="30dip"
+        android:textStyle="bold"
+        android:gravity="center_vertical|center_horizontal" />
 
 </LinearLayout>

@@ -31,6 +31,7 @@ public class EventDetailsActivity extends Activity {
 	private EventItem eventDetails;
 	private int displayTrafficImage = 0;
 	private TrafficCameraImageDownloader downloader;
+	private TextView tweetsAvailable;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,8 @@ public class EventDetailsActivity extends Activity {
         setContentView(R.layout.eventdetails);
         tweetList = (ListView) findViewById(R.id.tweetList);
         trafficCameras = (ImageView) findViewById(R.id.eventTrafficCameras);
+        tweetsAvailable = (TextView) findViewById(R.id.noTweetsAvailable);
+        tweetsAvailable.setVisibility(View.GONE);
         
     	Bundle extras = getIntent().getExtras();
     	
@@ -194,6 +197,19 @@ public class EventDetailsActivity extends Activity {
         caption.setText(captionText);
 	}
 	
+	private void noTweetsAvailable(boolean tweets) {
+		
+		if (tweets){
+			tweetList.setVisibility(View.VISIBLE);
+			tweetsAvailable.setVisibility(View.GONE);
+		} else {
+			tweetList.setVisibility(View.GONE);
+			tweetsAvailable.setVisibility(View.VISIBLE);
+		}
+		
+		
+	}
+	
 	private class FetchTweets extends AsyncTask<EventItem, Void, List<TweetItem>>{
 
 		private Context context;
@@ -218,19 +234,17 @@ public class EventDetailsActivity extends Activity {
 			
 	        Log.i(TAG, "Adding " + newTweets.size() + " new tweets to listView");
 			if (newTweets != null && newTweets.size() > 0){
+				noTweetsAvailable(true);
 				tweets.addAll(newTweets);	
 			} else {
-//				TweetItem item = new TweetItem();
-//				item.setMessageText("No tweets found");
-//				tweets.add(item);
+				noTweetsAvailable(false);
 			}
 				
 			tweetList.setAdapter(new TweetItemAdapter(context, R.layout.tweetitem, tweets));
 			
-			
 	        super.onPostExecute(newTweets);
 
 	    }
-		
+
 	}
 }
