@@ -3,7 +3,7 @@ package uk.ac.ic.doc.t4t.eventdetails;
 import java.util.Comparator;
 
 
-public class TweetTIDComparator implements Comparator<TweetItem>{
+public class TweetRankComparator implements Comparator<TweetItem>{
 
 	@Override
 	public int compare(TweetItem object1, TweetItem object2) {

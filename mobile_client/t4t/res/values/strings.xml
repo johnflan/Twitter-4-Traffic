@@ -19,18 +19,29 @@
 	<string name="pref_server_port_title">Data source</string>
 	<string name="pref_server_port_summary">Select which service returns results</string>
 	<string name="pref_server_port_key">server_port</string>
-	<string name="pref_default_view_title">Default view</string>
+	<string name="pref_default_view_title">Home screen</string>
 	<string name="pref_default_view_summary">Start application with map or list view</string>
 	<string name="pref_default_view_key">default_view</string>
 	<string name="pref_twitter_username_title">Twitter username</string>
 	<string name="pref_twitter_username_summary">Change your twitter username</string>	
 	<string name="pref_twitter_username_key">twitter_username</string>	
 	<string name="pref_twitter_oauth_key">twitter_oauth_access_key</string>	
-	<string name="pref_twitter_oauth_token">twitter_oauth_token</string>
+	<string name="pref_twitter_oauth_token">twitter_oauth_token</string>	
+	<string name="pref_server_radius_title">Results radius</string>
+	<string name="pref_server_radius_summary">Set the desired radius (km) for results</string>	
+	<string name="pref_server_radius_key">results_radius</string>
+	<string name="pref_sort_tweets_title">Sort tweets by</string>
+	<string name="pref_sort_tweets_summary">Age or by ranking</string>	
+	<string name="pref_sort_tweets_key">sort_tweets</string>
 	
-	<string name="pull_to_refresh_pull_label">Pull to refresh...</string>
-    <string name="pull_to_refresh_release_label">Release to refresh...</string>
-    <string name="pull_to_refresh_refreshing_label">Loading...</string>
-    <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
+	<string name="pull_to_refresh_pull_label">Pull to refresh</string>
+    <string name="pull_to_refresh_release_label">Release to refresh</string>
+    <string name="pull_to_refresh_refreshing_label">Loading</string>
+    <string name="pull_to_refresh_tap_label">Tap to refresh</string>
+    
+    <string name="aboutVersion">DEVELOPMENT RELEASE</string>
+    <string name="aboutText">Imperial College MSc Software Engineering group project \n\n Porfyrios Vasileiou, Marianna Polatoglou, Afxentios Hadjiminas, Panagiotis Tsirigotis, Hanguang Zhou, John Flanagan.</string>
+    
+    <string name="aboutURL">https://github.com/johnflan/Twitter-4-Traffic</string>
 	
 </resources>

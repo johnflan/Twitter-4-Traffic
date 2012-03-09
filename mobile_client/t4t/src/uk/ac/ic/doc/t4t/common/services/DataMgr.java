@@ -29,6 +29,7 @@ public class DataMgr extends Observable implements LocationObserver {
 	private String apiVersion = "/t4t/0.2/";
 	private static final String DISRUPTIONS_ENDPOINT = "disruptions?";	
 	private static final String TWEETS_ENDPOINT = "tweets?disruptionID=";
+	private final String eventRadius;
 	private final String URL;
 	
 	private HTTPRequestCache requestCache;
@@ -39,12 +40,13 @@ public class DataMgr extends Observable implements LocationObserver {
 	
 	public DataMgr(Context context){
 		  this.context = context;
+		  eventRadius = PreferencesHelper.getServerRequestRadius(context);
 		  URL = PreferencesHelper.getServerURL(context) + ":" + 
 				  PreferencesHelper.getServerPort(context);
 		  
 		  requestCache = new HTTPRequestCache(this.context);
 		  eventPostProcessor = new EventPostProcessor(this.context);
-		  tweetPostProcessor = new TweetPostProcessor();
+		  tweetPostProcessor = new TweetPostProcessor(this.context);
 	}
 	
 	public List<EventItem> requestEvents(){
@@ -60,7 +62,7 @@ public class DataMgr extends Observable implements LocationObserver {
 		} else {
 			
 			String query = apiVersion + DISRUPTIONS_ENDPOINT + "latitude=" +
-					latitude + "&longitude=" + longitude + "&radius=5000";
+					latitude + "&longitude=" + longitude + "&radius=" + eventRadius;
 
 			response = HTTPRequester.httpGet(URL + query);
 			

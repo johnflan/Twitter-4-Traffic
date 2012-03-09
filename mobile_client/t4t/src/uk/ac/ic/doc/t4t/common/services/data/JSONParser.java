@@ -49,6 +49,7 @@ public class JSONParser {
 	//Tweet parameters
 	private final static String TWEET_ID = "tid";
 	private final static String USER_NAME = "uname";
+	private final static String REAL_NAME = "rname";
 	private final static String CREATED_AT = "created_at";
 	private final static String ACCOUNT_LOCATION = "location";
 	private final static String MESSAGE_TEXT = "text";
@@ -256,6 +257,7 @@ public class JSONParser {
 					
 					tweet.setTweetID(JsonTweet.getString(TWEET_ID));
 					tweet.setAccountName(JsonTweet.getString(USER_NAME));
+					tweet.setRealName(JsonTweet.getString(REAL_NAME));
 					tweet.setCreatedAt(JsonTweet.getString(CREATED_AT));
 					tweet.setAccountLocation(JsonTweet.getString(ACCOUNT_LOCATION));
 					tweet.setMessageText(JsonTweet.getString(MESSAGE_TEXT));

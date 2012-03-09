@@ -5,8 +5,7 @@ import ConfigParser
 from pg8000 import DBAPI
 import json
 import thread
-from datetime import datetime
-
+import datetime
 app = Flask(__name__)
 
 response_data = {   'disruption_radius.txt': None,
@@ -112,6 +111,9 @@ def disruptions02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid disruptions request:"
+        # return findDisruptionsRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'], closestcam)
         response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius'], closestcam))
@@ -122,6 +124,10 @@ def disruptions02():
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
+    # return findDisruptionsRect(request.args['topleftlong'], 
+                               # request.args['topleftlat'],
+                               # request.args['bottomrightlong'],
+                               # request.args['bottomrightlat'], closestcam)
         response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
@@ -154,6 +160,9 @@ def tweets02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid tweets request"
+        # return findTweetsRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'])
         response=app.make_response(findTweetsRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius']))
@@ -169,10 +178,12 @@ def cameras02():
         print "[INFO] Valid cameras request"
         if ('closestcam' in request.args):
             if request.args['closestcam']=="y":
+                #return findCamerasDisruptionClosest(request.args['disruptionID'])
                 response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
                 response.mimetype='application/json'
                 return response
         else:
+            #return findCamerasDisruption(request.args['disruptionID'])
             response=app.make_response(findCamerasDisruption(request.args['disruptionID']))
             response.mimetype='application/json'
             return response
@@ -181,6 +192,9 @@ def cameras02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid cameras request"
+        # return findCamerasRadius(request.args['longitude'], 
+                               # request.args['latitude'],
+                               # request.args['radius'])
         response=app.make_response(findCamerasRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius']))
@@ -421,9 +435,8 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 
 def findTweetsRadius(lon, lat, radius):
     try:
-        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
-                            rname,
                             created_at,
                             location,
                             text,
@@ -450,9 +463,8 @@ def findTweetsRadius(lon, lat, radius):
 
 def findTweetsDisruption(ltisid, radius=1000):
     try:
-        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
-                            rname,
                             created_at,
                             location,
                             text,
@@ -488,14 +500,13 @@ def tweetRows2JSON(tweetRows, radius):
         jsonRow += """    {
         \"tid\": \"%s\",
         \"uname\": \"%s\",
-        \"rname\": \"%s\",
         \"created_at\": \"%s\",
         \"location\": \"%s\",
         \"text\": \"%s\",
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
                 \"ranking\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3],row[4].replace('"',"'"),row[5].replace('"',"'"),longitude,latitude,ranking)
+    },\n""" % (row[0],row[1],row[2],row[3].replace('"',"'"),row[4].replace('"',"'"),longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText.encode()
@@ -508,7 +519,7 @@ def calculateRank(prob, distance, radius, created_at):
     # Max age of the life of each tweet is 36 hours (129600 sec)
     max_age = 129600
 	# Find the age of the tweet
-    tweets_age = (datetime.now() - created_at).seconds
+    tweets_age = (datetime.datetime.now() - created_at).seconds
     # The rank depends on the distance of the tweet to the event
     # on the probability of being about traffic
     # and on its age.

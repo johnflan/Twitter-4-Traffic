@@ -16,7 +16,7 @@
             android:id="@+id/reportAdvDangerousRoadSurface"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dangerious road surface"
+            android:text="Damaged road surface"
             android:textSize="30px"
             android:layout_margin="10px"/>
 
