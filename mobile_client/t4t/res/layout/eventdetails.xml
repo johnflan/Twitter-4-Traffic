@@ -21,6 +21,7 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#F0F0F0"
             android:text="@string/disruption_details"
             android:textStyle="bold" />
     </LinearLayout>
@@ -50,7 +51,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:lines="1"
-                android:text="Event title"
                 android:textColor="#000000"
                 android:textSize="10pt"
                 android:textStyle="bold" />
@@ -60,15 +60,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lines="1"
-                android:paddingBottom="5dip"
-                android:text="Event location" />
+                android:paddingBottom="5dip" />
 
             <TextView
                 android:id="@+id/eventDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lines="5"
-                android:text="Event description"
                 android:textColor="#000000"
                 android:textSize="8pt" />
         </LinearLayout>
@@ -104,9 +102,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="10dip"
-                android:text="KM"
                 android:textSize="6pt"
-                android:textStyle="bold" />
+                android:textStyle="bold" 
+                android:layout_marginTop="-6dip"/>
             
             <ImageView
                 android:id="@+id/eventTrafficCameras"
@@ -124,12 +122,13 @@
         android:background="@drawable/what_people_are_saying_bg"
         android:paddingLeft="5dip">
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView11"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/what_people_are_saying"
         android:textStyle="bold"
-        />
+        android:textColor="#F0F0F0"
+        android:padding="3dip" />
     </LinearLayout>
 
     <ListView

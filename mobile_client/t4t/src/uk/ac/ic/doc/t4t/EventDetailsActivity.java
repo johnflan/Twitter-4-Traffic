@@ -2,7 +2,6 @@ package uk.ac.ic.doc.t4t;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.common.services.TrafficCameraImageDownloader;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
@@ -38,13 +37,16 @@ public class EventDetailsActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.eventdetails);
-        tweetList = (ListView)findViewById(R.id.tweetList);
+        tweetList = (ListView) findViewById(R.id.tweetList);
         trafficCameras = (ImageView) findViewById(R.id.eventTrafficCameras);
         
     	Bundle extras = getIntent().getExtras();
     	
     	if(extras !=null) {
     		eventDetails = (EventItem) extras.getSerializable("EventDetails");
+    		populateEvent(eventDetails);
+    	} else {
+    		return;
     	}
     	
     	reportEventBtn = (ImageButton) findViewById(R.id.header_share_button);
@@ -65,22 +67,11 @@ public class EventDetailsActivity extends Activity {
 				displayTrafficCamera();
 			}
 		});
-    	
-        
-        
-    	populateEvent(eventDetails);  	
 
-    	FetchTweets fetchTweets = new FetchTweets(this);
-    	fetchTweets.execute(eventDetails);
-    	
+        tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
+    	new FetchTweets(this).execute(eventDetails);
     }
 
-	private void populateTweets(List<TweetItem> tweets) {
-
-		if (tweets != null)
-			tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
-
-	}
 
 	private void populateEvent(EventItem eventDetails) {
 		
@@ -118,6 +109,7 @@ public class EventDetailsActivity extends Activity {
 	    //Distance from event, if we have no distance data hide section
 	    if (eventDetails.getCurrentDistanceFromEvent() != 0){
 	    	textCurrentDistance.setText( Double.toString(eventDetails.getCurrentDistanceFromEvent()) );
+	    	textCurrentDistanceType.setText( "km" );
 	    } else {
 	    	textCurrentDistance.setText( "" );
 	    	textCurrentDistanceType.setText( "" );
@@ -149,6 +141,10 @@ public class EventDetailsActivity extends Activity {
 	}
 	
 	private void displayTrafficCamera(){
+		
+		if (eventDetails == null)
+        	return;
+		
 		downloader = new TrafficCameraImageDownloader();	
 		Log.i(TAG, "Displaying traffic camera images");
 
@@ -216,8 +212,24 @@ public class EventDetailsActivity extends Activity {
 		}
 		
 		@Override
-	    protected void onPostExecute(List<TweetItem> tweets) {
-	        populateTweets(tweets);
+	    protected void onPostExecute(List<TweetItem> newTweets) {
+	        
+	        tweets.clear();
+			
+	        Log.i(TAG, "Adding " + newTweets.size() + " new tweets to listView");
+			if (newTweets != null && newTweets.size() > 0){
+				tweets.addAll(newTweets);	
+			} else {
+//				TweetItem item = new TweetItem();
+//				item.setMessageText("No tweets found");
+//				tweets.add(item);
+			}
+				
+			tweetList.setAdapter(new TweetItemAdapter(context, R.layout.tweetitem, tweets));
+			
+			
+	        super.onPostExecute(newTweets);
+
 	    }
 		
 	}

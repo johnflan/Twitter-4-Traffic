@@ -12,6 +12,7 @@ public class TweetItem {
 	private double longitude;
 	private String tweetAge;
 	private double ranking;
+	private long ageMillis;
 	
 	public long getTweetID() {
 		return Long.parseLong(tweetID);
@@ -76,5 +77,11 @@ public class TweetItem {
 	
 	public double getRanking(){
 		return this.ranking;
+	}
+	public void setAgeMillis(long millis) {
+		this.ageMillis = millis;		
+	}
+	public long getAgeMillis(){
+		return this.ageMillis;
 	}
 }

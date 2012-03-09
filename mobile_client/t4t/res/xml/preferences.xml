@@ -9,11 +9,7 @@
         </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Debug configuration">
-        <EditTextPreference
-            android:summary="@string/pref_server_url_summary"
-            android:title="@string/pref_server_url_title"
-            android:key="@string/pref_server_url_key" />
+        android:title="Configuration">
         
 		<ListPreference android:title="@string/pref_server_port_title"
            android:summary="@string/pref_server_port_summary"
@@ -28,6 +24,20 @@
            android:defaultValue="map"
            android:entries="@array/pref_default_view_options"
            android:entryValues="@array/pref_default_view_values"/>
+		
+		<ListPreference android:title="@string/pref_server_radius_title"
+           android:summary="@string/pref_server_radius_summary"
+           android:key="@string/pref_server_radius_key"
+           android:defaultValue="3000"
+           android:entries="@array/pref_server_radius_options"
+           android:entryValues="@array/pref_server_radius_values"/>
+		
+		<ListPreference android:title="@string/pref_sort_tweets_title"
+           android:summary="@string/pref_sort_tweets_summary"
+           android:key="@string/pref_sort_tweets_key"
+           android:defaultValue="age"
+           android:entries="@array/pref_sort_tweets_options"
+           android:entryValues="@array/pref_sort_tweets_values"/>
 		
 		
     </PreferenceCategory>

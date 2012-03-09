@@ -15,45 +15,58 @@
 
          <LinearLayout
              android:id="@+id/linearLayout2"
-             android:layout_width="218dp"
+             android:layout_width="match_parent"
              android:layout_height="wrap_content"
              android:orientation="vertical" >
 
-             <TextView
-                 android:id="@+id/TweetUsername"
-                 android:layout_width="match_parent"
+             <TableLayout
+             android:id="@+id/tableLayout1"
+             android:layout_width="wrap_content"
+             android:layout_height="match_parent"
+             android:stretchColumns="2">
+
+             <TableRow
+                 android:id="@+id/tableRow1"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content" >
+
+				<TextView
+				 android:layout_column="1"
+                 android:id="@+id/TweetRealname"
+                 android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
-                 android:paddingTop="9dip"
-                 android:text="UserName @name"
                  android:textColor="#000000"
+                 android:paddingTop="7dip"
                  android:textStyle="bold" />
+                 
+                 <TextView
+                 android:layout_column="1"
+                 android:id="@+id/TweetUsername"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:paddingTop="7dip"
+                 android:paddingLeft="5dip" />
+                 
+                 <TextView
+                     android:id="@+id/TweetAge"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="right"
+                     android:paddingRight="10dip"
+                     android:paddingTop="7dip" />
+             </TableRow>
+         </TableLayout>
              
              <TextView
                  android:id="@+id/TweetText"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
-                 android:lines="4"
-                 android:text="Message body ...."
-                 android:textColor="#000000" />
-
-         </LinearLayout>
-         
-         <LinearLayout
-             android:id="@+id/linearLayout2"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:orientation="vertical" >
-
-             <TextView
-                 android:id="@+id/TweetAge"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:gravity="right"
+                 android:textColor="#000000"
                  android:paddingRight="10dip"
-                 android:paddingLeft="5dip"
-                 android:paddingTop="10dip"
-                 android:text="10 min" />
+                 android:paddingBottom="10dip"/>
 
          </LinearLayout>
+
+         
 
     </LinearLayout>

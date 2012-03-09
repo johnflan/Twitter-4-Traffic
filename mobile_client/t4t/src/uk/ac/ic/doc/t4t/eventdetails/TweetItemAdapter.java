@@ -37,12 +37,14 @@ public class TweetItemAdapter extends ArrayAdapter<TweetItem> {
 	    view = inflater.inflate(resourceId, parent, false);
 	    TextView tweetText;
 	    TextView tweetUserName;
+	    TextView tweetRealName;
 	    TextView tweetAge;
 	    ImageView tweetProfileImage;
 	
 	    try{
 	    	tweetText = (TextView)view.findViewById(R.id.TweetText);
 	    	tweetUserName = (TextView)view.findViewById(R.id.TweetUsername);
+	    	tweetRealName = (TextView)view.findViewById(R.id.TweetRealname);
 	    	tweetAge = (TextView)view.findViewById(R.id.TweetAge);
 	    	tweetProfileImage = (ImageView) view.findViewById(R.id.TweetUserIcon);
 	    	
@@ -54,7 +56,8 @@ public class TweetItemAdapter extends ArrayAdapter<TweetItem> {
 		TweetItem item = getItem(position);
 		
 		tweetText.setText(item.getMessageText());
-		tweetUserName.setText(item.getAccountName());
+		tweetUserName.setText("@" + item.getAccountName());
+		tweetRealName.setText(item.getRealName());
 		tweetAge.setText(item.getTweetAge());
 
 	    return view;
