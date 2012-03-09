@@ -406,8 +406,9 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 
 def findTweetsRadius(lon, lat, radius):
     try:
-        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
+                            rname,
                             created_at,
                             location,
                             text,
@@ -434,8 +435,9 @@ def findTweetsRadius(lon, lat, radius):
 
 def findTweetsDisruption(ltisid, radius=1000):
     try:
-        query = """SELECT tid, uname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
+                            rname,
                             created_at,
                             location,
                             text,
@@ -462,7 +464,7 @@ def findTweetsDisruption(ltisid, radius=1000):
 def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(float(row[5]), float(row[6]), float(radius));
+        ranking=calculateRank(float(row[6]), float(row[7]), float(radius));
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -471,13 +473,14 @@ def tweetRows2JSON(tweetRows, radius):
         jsonRow += """    {
         \"tid\": \"%s\",
         \"uname\": \"%s\",
+        \"rname\": \"%s\",
         \"created_at\": \"%s\",
         \"location\": \"%s\",
         \"text\": \"%s\",
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
                 \"ranking\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3].replace('"',"'"),row[4].replace('"',"'"),longitude,latitude,ranking)
+    },\n""" % (row[0],row[1],row[2],row[3],row[4].replace('"',"'"),row[5].replace('"',"'"),longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText.encode()
