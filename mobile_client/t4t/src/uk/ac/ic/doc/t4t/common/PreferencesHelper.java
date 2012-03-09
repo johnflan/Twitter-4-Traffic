@@ -147,6 +147,33 @@ public class PreferencesHelper {
                 newValue);
         prefsEditor.commit();
     }
+    
+    public static String getServerRequestRadius(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_server_radius_key),
+        		"3000");
+        
+    }
+ 
+    public static void setServerRequestRadius(Context context, String newValue) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        Editor prefsEditor = prefs.edit();
+        prefsEditor.putString(
+                context.getString(R.string.pref_server_radius_key),
+                newValue);
+        prefsEditor.commit();
+    }
+    
+    public static String getTweetSortType(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_sort_tweets_key),
+        		"age");
+        
+    }
 	
 	
 }

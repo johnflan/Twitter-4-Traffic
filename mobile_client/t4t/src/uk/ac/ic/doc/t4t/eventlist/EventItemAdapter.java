@@ -21,6 +21,7 @@ import android.widget.TextView;
 public class EventItemAdapter extends ArrayAdapter<EventItem> {
 	
 	private final static String TAG = "EventItemAdapter";
+	private final static int DESCRIPTION_TEXT_CUTOFF = 200;
 	private int resourceId = 0;
 	private LayoutInflater inflater;
 	private Context context;
@@ -68,11 +69,18 @@ public class EventItemAdapter extends ArrayAdapter<EventItem> {
 
 	    textTitle.setText(item.getTitle());
 	    textLocation.setText(item.getLocation());
-	    textDescription.setText(item.getDescription());
+	    
+	    if (item.getDescription().length() > DESCRIPTION_TEXT_CUTOFF){
+	    	textDescription.setText(item.getDescription().substring(0, DESCRIPTION_TEXT_CUTOFF) + "...");
+	    } else {
+	    	textDescription.setText(item.getDescription());
+	    }
+	    
 	    
 	    //Distance from event, if we have no distance data hide section
 	    if (item.getCurrentDistanceFromEvent() != 0){
 	    	textCurrentDistance.setText( Double.toString(item.getCurrentDistanceFromEvent()) );
+	    	textCurrentDistanceType.setText( "km" );
 	    } else {
 	    	textCurrentDistance.setText( "" );
 	    	textCurrentDistanceType.setText( "" );

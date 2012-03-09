@@ -12,14 +12,7 @@ addressRegex = r"(\b(at|on)\s((\d+|\w{2,})\s){1,2}(st(reet)?|r[(oa)]d)(\sstation
 currRegex = addressRegex
 
 gmaps = GoogleMaps("ABQIAAAAUGnYtZ9Py2CWqhKA2j8WNhSV67USoQ6pUbqiV9eqnAi_hHG1PhShAENkss9dydHdndy0C9ko99g-Pg")
-
-configSection = "Local database"
-Config = ConfigParser.ConfigParser()
-Config.read("../t4t_credentials.txt")
-cfg_username = Config.get(configSection, "username")
-cfg_password = Config.get(configSection, "password")
-cfg_database = Config.get(configSection, "database")
-cfg_server = Config.get(configSection, "server")
+#gmaps = GoogleMaps("AIzaSyCw6F9tfQG6R56y9tUUm4WaI7o-D3cn7HI")
 
 conn = DBAPI.connect(host=cfg_server, database=cfg_database,user=cfg_username, password=cfg_password)
 cursor = conn.cursor()
