@@ -124,6 +124,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     (tid,uname,rname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.user.name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
                     
+                    rname = rname.encode('ascii','ignore')
                     text = text.encode('ascii','ignore')
                     probability = 1.0
                     isTraffic = True

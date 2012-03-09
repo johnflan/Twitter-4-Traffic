@@ -479,7 +479,7 @@ def findTweetsDisruption(ltisid, radius=1000):
 def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(float(row[5]), float(row[6]), float(radius), row[2]);
+        ranking=calculateRank(float(row[6]), float(row[7]), float(radius), row[3]);
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
