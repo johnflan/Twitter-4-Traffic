@@ -1,15 +1,20 @@
-from flask import Flask, request
+from flask import Flask, request, send_file
 import sys
+import optparse
 app = Flask(__name__)
+
 
 response_data = {   'disruption_radius.txt': None,
                     'disruption_rect.txt': None,
                     'tweets_disruption_id.txt': None,
-                    'tweets_radius.txt: None,
+                    'tweets_radius.txt': None,
                     'cameras_disruption_id.txt': None,
-                    'cameras_radius.txt: None,
+                    'cameras_radius.txt': None,
+                    'cameras_disruption_id_closest.txt': None,
+                    'cameras_radius_closest.txt': None,
                     'route_disruptions.txt':None,
-                    'instructions.txt': None}
+                    'instructions.txt': None,
+                    'test.html': None}
 
 ###############################################################################################
 ######################### Server requests used for the test webpage ###########################
@@ -63,13 +68,13 @@ def disruptions02():
     # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        return getResponse('disruptions_radius.txt')
+        return getResponse('disruption_radius.txt')
     # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-        return getResponse('disruptions_rect.txt')
+        return getResponse('disruption_rect.txt')
 
     return "Invalid disruptions request", 400
 
@@ -103,7 +108,7 @@ def cameras02():
     if ('disruptionID' in request.args):
         print "[INFO] Valid cameras request"
         if ( 'closestcam' in request.args ):
-            if request['closestcam']=="y":
+            if request.args['closestcam']=="y":
                 return getResponse('cameras_disruption_id_closest.txt')
         return getResponse('cameras_disruption_id.txt')
     
@@ -111,7 +116,7 @@ def cameras02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         if ( 'closestcam' in request.args ):
-            if request['closestcam']=="y":
+            if request.args['closestcam']=="y":
                 return getResponse('cameras_radius_closest.txt')
         return getResponse('cameras_radius.txt')
     return "Invalid cameras request", 400
@@ -121,8 +126,6 @@ def cameras02():
 ###############################################################################################
 
 def startServer():
-    # Connect to the database
-    connect()
     # Load responses from files for the mock server and the test webpage
     loadResponseData(kwargs['resp'])
     # Start the server
@@ -146,7 +149,7 @@ if __name__ == "__main__":
             help='The mock server address')
     parser.add_option('-r','--resp',
             dest='resp',
-            default='/responses',
+            default='responses/',
             help='The directory where the responses are saved')
     parser.add_option('-v','--verbosity',
             dest='verbosity',
