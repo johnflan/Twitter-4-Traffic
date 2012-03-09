@@ -15,6 +15,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
@@ -43,6 +44,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 	private List<Overlay> mapOverlays;
 	private EventOverlay eventOverlay;
 	private MapController mapController;
+	private MyLocationOverlay myLocationOverlay;
 
 	@Override
 	protected boolean isRouteDisplayed() {
@@ -69,6 +71,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         
         mapView = (MapView) findViewById(R.id.mapview);
+
         mapOverlays = mapView.getOverlays();
         
         //Here we set the rest client as a listener for the location service
@@ -83,16 +86,27 @@ public class EventMapActivity extends MapActivity implements Observer {
         mapController = mapView.getController();
         Log.i(TAG, "Moving map to users current loc : " + location.getGeoPoint());
         mapController.animateTo(location.getGeoPoint());
-        mapController.setZoom(14);
+        mapController.setZoom(15);
 
         
         Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
         eventOverlay = new EventOverlay(drawable, this);
         
+        findMyLocation(location);
+        
         //if location not yet available request
         //events from cache
         new FetchEvents(this).execute(null);
         
+    }
+    
+    private void findMyLocation(LocationMgr location){
+        myLocationOverlay = new MyLocationOverlay(this, mapView);
+        myLocationOverlay.enableMyLocation();
+        mapController.animateTo(location.getGeoPoint());
+        mapController.setCenter(location.getGeoPoint());
+        mapView.getOverlays().add(myLocationOverlay);
+        mapView.postInvalidate();
     }
 
 	
