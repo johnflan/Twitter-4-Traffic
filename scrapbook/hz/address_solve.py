@@ -136,9 +136,7 @@ def get_db_geo(addr):
         ((latlon,),) = cursor.fetchall()
         return latlon
     except:
-        return 0
-
-		
+        return 0	
 		
 ###############################################################################################
 ######################### Executed if the script is run directly ##############################

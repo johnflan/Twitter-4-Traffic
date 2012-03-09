@@ -6,6 +6,8 @@ from pg8000 import DBAPI
 import ConfigParser
 import twitter
 from twitter import TwitterError
+import urllib
+import urllib2
 from urllib2 import URLError
 import time
 from time import strftime
@@ -17,8 +19,21 @@ import pickle
 from classifier_files.preprocessor import preprocessor
 from crawler import GetRateLimiter, SuppressedCallException
 import StringIO
+from string import punctuation
+from operator import itemgetter
+from googlemaps import GoogleMaps
 from optparse import OptionParser
 import thread
+import json
+from json import JSONDecoder
+
+addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r[(oa)]d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?[,.\s$]{1})" 
+
+GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
+
+###############################################################################################
+############################ Start the twitter collection feed ################################
+###############################################################################################
 
 def main():
     # Connect to the database
@@ -149,10 +164,18 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         continue
                     
                     traffic_tweets += 1
-    
+
+                    # If the tweet does not have geolocation
+                    if geo is None:
+                        geolat, geolong = findGeolocation(text)
+                        print "geolat,geolong = %s, %s" % (geolat, geolong)
+                    elif not geo is None and geo.get('type') == 'Point':
+                        geolat, geolong = geo['coordinates']
+                    else:
+                        continue
+
                     # If the tweet has geolocation
-                    if not geo is None and geo.get('type') == 'Point':
-                        geolat,geolong, = geo['coordinates']
+                    if geolat!=None and geolong!=None:
                         geotweets += 1
                         
                         geoloc = "ST_GeographyFromText('SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")')"
@@ -197,7 +220,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                 results = []
         try:
             # Delete old tweets from the table
-            query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '36' hour"""
+            query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '7' day"""
             cursor.execute(query)
             
             # Update tweet metrics
@@ -213,6 +236,71 @@ def tweets(rl, georadius="19.622mi", start_id=0):
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             print "Error -> %s" % (exceptionValue)
+
+###############################################################################################
+##################### Find the geolocation and update the geolookup table #####################
+###############################################################################################
+
+def findGeolocation(text):
+    # Check if the tweet contains the regex
+    regexMatch = re.search(addressRegex, text, re.IGNORECASE)
+		
+    if not regexMatch == None:
+
+        addr = regexMatch.group(0)[3:] 
+        addr = addr.strip(punctuation).lower().strip()
+
+        if ("the street" in addr) or ("my street" in addr) or ("this street" in addr) or ("our street" in
+            addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
+            return None, None
+
+    # Try to find the corresponding geolocation in the local table geolookup
+    try:
+        rows = get_db_geo(addr)
+        latitude = str(rows[6:15].replace(')',''))
+        longitude = str( rows[16:26].replace(')',''))
+	return latitude, longitude
+    except:
+        # There is no such an address in the geolookup table so go and try to add it
+        try:
+            latitude, longitude = geocode(address = addr+",london", sensor = "false")
+            geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
+            query2 = "INSERT INTO geolookup (streetaddress,latlon)VALUES('"+str(addr)+"',"+geoloc+")"
+            cursor.execute(query2)
+            return latitude, longitude
+        except:
+            return None, None
+
+###############################################################################################
+######## Parse the json file from google map and get lat and lon for the address ##############
+###############################################################################################
+
+def geocode(address, sensor):
+    geo_args = dict({"address":address,"sensor":sensor})
+
+    url = GEOCODE_BASE_URL + '?' + urllib.urlencode(geo_args)
+    req = urllib2.Request(url)
+    result = urllib2.urlopen(req)
+    response = result.read()
+
+    decoder = json.JSONDecoder()
+    jsonObj = decoder.decode(response)
+    lat = jsonObj['results'][0]['geometry']['location']['lat']
+    lng = jsonObj['results'][0]['geometry']['location']['lng']
+    return (lat,lng)
+
+###############################################################################################
+###### Get the lon and lat from the geolookup and match them with the addr if it exists #######
+###############################################################################################
+
+def get_db_geo(addr):
+    query1 = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE streetaddress ='"+str(addr)+"'"
+    cursor.execute(query1)
+    try:
+        ((latlon,),) = cursor.fetchall()
+        return latlon
+    except:
+        return 0
 
 ###############################################################################################
 ########################## Classify a tweet to traffic or not traffic #########################

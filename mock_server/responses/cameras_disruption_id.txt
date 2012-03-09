@@ -1,0 +1,38 @@
+{"cameras":[
+    {
+        "title": "Horbart Place/Grosvenor Place",
+        "link": "http://www.tfl.gov.uk/tfl/livetravelnews/trafficcams/cctv/546512.jpg",
+        "longitude": "-0.14694724",
+        "latitude": "51.498128"
+    },
+    {
+        "title": "Hyde Park Corner",
+        "link": "http://www.tfl.gov.uk/tfl/livetravelnews/trafficcams/cctv/546515.jpg",
+        "longitude": "-0.15213374",
+        "latitude": "51.501882"
+    },
+    {
+        "title": "Buck Palace Rd/Ecclestone Bridge",
+        "link": "http://www.tfl.gov.uk/tfl/livetravelnews/trafficcams/cctv/546520.jpg",
+        "longitude": "-0.14655965",
+        "latitude": "51.494065"
+    },
+    {
+        "title": "A4 Knightbridge By Scotch Corner",
+        "link": "http://www.tfl.gov.uk/tfl/livetravelnews/trafficcams/cctv/546594.jpg",
+        "longitude": "-0.16031721",
+        "latitude": "51.501951"
+    },
+    {
+        "title": "Hyde Park Corner/Park Lane",
+        "link": "http://www.tfl.gov.uk/tfl/livetravelnews/trafficcams/cctv/548750.jpg",
+        "longitude": "-0.15098989",
+        "latitude": "51.503269"
+    },
+    {
+        "title": "Victoria St/Wilton Rd",
+        "link": "http://www.tfl.gov.uk/tfl/livetravelnews/trafficcams/cctv/546511.jpg",
+        "longitude": "-0.14270681",
+        "latitude": "51.496433"
+    }
+]}

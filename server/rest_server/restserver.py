@@ -9,11 +9,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-response_data = {   'disruption_radius.txt': None,
-                    'disruption_rect.txt': None,
-                    'tweets_disruption_id.txt': None,
-                    'route_disruptions.txt':None,
-                    'test.html': None}
+response_data = {'test.html': None}
 
 ###############################################################################################
 ######################### Server requests used for the test webpage ###########################
@@ -30,50 +26,6 @@ def get_favicon():
 @app.route("/header_bg.png")
 def get_header():
     return send_file('responses/images/header_bg.png',mimetype='image/png')
-    
-###############################################################################################
-############################# VERSION 0.1 Requests for the server #############################
-###############################################################################################
-
-########################## Get disruptions in a circle or rectangle ###########################
-@app.route("/t4t/0.1/disruptions", methods=['GET'])
-def disruptions01():
-    # Disruptions within a circle
-    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
-           in request.args):
-        print "[INFO] Valid disruptions request:"
-        return getResponse('disruption_radius.txt')
-        
-    # Disruptions within a rectangle
-    if ('topleftlat' in request.args and 'topleftlong' in request.args and
-        'bottomrightlat' in request.args and 'bottomrightlong' in
-        request.args):
-        print "[INFO] Valid disruptions request"
-        return getResponse('disruption_rect.txt')
-    return "Invalid disruptions request", 400
-
-################################ Get disruptions around a route ###############################
-@app.route("/t4t/0.1/disruptions/route/", methods=['PUT','POST'])
-def disruptionsRoute01():
-    if request.mimetype == "application/json":
-        print"[INFO] recieved json body:", request.json
-        return getResponse('route_disruptions.txt')
-    return "Invalid request", 400
-
-######################################### Get tweets ##########################################
-@app.route("/t4t/0.1/tweets", methods=['GET'])
-def tweets01():
-    if ('disruptionID' in request.args):
-        return getResponse('tweets_disruption_id.txt')
-    return "Invalid tweet request", 400
-
-######################################## Report event #########################################
-@app.route("/t4t/0.1/report", methods=['PUT', 'POST'])
-def report01():
-    if (request.mimetype == "application/json"):
-        print "[INFO] received json body, ", request.json
-        return "Success"
-    return "Invalid request", 400
 
 ################################## Get responses from files ###################################
 def getResponse(endpoint):
