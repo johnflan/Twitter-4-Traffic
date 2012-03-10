@@ -63,9 +63,9 @@ def disruptions02():
     # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        if (is_number(requests.args['radius']) or
-                is_number(requests.args['latitude'])
-                is_number(requests.args['longitude'])):
+        if (is_number(request.args['radius']) and
+                is_number(request.args['latitude']) and
+                is_number(request.args['longitude'])):
             print "[INFO] Valid disruptions request:"
         else
             return "Invalid disruptions request", 400
