@@ -63,11 +63,15 @@ def disruptions02():
     # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        if (is_number(request.args['radius']) and
-                is_number(request.args['latitude']) and
-                is_number(request.args['longitude'])):
-            print "[INFO] Valid disruptions request:"
-        else
+        radius=is_number(request.args['radius'])
+        latitude=is_number(request.args['latitude'])
+        longitude=is_number(request.args['longitude'])
+        if (radius!=None and latitude!=None and longitude!=None):
+            if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
+                print "[INFO] Valid disruptions request:"
+            else:
+                return "Invalid disruptions request", 400
+        else:
             return "Invalid disruptions request", 400
         response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
@@ -78,7 +82,21 @@ def disruptions02():
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
-        print "[INFO] Valid disruptions request"
+        topleftlat=is_number(request.args['topleftlat'])
+        topleftlong=is_number(request.args['topleftlong'])
+        bottomrightlat=is_number(request.args['bottomrightlat'])
+        bottomrightlong=is_number(request.args['bottomrightlong'])
+        if (topleftlat!=None and topleftlong!=None and bottomrightlat!=None and
+                bottomrightlong!=None):
+            if (abs(topleftlat)<=90 
+                    and abs(topleftlong)<=180
+                    and abs(bottomrightlat)<=90
+                    and abs(bottomrightlong)<=180):
+                print "[INFO] Valid disruptions request:"
+            else:
+                return "Invalid disruptions request", 400
+        else:
+            return "Invalid disruptions request", 400
         response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
@@ -118,7 +136,16 @@ def tweets02():
     # Get tweets within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        print "[INFO] Valid tweets request"
+        radius=is_number(request.args['radius'])
+        latitude=is_number(request.args['latitude'])
+        longitude=is_number(request.args['longitude'])
+        if (radius!=None and latitude!=None and longitude!=None):
+            if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
+                print "[INFO] Valid tweets request:"
+            else:
+                return "Invalid tweets request", 400
+        else:
+            return "Invalid tweets request", 400
         response=app.make_response(findTweetsRadius(request.args['longitude'],
                                                     request.args['latitude'],
                                                     request.args['radius'],
@@ -146,7 +173,16 @@ def cameras02():
     # Get cameras within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        print "[INFO] Valid cameras request"
+        radius=is_number(request.args['radius'])
+        latitude=is_number(request.args['latitude'])
+        longitude=is_number(request.args['longitude'])
+        if (radius!=None and latitude!=None and longitude!=None):
+            if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
+                print "[INFO] Valid cameras request:"
+            else:
+                return "Invalid cameras request", 400
+        else:
+            return "Invalid cameras request", 400
         response=app.make_response(findCamerasRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius']))
@@ -155,7 +191,7 @@ def cameras02():
     return "Invalid cameras request", 400
 
 ######################################## Report event #########################################
-@app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
+app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
 def report02():
     if (request.mimetype == "application/json"):
         print "[INFO] received json body, ", request.json
@@ -165,10 +201,9 @@ def report02():
 ################################## Check if it is a number ####################################
 def is_number(s):
     try:
-        float(s) # for int, long and float
+        return float(s) # for int, long and float
     except ValueError:
-        return False
-    return True
+        return None
 
 ###############################################################################################
 ################################## Starts the rest server #####################################
@@ -484,7 +519,7 @@ def tweetRows2JSON(tweetRows, radius):
         \"text\": \"%s\",
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
-                \"ranking\": \"%s\"
+        \"ranking\": \"%s\"
     },\n""" % (row[0],row[1],row[2],row[3],row[4].replace('"',"'"),row[5].replace('"',"'"),longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
