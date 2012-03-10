@@ -6,6 +6,8 @@ from pg8000 import DBAPI
 import ConfigParser
 import twitter
 from twitter import TwitterError
+import urllib
+import urllib2
 from urllib2 import URLError
 import time
 from time import strftime
@@ -17,8 +19,21 @@ import pickle
 from classifier_files.preprocessor import preprocessor
 from crawler import GetRateLimiter, SuppressedCallException
 import StringIO
+from string import punctuation
+from operator import itemgetter
+from googlemaps import GoogleMaps
 from optparse import OptionParser
 import thread
+import json
+from json import JSONDecoder
+
+addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r[(oa)]d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?[,.\s$]{1})" 
+
+GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
+
+###############################################################################################
+############################ Start the twitter collection feed ################################
+###############################################################################################
 
 def main():
     # Connect to the database
@@ -26,7 +41,13 @@ def main():
 
     # Load the twitter search terms from a file
     loadSearchTerms()
+    
+    # Load the profanity filter words from a file
+    loadBadWords()
 
+    # Update the database's bad words in tweets
+    updateDBBadWords()
+    
     # Find the maximum tweet id that was previously stored in the database
     start_id = get_max_id()
 
@@ -64,10 +85,44 @@ def loadSearchTerms():
     try:
         f = open(kwargs['terms'], "r")
         terms = f.read()
-        print "[INFO] Search Terms: %s" % terms
         kwargs['terms'] = terms.strip()
     except IOError:
         print "[Error] search terms file not found"
+        sys.exit()
+        
+###############################################################################################
+############################# Loads bad words list from a file ################################
+###############################################################################################
+        
+def loadBadWords():
+    try:
+        f = open(kwargs['badwords'], "r")
+        badwords = f.read()
+        # Add all words but remove the last new line
+        kwargs['badwords'] = badwords.split("\n")[:-1]
+    except IOError:
+        print "[Error] bad words file not found"
+        sys.exit()
+        
+###############################################################################################
+####################### Update the tweets column for the new bad words ########################
+###############################################################################################
+        
+def updateDBBadWords():
+    try:
+        query = "UPDATE tweets SET profanity='n'"
+        
+        cursor.execute(query)
+        
+        query = "UPDATE tweets SET profanity='y' WHERE "
+        
+        for word in kwargs['badwords']:
+            query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
+        
+        cursor.execute(query[:-4])
+        conn.commit()
+    except IOError:
+        print "[Error] bad words could not be updated"
         sys.exit()
 
 ###############################################################################################
@@ -90,7 +145,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
     most_recent_id = start_id
 
     retweetRegex = re.compile('/\brt\b/i')
-    
+
     # Load the classifier
     classifier = pickle.load(open(kwargs['classifier']))
 
@@ -101,6 +156,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
         rightturn_tweets = 0
         retweets = 0
         geotweets = 0
+        foundgeotweets = 0
 
         # Get the current time
         updated_at = strftime("%d/%m/%y %H:%M:%S")
@@ -117,13 +173,14 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                 
                 # Get results from twitter
                 results = rl.FreqLimitGetSearch(**searchargs)
-		total_tweets += len(results)
+                total_tweets += len(results)
 
                 for r in results:
                     most_recent_id = max(r.id,most_recent_id)
                     (tid,uname,rname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.user.name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
                     
+                    rname = rname.encode('ascii','ignore')
                     text = text.encode('ascii','ignore')
                     probability = 1.0
                     isTraffic = True
@@ -148,10 +205,30 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         continue
                     
                     traffic_tweets += 1
-    
+
+                    # If the tweet does not have geolocation
+                    if geo is None:
+                        geolat, geolong = findGeolocation(text)
+                        if geolat!=None and geolong!=None:
+                            foundgeotweets += 1
+                    elif not geo is None and geo.get('type') == 'Point':
+                        geolat, geolong = geo['coordinates']
+                    else:
+                        continue
+                        
+                    # Profanity checking
+                    profanity = "n"
+                    for word in kwargs['badwords']:
+                        # The pattern is the word without no letters or numbers befere and after it
+                        pattern = '(\W|\Z)%s(\W|\Z)' % word
+                        result = re.search(pattern, text, flags=re.IGNORECASE)
+                        
+                        if result!=None:
+                            profanity = "y"
+                            break
+
                     # If the tweet has geolocation
-                    if not geo is None and geo.get('type') == 'Point':
-                        geolat,geolong, = geo['coordinates']
+                    if geolat!=None and geolong!=None:
                         geotweets += 1
                         
                         geoloc = "ST_GeographyFromText('SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")')"
@@ -159,10 +236,10 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         text = text.replace("'", "")
                         text = text.replace("%", "")
                         query = "INSERT INTO tweets(tid, uname, rname, created_at,\
-                        location,text,geolocation,probability) VALUES (" + str(tid) +\
+                        location,text,geolocation,probability,profanity) VALUES (" + str(tid) +\
                         ",'" + uname + "','" + rname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD HH24:MI:SS'),'" +\
                         str(location) + "',\'" + str(text) +\
-                        "\'," + geoloc + "," + str(probability) + ")"
+                        "\'," + geoloc + "," + str(probability) + "," + str(profanity) + ")"
                         
                         try:
                             cursor.execute( query )
@@ -174,9 +251,9 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     
                     # If the tweet does not have geolocation
                     else:
-                        query = """INSERT INTO tweets(tid, uname, rname, created_at, location, text, probability ) VALUES
-                                    (%s,%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s,%s)"""
-                        params = (tid, uname, rname, str(created_at), location, text, probability)
+                        query = """INSERT INTO tweets(tid, uname, rname, created_at, location, text, probability, profanity ) VALUES
+                                    (%s,%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s,%s,%s)"""
+                        params = (tid, uname, rname, str(created_at), location, text, probability, profanity)
                         
                         try:
                             cursor.execute(query, params)
@@ -196,7 +273,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                 results = []
         try:
             # Delete old tweets from the table
-            query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '36' hour"""
+            query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '7' day"""
             cursor.execute(query)
             
             # Update tweet metrics
@@ -204,7 +281,8 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                                                  traffic_tweets=traffic_tweets+%s,
                                                  rightturn_tweets=rightturn_tweets+%s,
                                                  retweets=retweets+%s,
-                                                 geotweets=geotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets))
+                                                 geotweets=geotweets+%s,
+                                                 foundgeotweets=foundgeotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets),str(foundgeotweets))
             cursor.execute(query)
             # Commit the changes to the database
             conn.commit()
@@ -212,6 +290,71 @@ def tweets(rl, georadius="19.622mi", start_id=0):
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             print "Error -> %s" % (exceptionValue)
+
+###############################################################################################
+##################### Find the geolocation and update the geolookup table #####################
+###############################################################################################
+
+def findGeolocation(text):
+    # Check if the tweet contains the regex
+    regexMatch = re.search(addressRegex, text, re.IGNORECASE)
+        
+    if not regexMatch == None:
+
+        addr = regexMatch.group(0)[3:] 
+        addr = addr.strip(punctuation).lower().strip()
+
+        if ("the street" in addr) or ("my street" in addr) or ("this street" in addr) or ("our street" in
+            addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
+            return (None, None)
+
+    # Try to find the corresponding geolocation in the local table geolookup
+    try:
+        rows = get_db_geo(addr)
+        latitude = str(rows[6:15].replace(')',''))
+        longitude = str( rows[16:26].replace(')',''))
+        return (latitude, longitude)
+    except:
+        # There is no such an address in the geolookup table so go and try to add it
+        try:
+            latitude, longitude = geocode(address = addr+",london", sensor = "false")
+            geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
+            query = "INSERT INTO geolookup (streetaddress,latlon)VALUES('"+str(addr)+"',"+geoloc+")"
+            cursor.execute(query)
+            return (latitude, longitude)
+        except:
+            return (None, None)
+
+###############################################################################################
+######## Parse the json file from google map and get lat and lon for the address ##############
+###############################################################################################
+
+def geocode(address, sensor):
+    geo_args = dict({"address":address,"sensor":sensor})
+
+    url = GEOCODE_BASE_URL + '?' + urllib.urlencode(geo_args)
+    req = urllib2.Request(url)
+    result = urllib2.urlopen(req)
+    response = result.read()
+
+    decoder = json.JSONDecoder()
+    jsonObj = decoder.decode(response)
+    lat = jsonObj['results'][0]['geometry']['location']['lat']
+    lng = jsonObj['results'][0]['geometry']['location']['lng']
+    return (lat,lng)
+
+###############################################################################################
+###### Get the lon and lat from the geolookup and match them with the addr if it exists #######
+###############################################################################################
+
+def get_db_geo(addr):
+    query1 = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE streetaddress ='"+str(addr)+"'"
+    cursor.execute(query1)
+    try:
+        ((latlon,),) = cursor.fetchall()
+        return latlon
+    except:
+        return 0
 
 ###############################################################################################
 ########################## Classify a tweet to traffic or not traffic #########################
@@ -258,9 +401,13 @@ if __name__ == '__main__':
                         dest='terms',
                         default='searchTerms.txt',
                         help='The search terms for twitter')
+    parser.add_option('-w', '--words',
+                        dest='badwords',
+                        default='dirty_words.txt',
+                        help='The bad words for the profanity filter')
     parser.add_option('-c', '--classifier',
                         dest='classifier',
-                        default='naive_bayes.pickle',
+                        default='/srv/t4t/classifier_files/naive_bayes.pickle',
                         help='The classifier file')
     parser.add_option('-v', '--verbosity',
                         dest='verbosity', 

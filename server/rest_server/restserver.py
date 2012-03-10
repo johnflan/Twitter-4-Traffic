@@ -9,11 +9,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-response_data = {   'disruption_radius.txt': None,
-                    'disruption_rect.txt': None,
-                    'tweets_disruption_id.txt': None,
-                    'route_disruptions.txt':None,
-                    'test.html': None}
+response_data = {'test.html': None}
 
 ###############################################################################################
 ######################### Server requests used for the test webpage ###########################
@@ -30,50 +26,6 @@ def get_favicon():
 @app.route("/header_bg.png")
 def get_header():
     return send_file('responses/images/header_bg.png',mimetype='image/png')
-    
-###############################################################################################
-############################# VERSION 0.1 Requests for the server #############################
-###############################################################################################
-
-########################## Get disruptions in a circle or rectangle ###########################
-@app.route("/t4t/0.1/disruptions", methods=['GET'])
-def disruptions01():
-    # Disruptions within a circle
-    if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
-           in request.args):
-        print "[INFO] Valid disruptions request:"
-        return getResponse('disruption_radius.txt')
-        
-    # Disruptions within a rectangle
-    if ('topleftlat' in request.args and 'topleftlong' in request.args and
-        'bottomrightlat' in request.args and 'bottomrightlong' in
-        request.args):
-        print "[INFO] Valid disruptions request"
-        return getResponse('disruption_rect.txt')
-    return "Invalid disruptions request", 400
-
-################################ Get disruptions around a route ###############################
-@app.route("/t4t/0.1/disruptions/route/", methods=['PUT','POST'])
-def disruptionsRoute01():
-    if request.mimetype == "application/json":
-        print"[INFO] recieved json body:", request.json
-        return getResponse('route_disruptions.txt')
-    return "Invalid request", 400
-
-######################################### Get tweets ##########################################
-@app.route("/t4t/0.1/tweets", methods=['GET'])
-def tweets01():
-    if ('disruptionID' in request.args):
-        return getResponse('tweets_disruption_id.txt')
-    return "Invalid tweet request", 400
-
-######################################## Report event #########################################
-@app.route("/t4t/0.1/report", methods=['PUT', 'POST'])
-def report01():
-    if (request.mimetype == "application/json"):
-        print "[INFO] received json body, ", request.json
-        return "Success"
-    return "Invalid request", 400
 
 ################################## Get responses from files ###################################
 def getResponse(endpoint):
@@ -137,16 +89,24 @@ def disruptionsRoute02():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         points = getPointsFromJson(str(request.json))
-        return findDisruptionsRoute(points,"n",1000)
+        response=app.make_response(findDisruptionsRoute(points,"n",1000))
+        response.mimetype='application/json'
+        return response
     return "Invalid request", 400
 
 ######################################### Get tweets ##########################################
 @app.route("/t4t/0.2/tweets", methods=['GET'])
 def tweets02():
+    proffilter="n"
+    # Find the profanity filter value
+    if ('filter' in request.args):
+        if (request.args['filter']=='y'):
+            proffilter = "y"
+
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
-        response=app.make_response(findTweetsDisruption(request.args['disruptionID']))
+        response=app.make_response(findTweetsDisruption(request.args['disruptionID'], proffilter))
         response.mimetype='application/json'
         return response
     
@@ -154,9 +114,10 @@ def tweets02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid tweets request"
-        response=app.make_response(findTweetsRadius(request.args['longitude'], 
-                               request.args['latitude'],
-                               request.args['radius']))
+        response=app.make_response(findTweetsRadius(request.args['longitude'],
+                                                    request.args['latitude'],
+                                                    request.args['radius'],
+                                                    proffilter))
         response.mimetype='application/json'
         return response
     return "Invalid tweets request", 400
@@ -269,6 +230,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid disruptions request", 400
 
 ###############################################################################################
 #################### Returns a JSON text for the area that is selected ########################
@@ -311,6 +273,7 @@ def findDisruptionsRadius(lon, lat, radius, closestcam):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid disruptions request", 400
 
 ###############################################################################################
 ########################## Returns route points from a JSON file ##############################
@@ -365,6 +328,7 @@ def findDisruptionsRoute(points, closestcam, radius=1000):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)       
+        return "Invalid disruptions request", 400
 
 ###############################################################################################
 ###################### Returns a JSON text for the rows of the table ##########################
@@ -419,8 +383,13 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
 
-def findTweetsRadius(lon, lat, radius):
+def findTweetsRadius(lon, lat, radius, proffilter):
     try:
+        # Filter profanities
+        queryForFilter = ""
+        if proffilter=="y":
+            queryForFilter = " WHERE profanity='n'"
+            
         query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             rname,
@@ -430,8 +399,8 @@ def findTweetsRadius(lon, lat, radius):
                             probability,
                             ST_Distance(geolocation,'POINT(%s %s)') AS st_distance,
                             ST_AsText(geolocation) as geolocation
-                    FROM tweets) AS distances
-                    WHERE st_distance <= %s""" % (lon,lat,radius)
+                    FROM tweets%s) AS distances
+                    WHERE st_distance <= %s""" % (lon,lat,queryForFilter,radius)
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
@@ -443,13 +412,20 @@ def findTweetsRadius(lon, lat, radius):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid tweets request", 400
+
         
 ###############################################################################################
 ################## Returns a JSON text for the area around a disruption #######################
 ###############################################################################################
 
-def findTweetsDisruption(ltisid, radius=1000):
+def findTweetsDisruption(ltisid, proffilter, radius=1000):
     try:
+        # Filter profanities
+        queryForFilter = ""
+        if proffilter=="y":
+            queryForFilter = " WHERE profanity='n'"
+            
         query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             rname,
@@ -459,8 +435,8 @@ def findTweetsDisruption(ltisid, radius=1000):
                             probability,
                             ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
                             ST_AsText(geolocation) as geolocation
-                    FROM tweets) AS distances
-                    WHERE st_distance <= %s""" % (ltisid,radius)
+                    FROM tweets%s) AS distances
+                    WHERE st_distance <= %s""" % (ltisid,queryForFilter,radius)
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
@@ -471,6 +447,7 @@ def findTweetsDisruption(ltisid, radius=1000):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid tweets request", 400
 
 ###############################################################################################
 ##################### Returns a JSON text for the rows of the table ###########################
@@ -479,7 +456,7 @@ def findTweetsDisruption(ltisid, radius=1000):
 def tweetRows2JSON(tweetRows, radius):
     jsonRow = ""
     for row in tweetRows:
-        ranking=calculateRank(float(row[5]), float(row[6]), float(radius), row[2]);
+        ranking=calculateRank(float(row[6]), float(row[7]), float(radius), row[3]);
         coordinates = row[-1][6:-1]
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
@@ -507,7 +484,7 @@ def tweetRows2JSON(tweetRows, radius):
 def calculateRank(prob, distance, radius, created_at):
     # Max age of the life of each tweet is 36 hours (129600 sec)
     max_age = 129600
-	# Find the age of the tweet
+    # Find the age of the tweet
     tweets_age = (datetime.now() - created_at).seconds
     # The rank depends on the distance of the tweet to the event
     # on the probability of being about traffic
@@ -538,6 +515,8 @@ def findCamerasRadius(lon, lat, radius):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid cameras request", 400
+
         
 ###############################################################################################
 ################## Returns a JSON text for the area around a disruption #######################
@@ -561,6 +540,8 @@ def findCamerasDisruption(ltisid, radius=500):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid cameras request", 400
+
 
 ###############################################################################################
 ############## Returns a JSON text for the closest camera around a disruption #################
@@ -588,6 +569,8 @@ def findCamerasDisruptionClosest(ltisid, radius=500):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid cameras request", 400
+
 
         
 ###############################################################################################

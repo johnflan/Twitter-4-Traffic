@@ -3,6 +3,7 @@
 import ConfigParser
 from string import punctuation
 from operator import itemgetter
+from googlemaps import GoogleMaps
 import pg8000
 from pg8000 import DBAPI
 import re
@@ -25,6 +26,7 @@ cfg_server = Config.get(configSection, "server")
 conn = DBAPI.connect(host=cfg_server, database=cfg_database,user=cfg_username, password=cfg_password)
 cursor = conn.cursor()
 
+gmaps = GoogleMaps("ABQIAAAAUGnYtZ9Py2CWqhKA2j8WNhSV67USoQ6pUbqiV9eqnAi_hHG1PhShAENkss9dydHdndy0C9ko99g-Pg")
 #query = "select text from tweets"
 query = "select text from geolondon"
 
@@ -51,6 +53,8 @@ for row in cursor:
 top_addr = sorted(addresses.iteritems(), key=itemgetter(1), reverse=True)[:N]
 for addr, frequency in top_addr:
     print "%s: %d" % (addr, frequency)
+    #lat,lng = gmaps.address_to_latlng(addr + ", london")
+    #print addr + ":" + str(frequency) + ":" + str(lat) + ":" + str(lng)
 
 
 print "\n", counter, "addresses identified."

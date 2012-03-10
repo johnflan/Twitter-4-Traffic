@@ -134,6 +134,7 @@ def setup(cursor, conn, *args):
                                 text VARCHAR(200),
                                 geolocation GEOGRAPHY(POINT, 4326),
                                 probability DECIMAL,
+                                profanity VARCHAR(1),
                                 PRIMARY KEY (tid)
                                 )""")
                 cursor.execute("CREATE INDEX tweets_index ON tweets(tid)")
@@ -154,12 +155,20 @@ def setup(cursor, conn, *args):
                                 traffic_tweets BIGINT,
                                 rightturn_tweets BIGINT,
                                 retweets BIGINT,
-                                geotweets BIGINT
+                                geotweets BIGINT,
+                                foundgeotweets BIGINT
                                 )""")
-                cursor.execute("""INSERT INTO tweets_metrics VALUES(0,0,0,0,0)""")
+                cursor.execute("""INSERT INTO tweets_metrics VALUES(0,0,0,0,0,0)""")
                 print "> Table tweets_metrics created"
-                        
-        
+            elif args[i]=="geolookup":
+                cursor.execute("""CREATE TABLE geolookup(
+                                screetaddress TEXT NOT NULL,
+                                soundex TEXT,
+                                latlon GEOGRAPHY(POINT, 4326),
+                                PRIMARY KEY (streetaddress)
+                                )"""
+                print "> Table geolookup created"
+
         print "> Giving privileges"
         configSection = "Users"
         Config = ConfigParser.ConfigParser()
