@@ -134,6 +134,7 @@ def setup(cursor, conn, *args):
                                 text VARCHAR(200),
                                 geolocation GEOGRAPHY(POINT, 4326),
                                 probability DECIMAL,
+                                profanity VARCHAR(1),
                                 PRIMARY KEY (tid)
                                 )""")
                 cursor.execute("CREATE INDEX tweets_index ON tweets(tid)")

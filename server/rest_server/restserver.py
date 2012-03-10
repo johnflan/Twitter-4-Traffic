@@ -95,10 +95,16 @@ def disruptionsRoute02():
 ######################################### Get tweets ##########################################
 @app.route("/t4t/0.2/tweets", methods=['GET'])
 def tweets02():
+    filter="n"
+    # Find the profanity filter value
+    if ('filter' in request.args):
+        if (request.args['filter']=='y'):
+            filter = "y"
+
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
-        response=app.make_response(findTweetsDisruption(request.args['disruptionID']))
+        response=app.make_response(findTweetsDisruption(request.args['disruptionID'], filter))
         response.mimetype='application/json'
         return response
     
@@ -108,7 +114,7 @@ def tweets02():
         print "[INFO] Valid tweets request"
         response=app.make_response(findTweetsRadius(request.args['longitude'], 
                                request.args['latitude'],
-                               request.args['radius']))
+                               request.args['radius']), filter)
         response.mimetype='application/json'
         return response
     return "Invalid tweets request", 400
@@ -371,8 +377,13 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
 
-def findTweetsRadius(lon, lat, radius):
+def findTweetsRadius(lon, lat, radius, filter):
     try:
+        # Filter profanities
+        queryForFilter = ""
+        if filter=="y":
+            queryForFilter = " WHERE profanity='n'"
+            
         query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             rname,
@@ -382,8 +393,8 @@ def findTweetsRadius(lon, lat, radius):
                             probability,
                             ST_Distance(geolocation,'POINT(%s %s)') AS st_distance,
                             ST_AsText(geolocation) as geolocation
-                    FROM tweets) AS distances
-                    WHERE st_distance <= %s""" % (lon,lat,radius)
+                    FROM tweets%s) AS distances
+                    WHERE st_distance <= %s""" % (lon,lat,queryForFilter,radius)
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
@@ -400,8 +411,13 @@ def findTweetsRadius(lon, lat, radius):
 ################## Returns a JSON text for the area around a disruption #######################
 ###############################################################################################
 
-def findTweetsDisruption(ltisid, radius=1000):
+def findTweetsDisruption(ltisid, filter, radius=1000):
     try:
+        # Filter profanities
+        queryForFilter = ""
+        if filter=="y":
+            queryForFilter = " WHERE profanity='n'"
+            
         query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             rname,
@@ -411,8 +427,8 @@ def findTweetsDisruption(ltisid, radius=1000):
                             probability,
                             ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
                             ST_AsText(geolocation) as geolocation
-                    FROM tweets) AS distances
-                    WHERE st_distance <= %s""" % (ltisid,radius)
+                    FROM tweets%s) AS distances
+                    WHERE st_distance <= %s""" % (ltisid,queryForFilter,radius)
 
         cursor.execute(query)
         tweetRows = cursor.fetchall()
@@ -459,7 +475,7 @@ def tweetRows2JSON(tweetRows, radius):
 def calculateRank(prob, distance, radius, created_at):
     # Max age of the life of each tweet is 36 hours (129600 sec)
     max_age = 129600
-	# Find the age of the tweet
+    # Find the age of the tweet
     tweets_age = (datetime.now() - created_at).seconds
     # The rank depends on the distance of the tweet to the event
     # on the probability of being about traffic
