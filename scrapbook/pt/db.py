@@ -160,8 +160,15 @@ def setup(cursor, conn, *args):
                                 )""")
                 cursor.execute("""INSERT INTO tweets_metrics VALUES(0,0,0,0,0,0)""")
                 print "> Table tweets_metrics created"
-                        
-        
+            elif args[i]=="geolookup":
+                cursor.execute("""CREATE TABLE geolookup(
+                                screetaddress TEXT NOT NULL,
+                                soundex TEXT,
+                                latlon GEOGRAPHY(POINT, 4326),
+                                PRIMARY KEY (streetaddress)
+                                )"""
+                print "> Table geolookup created"
+
         print "> Giving privileges"
         configSection = "Users"
         Config = ConfigParser.ConfigParser()

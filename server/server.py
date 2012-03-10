@@ -51,7 +51,7 @@ if __name__=='__main__':
             help='The bad words for the profanity filter')
     parser.add_option('-c', '--classifier',
             dest='classifier',
-            default='data_aquisition/twitter/naive_bayes.pickle',
+            default='/srv/t4t/classifier_files/naive_bayes.pickle',
             help='The classifier file')
     parser.add_option('-s', '--server',
             dest='server',

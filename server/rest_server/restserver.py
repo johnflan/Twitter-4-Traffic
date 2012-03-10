@@ -95,16 +95,16 @@ def disruptionsRoute02():
 ######################################### Get tweets ##########################################
 @app.route("/t4t/0.2/tweets", methods=['GET'])
 def tweets02():
-    filter="n"
+    proffilter="n"
     # Find the profanity filter value
     if ('filter' in request.args):
         if (request.args['filter']=='y'):
-            filter = "y"
+            proffilter = "y"
 
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
-        response=app.make_response(findTweetsDisruption(request.args['disruptionID'], filter))
+        response=app.make_response(findTweetsDisruption(request.args['disruptionID'], proffilter))
         response.mimetype='application/json'
         return response
     
@@ -112,9 +112,10 @@ def tweets02():
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid tweets request"
-        response=app.make_response(findTweetsRadius(request.args['longitude'], 
-                               request.args['latitude'],
-                               request.args['radius']), filter)
+        response=app.make_response(findTweetsRadius(request.args['longitude'],
+                                                    request.args['latitude'],
+                                                    request.args['radius'],
+                                                    proffilter))
         response.mimetype='application/json'
         return response
     return "Invalid tweets request", 400
@@ -377,11 +378,11 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
 
-def findTweetsRadius(lon, lat, radius, filter):
+def findTweetsRadius(lon, lat, radius, proffilter):
     try:
         # Filter profanities
         queryForFilter = ""
-        if filter=="y":
+        if proffilter=="y":
             queryForFilter = " WHERE profanity='n'"
             
         query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
@@ -411,11 +412,11 @@ def findTweetsRadius(lon, lat, radius, filter):
 ################## Returns a JSON text for the area around a disruption #######################
 ###############################################################################################
 
-def findTweetsDisruption(ltisid, filter, radius=1000):
+def findTweetsDisruption(ltisid, proffilter, radius=1000):
     try:
         # Filter profanities
         queryForFilter = ""
-        if filter=="y":
+        if proffilter=="y":
             queryForFilter = " WHERE profanity='n'"
             
         query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,

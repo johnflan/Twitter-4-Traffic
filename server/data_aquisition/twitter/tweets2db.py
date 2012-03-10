@@ -116,9 +116,9 @@ def updateDBBadWords():
         query = "UPDATE tweets SET profanity='y' WHERE "
         
         for word in kwargs['badwords']:
-            query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR"
+            query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
         
-        cursor.execute(query[:-3])
+        cursor.execute(query[:-4])
         conn.commit()
     except IOError:
         print "[Error] bad words could not be updated"
@@ -144,7 +144,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
     most_recent_id = start_id
 
     retweetRegex = re.compile('/\brt\b/i')
-    
+
     # Load the classifier
     classifier = pickle.load(open(kwargs['classifier']))
 
@@ -217,8 +217,12 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         
                     # Profanity checking
                     profanity = "n"
-                    for word in badwords:
-                        if word in text.lower():
+                    for word in kwargs['badwords']:
+                        # The pattern is the word without no letters or numbers befere and after it
+                        pattern = '(\W|\Z)%s(\W|\Z)' % word
+                        result = re.search(pattern, text, flags=re.IGNORECASE)
+
+                        if result!=None:
                             profanity = "y"
                             break
 
@@ -402,7 +406,7 @@ if __name__ == '__main__':
                         help='The bad words for the profanity filter')
     parser.add_option('-c', '--classifier',
                         dest='classifier',
-                        default='naive_bayes.pickle',
+                        default='/srv/t4t/classifier_files/naive_bayes.pickle',
                         help='The classifier file')
     parser.add_option('-v', '--verbosity',
                         dest='verbosity', 
