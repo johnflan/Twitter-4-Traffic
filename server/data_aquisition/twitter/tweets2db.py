@@ -98,7 +98,8 @@ def loadBadWords():
     try:
         f = open(kwargs['badwords'], "r")
         badwords = f.read()
-        kwargs['badwords'] = badwords.split("\n")
+        # Add all words but remove the last new line
+        kwargs['badwords'] = badwords.split("\n")[:-1]
     except IOError:
         print "[Error] bad words file not found"
         sys.exit()
@@ -221,7 +222,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         # The pattern is the word without no letters or numbers befere and after it
                         pattern = '(\W|\Z)%s(\W|\Z)' % word
                         result = re.search(pattern, text, flags=re.IGNORECASE)
-
+                        
                         if result!=None:
                             profanity = "y"
                             break
