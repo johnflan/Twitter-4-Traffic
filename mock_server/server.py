@@ -68,14 +68,41 @@ def disruptions02():
     # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        return getResponse('disruption_radius.txt')
+        radius=is_number(request.args['radius'])
+        latitude=is_number(request.args['latitude'])
+        longitude=is_number(request.args['longitude'])
+        if (radius!=None and latitude!=None and longitude!=None):
+            if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
+                print "[INFO] Valid disruptions request:"
+            else:
+                return "Invalid disruptions request", 400
+        else:
+            return "Invalid disruptions request", 400
+        response=app.make_response(getResponse('disruption_radius.txt'))
+        response.mimetype='application/json'
+        return response
     # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
-        print "[INFO] Valid disruptions request"
-        return getResponse('disruption_rect.txt')
-
+        topleftlat=is_number(request.args['topleftlat'])
+        topleftlong=is_number(request.args['topleftlong'])
+        bottomrightlat=is_number(request.args['bottomrightlat'])
+        bottomrightlong=is_number(request.args['bottomrightlong'])
+        if (topleftlat!=None and topleftlong!=None and bottomrightlat!=None and
+                bottomrightlong!=None):
+            if (abs(topleftlat)<=90 
+                    and abs(topleftlong)<=180
+                    and abs(bottomrightlat)<=90
+                    and abs(bottomrightlong)<=180):
+                print "[INFO] Valid disruptions request:"
+            else:
+                return "Invalid disruptions request", 400
+        else:
+            return "Invalid disruptions request", 400
+        response=app.make_response(getResponse('disruption_rect.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid disruptions request", 400
 
 ################################ Get disruptions around a route ###############################
@@ -83,7 +110,9 @@ def disruptions02():
 def disruptionsRoute02():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
-        return getResponse('route_disruptions.txt')
+        response=app.make_response(getResponse('route_disruptions.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid request", 400
 
 ######################################### Get tweets ##########################################
@@ -91,14 +120,34 @@ def disruptionsRoute02():
 def tweets02():
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
-        print "[INFO] Valid tweets request"
-        return getResponse('tweets_disruption_id.txt')
+        disruptionID=is_int(request.args['disruptionID'])
+        if (disruptionID!=None):
+            if (disruptionID>=0):
+                print "[INFO] Valid tweets request:"
+            else:
+                return "Invalid tweets request", 400
+        else:
+            return "Invalid tweets request", 400
+        response=app.make_response(getResponse('tweets_disruption_id.txt'))
+        response.mimetype='application/json'
+        return response
     
     # Get tweets within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        print "[INFO] Valid tweets request"
-        return getResponse('tweets_radius.txt')
+        radius=is_number(request.args['radius'])
+        latitude=is_number(request.args['latitude'])
+        longitude=is_number(request.args['longitude'])
+        if (radius!=None and latitude!=None and longitude!=None):
+            if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
+                print "[INFO] Valid tweets request:"
+            else:
+                return "Invalid tweets request", 400
+        else:
+            return "Invalid tweets request", 400
+        response=app.make_response(getResponse('tweets_radius.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid tweets request", 400
 
 ################################## Get traffic cameras ########################################
@@ -106,21 +155,59 @@ def tweets02():
 def cameras02():
     # Get cameras around a disruption
     if ('disruptionID' in request.args):
-        print "[INFO] Valid cameras request"
+        disruptionID=is_int(request.args['disruptionID'])
+        if (disruptionID!=None):
+            if (disruptionID>=0):
+                print "[INFO] Valid cameras request:"
+            else:
+                return "Invalid cameras request", 400
+        else:
+            return "Invalid cameras request", 400
         if ( 'closestcam' in request.args ):
             if request.args['closestcam']=="y":
-                return getResponse('cameras_disruption_id_closest.txt')
-        return getResponse('cameras_disruption_id.txt')
+                response=app.make_response(getResponse('cameras_disruption_id_closest.txt'))
+                response.mimetype='application/json'
+                return response
+        response=app.make_response(getResponse('cameras_disruption_id.txt'))
+        response.mimetype='application/json'
+        return response
     
     # Get cameras within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
+        radius=is_number(request.args['radius'])
+        latitude=is_number(request.args['latitude'])
+        longitude=is_number(request.args['longitude'])
+        if (radius!=None and latitude!=None and longitude!=None):
+            if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
+                print "[INFO] Valid cameras request:"
+            else:
+                return "Invalid cameras request", 400
+        else:
+            return "Invalid cameras request", 400
         if ( 'closestcam' in request.args ):
             if request.args['closestcam']=="y":
-                return getResponse('cameras_radius_closest.txt')
-        return getResponse('cameras_radius.txt')
+                response=app.make_response(getResponse('cameras_radius_closest.txt'))
+                response.mimetype='application/json'
+                return response
+        response=app.make_response(getResponse('cameras_radius.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid cameras request", 400
-
+		
+################################## Check if float #############################################
+def is_number(s):
+    try:
+        return float(s) # for int, long and float
+    except ValueError:
+        return None
+################################## Check if integer ###########################################
+def is_int(s):
+    try:
+        return int(s) # for int, long and float
+    except ValueError:
+        return None
+				
 ###############################################################################################
 ################################## Starts the rest server #####################################
 ###############################################################################################

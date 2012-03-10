@@ -41,7 +41,13 @@ def main():
 
     # Load the twitter search terms from a file
     loadSearchTerms()
+    
+    # Load the profanity filter words from a file
+    loadBadWords()
 
+    # Update the database's bad words in tweets
+    updateDBBadWords()
+    
     # Find the maximum tweet id that was previously stored in the database
     start_id = get_max_id()
 
@@ -79,10 +85,44 @@ def loadSearchTerms():
     try:
         f = open(kwargs['terms'], "r")
         terms = f.read()
-        print "[INFO] Search Terms: %s" % terms
         kwargs['terms'] = terms.strip()
     except IOError:
         print "[Error] search terms file not found"
+        sys.exit()
+        
+###############################################################################################
+############################# Loads bad words list from a file ################################
+###############################################################################################
+        
+def loadBadWords():
+    try:
+        f = open(kwargs['badwords'], "r")
+        badwords = f.read()
+        # Add all words but remove the last new line
+        kwargs['badwords'] = badwords.split("\n")[:-1]
+    except IOError:
+        print "[Error] bad words file not found"
+        sys.exit()
+        
+###############################################################################################
+####################### Update the tweets column for the new bad words ########################
+###############################################################################################
+        
+def updateDBBadWords():
+    try:
+        query = "UPDATE tweets SET profanity='n'"
+        
+        cursor.execute(query)
+        
+        query = "UPDATE tweets SET profanity='y' WHERE "
+        
+        for word in kwargs['badwords']:
+            query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
+        
+        cursor.execute(query[:-4])
+        conn.commit()
+    except IOError:
+        print "[Error] bad words could not be updated"
         sys.exit()
 
 ###############################################################################################
@@ -105,7 +145,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
     most_recent_id = start_id
 
     retweetRegex = re.compile('/\brt\b/i')
-    
+
     # Load the classifier
     classifier = pickle.load(open(kwargs['classifier']))
 
@@ -175,6 +215,17 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         geolat, geolong = geo['coordinates']
                     else:
                         continue
+                        
+                    # Profanity checking
+                    profanity = "n"
+                    for word in kwargs['badwords']:
+                        # The pattern is the word without no letters or numbers befere and after it
+                        pattern = '(\W|\Z)%s(\W|\Z)' % word
+                        result = re.search(pattern, text, flags=re.IGNORECASE)
+                        
+                        if result!=None:
+                            profanity = "y"
+                            break
 
                     # If the tweet has geolocation
                     if geolat!=None and geolong!=None:
@@ -185,10 +236,10 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         text = text.replace("'", "")
                         text = text.replace("%", "")
                         query = "INSERT INTO tweets(tid, uname, rname, created_at,\
-                        location,text,geolocation,probability) VALUES (" + str(tid) +\
+                        location,text,geolocation,probability,profanity) VALUES (" + str(tid) +\
                         ",'" + uname + "','" + rname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD HH24:MI:SS'),'" +\
                         str(location) + "',\'" + str(text) +\
-                        "\'," + geoloc + "," + str(probability) + ")"
+                        "\'," + geoloc + "," + str(probability) + ",'" + str(profanity) + "')"
                         
                         try:
                             cursor.execute( query )
@@ -200,9 +251,9 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     
                     # If the tweet does not have geolocation
                     else:
-                        query = """INSERT INTO tweets(tid, uname, rname, created_at, location, text, probability ) VALUES
-                                    (%s,%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s,%s)"""
-                        params = (tid, uname, rname, str(created_at), location, text, probability)
+                        query = """INSERT INTO tweets(tid, uname, rname, created_at, location, text, probability, profanity ) VALUES
+                                    (%s,%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s,%s,%s)"""
+                        params = (tid, uname, rname, str(created_at), location, text, probability, profanity)
                         
                         try:
                             cursor.execute(query, params)
@@ -350,9 +401,13 @@ if __name__ == '__main__':
                         dest='terms',
                         default='searchTerms.txt',
                         help='The search terms for twitter')
+    parser.add_option('-w', '--words',
+                        dest='badwords',
+                        default='dirty_words.txt',
+                        help='The bad words for the profanity filter')
     parser.add_option('-c', '--classifier',
                         dest='classifier',
-                        default='naive_bayes.pickle',
+                        default='/srv/t4t/classifier_files/naive_bayes.pickle',
                         help='The classifier file')
     parser.add_option('-v', '--verbosity',
                         dest='verbosity', 
