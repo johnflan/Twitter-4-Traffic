@@ -1,10 +1,13 @@
 package uk.ac.ic.doc.t4t;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
+import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
@@ -30,6 +33,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -52,6 +57,8 @@ public class EventMapActivity extends MapActivity implements Observer {
 	private EventOverlay eventOverlay;
 	private MapController mapController;
 	private MyLocationOverlay myLocationOverlay;
+	private boolean displayingRouteHome = false;
+	private RouteOverlay mapRouteOverlay;
 
 	
     @Override
@@ -80,7 +87,6 @@ public class EventMapActivity extends MapActivity implements Observer {
         restClient = new DataMgr(this);
         restClient.addObserver(this);
         
-        
         location = new LocationMgr(this);
         location.addLocationObserver(restClient); 
        
@@ -94,15 +100,41 @@ public class EventMapActivity extends MapActivity implements Observer {
         
         findMyLocation(location);
 
-        Route route = restClient.getRoute(51.46670983333333, -0.12208916666666665, 51.52263, -0.071926);
-        RouteOverlay mapOverlay = new RouteOverlay(route, mapView);
-        mapOverlays.add(mapOverlay);
+        
+        if (PreferencesHelper.getDisplayRouteHome(this)){
+    		displayingRouteHome = true;
+        	new FetchRoute(this).execute(null);
+        }
+        	
         
         new FetchEvents(this).execute(null);
         
     }
     
-    private void findMyLocation(LocationMgr location){
+    @Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
+		if (PreferencesHelper.getDisplayRouteHome(this) && !displayingRouteHome){
+			
+			
+			if (mapRouteOverlay == null){
+				new FetchRoute(this).execute(null);
+			} else {
+				displayingRouteHome = true;
+				mapOverlays.add(mapRouteOverlay);
+			}
+            
+            
+        } else if (!PreferencesHelper.getDisplayRouteHome(this) && displayingRouteHome){
+        	displayingRouteHome = false;
+        	mapOverlays.remove(mapRouteOverlay);
+        }
+		
+	}
+
+	private void findMyLocation(LocationMgr location){
         myLocationOverlay = new MyLocationOverlay(this, mapView);
         myLocationOverlay.enableMyLocation();
         mapController.animateTo(location.getGeoPoint());
@@ -170,6 +202,22 @@ public class EventMapActivity extends MapActivity implements Observer {
         return true;
     }
 	
+	@Override
+	public void update(Observable observable, Object data) {
+		if (!observable.equals(restClient))
+			return;
+		
+		Log.i(TAG, "Updating event list");
+		addEventOverlay( (List<EventItem>) data );
+		
+	}
+
+	@Override
+	protected boolean isRouteDisplayed() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	private class FetchEvents extends AsyncTask<Void, Void, List<EventItem>>{
 
 		private Context context;
@@ -192,21 +240,89 @@ public class EventMapActivity extends MapActivity implements Observer {
 				addEventOverlay(events);
 	    }
 	}
+	
+	private class FetchRoute extends AsyncTask<Void, Void, Route>{
 
-	@Override
-	public void update(Observable observable, Object data) {
-		if (!observable.equals(restClient))
-			return;
+		private Context context;
+		private DataMgr restClient;
 		
-		Log.i(TAG, "Updating event list");
-		addEventOverlay( (List<EventItem>) data );
+		//London bounding box
+		private static final double LDN_LOWER_LEFT_LATITUDE = 51.25;
+		private static final double LDN_LOWER_LEFT_LONGITUDE = -0.598;
+		private static final double LDN_UPPER_RIGHT_LATITUDE = 51.75;
+		private static final double LDN_UPPER_RIGHT_LONGITUDE = 0.372;
+		private static final int MAX_RESULTS = 1;
 		
-	}
+		public FetchRoute(Context context){
+			this.context = context;
+			restClient = new DataMgr(context);
+		}
 
-	@Override
-	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
-		return false;
+		
+		@Override
+		protected Route doInBackground(Void... params) {
+			
+			Log.i(TAG, "Requesting route");
+			
+			Log.d(TAG, "Home addr: " + PreferencesHelper.getRouteHomeHomeAddr(context));
+			Log.d(TAG, "Work addr: " + PreferencesHelper.getRouteHomeWorkAddr(context));
+			
+			if (!PreferencesHelper.getRouteHomeHomeAddr(context).equals("") &&
+        			!PreferencesHelper.getRouteHomeWorkAddr(context).equals("")){
+				
+				Log.d(TAG, "Home addr: " + PreferencesHelper.getRouteHomeHomeAddr(context));
+				Log.d(TAG, "Work addr: " + PreferencesHelper.getRouteHomeWorkAddr(context));
+				
+				Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+				List<Address> homeAddresses;
+				List<Address> workAddresses;
+				Route route = null;
+				
+		        try {
+					homeAddresses = geocoder.getFromLocationName(
+							PreferencesHelper.getRouteHomeHomeAddr(context),
+							MAX_RESULTS,
+							LDN_LOWER_LEFT_LATITUDE, 
+							LDN_LOWER_LEFT_LONGITUDE, 
+							LDN_UPPER_RIGHT_LATITUDE, 
+							LDN_UPPER_RIGHT_LONGITUDE);
+					
+					
+					workAddresses = geocoder.getFromLocationName(
+							PreferencesHelper.getRouteHomeWorkAddr(context),
+							MAX_RESULTS,
+							LDN_LOWER_LEFT_LATITUDE, 
+							LDN_LOWER_LEFT_LONGITUDE, 
+							LDN_UPPER_RIGHT_LATITUDE, 
+							LDN_UPPER_RIGHT_LONGITUDE);
+					
+					
+					
+					route = restClient.getRoute(
+							homeAddresses.get(0).getLatitude(),
+							homeAddresses.get(0).getLongitude(), 
+							workAddresses.get(0).getLatitude(), 
+							workAddresses.get(0).getLongitude());
+					
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage());
+				}
+				
+				return route;
+			}
+			
+			return null;
+		}
+		
+		@Override
+	    protected void onPostExecute(Route route) {
+			if (route != null){
+				mapRouteOverlay = new RouteOverlay(route, mapView);
+				mapOverlays.add(mapRouteOverlay);
+				displayingRouteHome = true;
+			}
+				
+	    }
 	}
 	
 

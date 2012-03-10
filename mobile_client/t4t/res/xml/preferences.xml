@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory
-        android:title="Twitter configuration">
-        <EditTextPreference
-            android:summary="@string/pref_twitter_username_summary"
-            android:title="@string/pref_twitter_username_title"
-            android:key="@string/pref_twitter_username_key" />
-        </PreferenceCategory>
 
     <PreferenceCategory
         android:title="Configuration">
@@ -43,7 +36,25 @@
 		    android:summary="@string/pref_profanity_filter_summary"
 		    android:key="@string/pref_profanity_filter_key"
 		    android:defaultValue="false" />
-		
-		
+
     </PreferenceCategory>
+    
+    <PreferenceCategory
+        android:title="Route home">
+		
+		<CheckBoxPreference android:title="@string/pref_show_route_home_title"
+		    android:summary="@string/pref_show_route_home_summary"
+		    android:key="@string/pref_show_route_home_key"
+		    android:defaultValue="false" />
+		
+		<EditTextPreference android:title="@string/pref_route_home_homeaddr_title"
+		    android:summary="@string/pref_route_home_homeaddr_summary"
+		    android:key="@string/pref_route_home_homeaddr_key"/>
+		
+		<EditTextPreference android:title="@string/pref_route_home_workaddr_title"
+		    android:summary="@string/pref_route_home_workaddr_summary"
+		    android:key="@string/pref_route_home_workaddr_key"/>
+    </PreferenceCategory>
+    
+    
 </PreferenceScreen>

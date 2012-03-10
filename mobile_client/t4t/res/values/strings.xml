@@ -16,20 +16,26 @@
 	<string name="pref_server_url_title">Server URL</string>
 	<string name="pref_server_url_summary">Change to an alternative traffic server</string>	
 	<string name="pref_server_url_key">server_url</string>
+	
 	<string name="pref_server_port_title">Data source</string>
 	<string name="pref_server_port_summary">Select which service returns results</string>
 	<string name="pref_server_port_key">server_port</string>
+	
 	<string name="pref_default_view_title">Home screen</string>
 	<string name="pref_default_view_summary">Start application with map or list view</string>
 	<string name="pref_default_view_key">default_view</string>
+	
 	<string name="pref_twitter_username_title">Twitter username</string>
 	<string name="pref_twitter_username_summary">Change your twitter username</string>	
 	<string name="pref_twitter_username_key">twitter_username</string>	
+	
 	<string name="pref_twitter_oauth_key">twitter_oauth_access_key</string>	
-	<string name="pref_twitter_oauth_token">twitter_oauth_token</string>	
+	<string name="pref_twitter_oauth_token">twitter_oauth_token</string>
+		
 	<string name="pref_server_radius_title">Results radius</string>
 	<string name="pref_server_radius_summary">Set the desired radius (km) for results</string>	
 	<string name="pref_server_radius_key">results_radius</string>
+	
 	<string name="pref_sort_tweets_title">Sort tweets by</string>
 	<string name="pref_sort_tweets_summary">Age or by ranking</string>	
 	<string name="pref_sort_tweets_key">sort_tweets</string>
@@ -37,6 +43,18 @@
 	<string name="pref_profanity_filter_title">Enable profanity filter</string>
 	<string name="pref_profanity_filter_summary">Don\'t show tweets with profane content</string>	
 	<string name="pref_profanity_filter_key">profanity_filter</string>
+	
+	<string name="pref_show_route_home_title">Show route home</string>
+	<string name="pref_show_route_home_summary">Display your route home on the map</string>	
+	<string name="pref_show_route_home_key">show_route_home</string>
+	
+	<string name="pref_route_home_homeaddr_title">Home address</string>
+	<string name="pref_route_home_homeaddr_summary">Enter your home address</string>	
+	<string name="pref_route_home_homeaddr_key">route_home_homeaddr</string>
+	
+	<string name="pref_route_home_workaddr_title">Work address</string>
+	<string name="pref_route_home_workaddr_summary">Enter your work address</string>	
+	<string name="pref_route_home_workaddr_key">route_home_workaddr</string>
 	
 	<string name="pull_to_refresh_pull_label">Pull to refresh</string>
     <string name="pull_to_refresh_release_label">Release to refresh</string>
