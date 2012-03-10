@@ -1,16 +1,3 @@
-# convert emoticons	DONE
-# convert links 
-# convert can't -> can not actually 't not -(decided not to delete ') DONE
-# remove usernames and any other regular expression we dont need	DONE
-# convert curse words eg. sh!t  _curse_  ????? (from 240k only around 100 have those words)
-# remove stop-marks/puncuation DONE
-# Converts upper case letters to lower case. DONE
-# tokenazation DONE
-# remove single characters (after the puncuation) DONE
-# lemmanization	DONE
-# remove noise words(stopwords) DONE
-# find bigramms DONE
-
 import re
 import nltk
 import tldextract
@@ -103,7 +90,7 @@ class preprocessor:
 		
 		
 	def preprocess(self, tweet, stopwords):
-		tweet = self.convert_links(tweet) # Need correction for the Big Data
+		tweet = self.convert_links(tweet)
 		tweet = self.replace_emoticons(tweet)
 		tweet = self.remove_puncuation(tweet)
 		tweet = [tweet]

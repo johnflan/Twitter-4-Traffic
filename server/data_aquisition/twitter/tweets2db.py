@@ -17,6 +17,7 @@ DATETIME_STAMP_STRING_FORMAT = '%Y%m%d%H%M%S'
 from logging import FATAL, ERROR, WARNING, INFO, DEBUG
 import pickle
 from classifier_files.preprocessor import preprocessor
+import soundex.returnsoundex
 from crawler import GetRateLimiter, SuppressedCallException
 import StringIO
 from string import punctuation
@@ -27,7 +28,7 @@ import thread
 import json
 from json import JSONDecoder
 
-addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r[(oa)]d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?[,.\s$]{1})" 
+addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r[(oa)]d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?[,.\s\z$]{1})" 
 
 GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
 
@@ -148,6 +149,9 @@ def tweets(rl, georadius="19.622mi", start_id=0):
 
     # Load the classifier
     classifier = pickle.load(open(kwargs['classifier']))
+    
+    # Create the object for the class returnsoundex
+    sdx = soundex.returnsoundex.returnSoundex()
 
     while True:
         # Metrics for the tweets
@@ -208,10 +212,12 @@ def tweets(rl, georadius="19.622mi", start_id=0):
 
                     # If the tweet does not have geolocation
                     if geo is None:
-                        geolat, geolong = findGeolocation(text)
+                        print "IT DOESNT HAVE GEOLOCATION"
+                        geolat, geolong = findGeolocation(text,sdx)
                         if geolat!=None and geolong!=None:
                             foundgeotweets += 1
                     elif not geo is None and geo.get('type') == 'Point':
+                        print "IT HAS GEOLOCATION"
                         geolat, geolong = geo['coordinates']
                     else:
                         continue
@@ -295,32 +301,39 @@ def tweets(rl, georadius="19.622mi", start_id=0):
 ##################### Find the geolocation and update the geolookup table #####################
 ###############################################################################################
 
-def findGeolocation(text):
+def findGeolocation(text,sdx):
     # Check if the tweet contains the regex
     regexMatch = re.search(addressRegex, text, re.IGNORECASE)
-        
+    print "BEFORE THE REGEX"
     if not regexMatch == None:
-
+        print "INSIDE THE REGEX - match regex"
         addr = regexMatch.group(0)[3:] 
         addr = addr.strip(punctuation).lower().strip()
-
+		
+        #CHANGE: Find the soundex for the address
+        soundex = sdx.soundexstring(str(addr))
+		
         if ("the street" in addr) or ("my street" in addr) or ("this street" in addr) or ("our street" in
             addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
             return (None, None)
 
     # Try to find the corresponding geolocation in the local table geolookup
     try:
-        rows = get_db_geo(addr)
+        # CHANGE: Replcae addr with soundex
+        # rows = get_db_geo(addr)
+        rows = get_db_geo(soundex)		
         latitude = str(rows[6:15].replace(')',''))
         longitude = str( rows[16:26].replace(')',''))
+        print "FOUND THE LATLON FROM THE TABLE : lat = %S and lon = %s" % (latitude, longitude)
         return (latitude, longitude)
     except:
         # There is no such an address in the geolookup table so go and try to add it
         try:
-            latitude, longitude = geocode(address = addr+",london", sensor = "false")
+            latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
             geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
-            query = "INSERT INTO geolookup (streetaddress,latlon)VALUES('"+str(addr)+"',"+geoloc+")"
+            query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
             cursor.execute(query)
+            print "FOUND THE LATLON FROM THE GOOGLEMPAS : lat = %S and lon = %s" % (latitude, longitude)
             return (latitude, longitude)
         except:
             return (None, None)
@@ -331,7 +344,7 @@ def findGeolocation(text):
 
 def geocode(address, sensor):
     geo_args = dict({"address":address,"sensor":sensor})
-
+    
     url = GEOCODE_BASE_URL + '?' + urllib.urlencode(geo_args)
     req = urllib2.Request(url)
     result = urllib2.urlopen(req)
@@ -341,17 +354,23 @@ def geocode(address, sensor):
     jsonObj = decoder.decode(response)
     lat = jsonObj['results'][0]['geometry']['location']['lat']
     lng = jsonObj['results'][0]['geometry']['location']['lng']
+	
+    print "INSIDE GEOCODE : GOT the lat %s and lng %s from googlempas:" % (lat,lng)
     return (lat,lng)
 
 ###############################################################################################
 ###### Get the lon and lat from the geolookup and match them with the addr if it exists #######
 ###############################################################################################
 
-def get_db_geo(addr):
-    query1 = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE streetaddress ='"+str(addr)+"'"
-    cursor.execute(query1)
+def get_db_geo(soundex):
+    # CHANGE : Select the lat and the lon from the geolookup if the soundex matches
+    # query1 = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE streetaddress ='"+str(addr)+"'"
+    print "INSIDE get_db_geo : SOUNDEX : %s" % soundex
+    query = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE soundex ='"+str(soundex)+"'"
+    cursor.execute(query)
     try:
         ((latlon,),) = cursor.fetchall()
+        print "FOUND latlot : %s" % latlon
         return latlon
     except:
         return 0
