@@ -115,7 +115,7 @@ def pointRow2vars(point):
 
 def createClusters(clusters,timeToSearch):
     try:
-        query = """SELECT tid, ST_AsText(geolocation) FROM geolondon WHERE
+        query = """SELECT DISTINCT tid, ST_AsText(geolocation) FROM geolondon WHERE
         geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
 
         cursor.execute(query)
