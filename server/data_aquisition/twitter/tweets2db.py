@@ -60,6 +60,8 @@ def main():
 
     if start_id is not None:
         kwargs['start_id'] = int(start_id)
+    else:
+        kwargs['start_id'] = 0
 
     rl = GetRateLimiter()
     rl.api._cache_timeout = 30
@@ -119,11 +121,11 @@ def loadBlacklist():
     try:
         f = open(kwargs['blacklist'], "r")
         blacklist = f.read()
-        kwargs['blacklist'] = blacklist.split()
+        kwargs['blacklist'] = blacklist.split("\n")[:-1]
     except IOError:
         print "[Error] blacklist file not found"
         sys.exit()
-        
+
 ###############################################################################################
 ####################### Update the tweets column for the new bad words ########################
 ###############################################################################################
@@ -137,7 +139,8 @@ def updateDBBadWords():
         query = "UPDATE tweets SET profanity='y' WHERE "
         
         for word in kwargs['badwords']:
-            query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
+            if word!=None and len(word)>0:
+                query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
         
         cursor.execute(query[:-4])
         conn.commit()
@@ -154,7 +157,8 @@ def updateDBBlacklist():
         query = "DELETE FROM tweets WHERE "
         
         for user in kwargs['blacklist']:
-            query += "uname='" + user + "' OR "
+            if user!=None and len(user)>0:
+                query += "uname='" + user + "' OR "
         
         cursor.execute(query[:-4])
         conn.commit()
