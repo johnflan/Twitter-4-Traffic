@@ -183,6 +183,30 @@ public class PreferencesHelper {
         		false);
         
     }
+    
+    public static boolean getDisplayRouteHome(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getBoolean(
+        		context.getString(R.string.pref_show_route_home_key),
+        		false);
+    }
+    
+    public static String getRouteHomeHomeAddr(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_route_home_homeaddr_key),
+        		"");
+    }
+    
+    public static String getRouteHomeWorkAddr(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getString(
+        		context.getString(R.string.pref_route_home_workaddr_key),
+        		"");
+    }
 
 	
 	

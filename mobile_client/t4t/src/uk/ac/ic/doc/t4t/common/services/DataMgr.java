@@ -16,7 +16,6 @@ import org.xml.sax.SAXException;
 
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.common.services.data.EventPostProcessor;
-import uk.ac.ic.doc.t4t.common.services.data.GoogleKMLHandler;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequestCache;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequester;
 import uk.ac.ic.doc.t4t.common.services.data.JSONParser;
