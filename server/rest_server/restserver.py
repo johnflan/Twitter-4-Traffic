@@ -328,6 +328,7 @@ def findDisruptionsRoute(points, closestcam, radius=1000):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)       
+        return "Invalid disruptions request", 400
 
 ###############################################################################################
 ###################### Returns a JSON text for the rows of the table ##########################
@@ -411,6 +412,8 @@ def findTweetsRadius(lon, lat, radius, proffilter):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid tweets request", 400
+
         
 ###############################################################################################
 ################## Returns a JSON text for the area around a disruption #######################
@@ -444,6 +447,7 @@ def findTweetsDisruption(ltisid, proffilter, radius=1000):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid tweets request", 400
 
 ###############################################################################################
 ##################### Returns a JSON text for the rows of the table ###########################
@@ -511,6 +515,8 @@ def findCamerasRadius(lon, lat, radius):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid cameras request", 400
+
         
 ###############################################################################################
 ################## Returns a JSON text for the area around a disruption #######################
@@ -534,6 +540,8 @@ def findCamerasDisruption(ltisid, radius=500):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid cameras request", 400
+
 
 ###############################################################################################
 ############## Returns a JSON text for the closest camera around a disruption #################
@@ -561,6 +569,8 @@ def findCamerasDisruptionClosest(ltisid, radius=500):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid cameras request", 400
+
 
         
 ###############################################################################################
