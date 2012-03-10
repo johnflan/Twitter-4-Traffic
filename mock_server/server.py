@@ -68,14 +68,17 @@ def disruptions02():
     # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        return getResponse('disruption_radius.txt')
+        response=app.make_response(getResponse('disruption_radius.txt'))
+        response.mimetype='application/json'
+        return response
     # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
         request.args):
         print "[INFO] Valid disruptions request"
-        return getResponse('disruption_rect.txt')
-
+        response=app.make_response(getResponse('disruption_rect.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid disruptions request", 400
 
 ################################ Get disruptions around a route ###############################
@@ -83,7 +86,9 @@ def disruptions02():
 def disruptionsRoute02():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
-        return getResponse('route_disruptions.txt')
+        response=app.make_response(getResponse('route_disruptions.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid request", 400
 
 ######################################### Get tweets ##########################################
@@ -92,13 +97,17 @@ def tweets02():
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
         print "[INFO] Valid tweets request"
-        return getResponse('tweets_disruption_id.txt')
+        response=app.make_response(getResponse('tweets_disruption_id.txt'))
+        response.mimetype='application/json'
+        return response
     
     # Get tweets within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         print "[INFO] Valid tweets request"
-        return getResponse('tweets_radius.txt')
+        response=app.make_response(getResponse('tweets_radius.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid tweets request", 400
 
 ################################## Get traffic cameras ########################################
@@ -109,16 +118,24 @@ def cameras02():
         print "[INFO] Valid cameras request"
         if ( 'closestcam' in request.args ):
             if request.args['closestcam']=="y":
-                return getResponse('cameras_disruption_id_closest.txt')
-        return getResponse('cameras_disruption_id.txt')
+                response=app.make_response(getResponse('cameras_disruption_id_closest.txt'))
+                response.mimetype='application/json'
+                return response
+        response=app.make_response(getResponse('cameras_disruption_id.txt'))
+        response.mimetype='application/json'
+        return response
     
     # Get cameras within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
         if ( 'closestcam' in request.args ):
             if request.args['closestcam']=="y":
-                return getResponse('cameras_radius_closest.txt')
-        return getResponse('cameras_radius.txt')
+                response=app.make_response(getResponse('cameras_radius_closest.txt'))
+                response.mimetype='application/json'
+                return response
+        response=app.make_response(getResponse('cameras_radius.txt'))
+        response.mimetype='application/json'
+        return response
     return "Invalid cameras request", 400
 
 ###############################################################################################

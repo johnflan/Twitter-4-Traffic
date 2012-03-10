@@ -89,7 +89,9 @@ def disruptionsRoute02():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         points = getPointsFromJson(str(request.json))
-        return findDisruptionsRoute(points,"n",1000)
+        response=app.make_response(findDisruptionsRoute(points,"n",1000))
+        response.mimetype='application/json'
+        return response
     return "Invalid request", 400
 
 ######################################### Get tweets ##########################################
@@ -228,6 +230,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid disruptions request", 400
 
 ###############################################################################################
 #################### Returns a JSON text for the area that is selected ########################
@@ -270,6 +273,7 @@ def findDisruptionsRadius(lon, lat, radius, closestcam):
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print "Error -> %s" % (exceptionValue)
+        return "Invalid disruptions request", 400
 
 ###############################################################################################
 ########################## Returns route points from a JSON file ##############################
