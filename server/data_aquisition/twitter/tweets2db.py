@@ -239,7 +239,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         location,text,geolocation,probability,profanity) VALUES (" + str(tid) +\
                         ",'" + uname + "','" + rname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD HH24:MI:SS'),'" +\
                         str(location) + "',\'" + str(text) +\
-                        "\'," + geoloc + "," + str(probability) + "," + str(profanity) + ")"
+                        "\'," + geoloc + "," + str(probability) + ",'" + str(profanity) + "')"
                         
                         try:
                             cursor.execute( query )
