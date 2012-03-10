@@ -63,7 +63,12 @@ def disruptions02():
     # Disruptions within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
            in request.args):
-        print "[INFO] Valid disruptions request:"
+        if (is_number(requests.args['radius']) or
+                is_number(requests.args['latitude'])
+                is_number(requests.args['longitude'])):
+            print "[INFO] Valid disruptions request:"
+        else
+            return "Invalid disruptions request", 400
         response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius'], closestcam))
@@ -156,6 +161,14 @@ def report02():
         print "[INFO] received json body, ", request.json
         return "Success"
     return "Invalid request", 400
+
+################################## Check if it is a number ####################################
+def is_number(s):
+    try:
+        float(s) # for int, long and float
+    except ValueError:
+        return False
+    return True
 
 ###############################################################################################
 ################################## Starts the rest server #####################################
