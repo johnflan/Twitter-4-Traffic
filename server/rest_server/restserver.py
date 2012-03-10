@@ -128,7 +128,14 @@ def tweets02():
 
     # Get tweets around a disruption
     if ('disruptionID' in request.args):
-        print "[INFO] Valid tweets request"
+        disruptionID=is_int(request.args['disruptionID'])
+        if (disruptionID!=None):
+            if (disruptionID>=0):
+                print "[INFO] Valid tweets request:"
+            else:
+                return "Invalid tweets request", 400
+        else:
+            return "Invalid tweets request", 400
         response=app.make_response(findTweetsDisruption(request.args['disruptionID'], proffilter))
         response.mimetype='application/json'
         return response
@@ -159,7 +166,15 @@ def tweets02():
 def cameras02():
     # Get cameras around a disruption
     if ('disruptionID' in request.args):
-        print "[INFO] Valid cameras request"
+        disruptionID=is_int(request.args['disruptionID'])
+        if (disruptionID!=None):
+            if (disruptionID>=0):
+                print "[INFO] Valid cameras request:"
+            else:
+                return "Invalid cameras request", 400
+        else:
+            return "Invalid cameras request", 400
+
         if ('closestcam' in request.args):
             if request.args['closestcam']=="y":
                 response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
@@ -198,12 +213,19 @@ def report02():
         return "Success"
     return "Invalid request", 400
 
-################################## Check if it is a number ####################################
+################################## Check if float #############################################
 def is_number(s):
     try:
         return float(s) # for int, long and float
     except ValueError:
         return None
+################################## Check if integer ###########################################
+def is_int(s):
+    try:
+        return int(s) # for int, long and float
+    except ValueError:
+        return None
+
 
 ###############################################################################################
 ################################## Starts the rest server #####################################
