@@ -154,9 +154,9 @@ public final class R {
         public static final int event_map_options_menu=0x7f080001;
     }
     public static final class string {
-        public static final int aboutText=0x7f070024;
-        public static final int aboutURL=0x7f070025;
-        public static final int aboutVersion=0x7f070023;
+        public static final int aboutText=0x7f070027;
+        public static final int aboutURL=0x7f070028;
+        public static final int aboutVersion=0x7f070026;
         public static final int app_name=0x7f070001;
         public static final int disruption_details=0x7f070004;
         public static final int disruptions_map=0x7f070003;
@@ -169,6 +169,9 @@ public final class R {
         public static final int pref_default_view_key=0x7f070013;
         public static final int pref_default_view_summary=0x7f070012;
         public static final int pref_default_view_title=0x7f070011;
+        public static final int pref_profanity_filter_key=0x7f070021;
+        public static final int pref_profanity_filter_summary=0x7f070020;
+        public static final int pref_profanity_filter_title=0x7f07001f;
         public static final int pref_server_port_key=0x7f070010;
         public static final int pref_server_port_summary=0x7f07000f;
         public static final int pref_server_port_title=0x7f07000e;
@@ -186,10 +189,10 @@ public final class R {
         public static final int pref_twitter_username_key=0x7f070016;
         public static final int pref_twitter_username_summary=0x7f070015;
         public static final int pref_twitter_username_title=0x7f070014;
-        public static final int pull_to_refresh_pull_label=0x7f07001f;
-        public static final int pull_to_refresh_refreshing_label=0x7f070021;
-        public static final int pull_to_refresh_release_label=0x7f070020;
-        public static final int pull_to_refresh_tap_label=0x7f070022;
+        public static final int pull_to_refresh_pull_label=0x7f070022;
+        public static final int pull_to_refresh_refreshing_label=0x7f070024;
+        public static final int pull_to_refresh_release_label=0x7f070023;
+        public static final int pull_to_refresh_tap_label=0x7f070025;
         public static final int report_event=0x7f070006;
         public static final int what_people_are_saying=0x7f070005;
     }

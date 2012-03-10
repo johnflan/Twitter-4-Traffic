@@ -232,11 +232,12 @@ public class EventDetailsActivity extends Activity {
 	        
 	        tweets.clear();
 			
-	        Log.i(TAG, "Adding " + newTweets.size() + " new tweets to listView");
 			if (newTweets != null && newTweets.size() > 0){
+				Log.i(TAG, "Adding " + newTweets.size() + " new tweets to listView");
 				noTweetsAvailable(true);
 				tweets.addAll(newTweets);	
 			} else {
+				Log.e(TAG, "No new tweets returned");
 				noTweetsAvailable(false);
 			}
 				

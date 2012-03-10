@@ -174,6 +174,16 @@ public class PreferencesHelper {
         		"age");
         
     }
+    
+    public static boolean getProfanityFilter(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        
+        return prefs.getBoolean(
+        		context.getString(R.string.pref_profanity_filter_key),
+        		false);
+        
+    }
+
 	
 	
 }

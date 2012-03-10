@@ -10,6 +10,9 @@ import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventmap.EventOverlay;
 import uk.ac.ic.doc.t4t.eventmap.EventOverlayItem;
+import uk.ac.ic.doc.t4t.eventmap.route.Route;
+import uk.ac.ic.doc.t4t.eventmap.route.RouteOverlay;
+import uk.ac.ic.doc.t4t.eventmap.route.RoutePoint;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -22,6 +25,10 @@ import com.google.android.maps.OverlayItem;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -78,7 +85,7 @@ public class EventMapActivity extends MapActivity implements Observer {
         location.addLocationObserver(restClient); 
        
         mapController = mapView.getController();
- 
+        mapView.setBuiltInZoomControls(true);  
         mapController.setZoom(15);
 
         
@@ -86,6 +93,10 @@ public class EventMapActivity extends MapActivity implements Observer {
         eventOverlay = new EventOverlay(drawable, this);
         
         findMyLocation(location);
+
+        Route route = restClient.getRoute(51.46670983333333, -0.12208916666666665, 51.52263, -0.071926);
+        RouteOverlay mapOverlay = new RouteOverlay(route, mapView);
+        mapOverlays.add(mapOverlay);
         
         new FetchEvents(this).execute(null);
         

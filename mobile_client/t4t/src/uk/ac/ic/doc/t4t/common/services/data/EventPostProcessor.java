@@ -36,6 +36,10 @@ public class EventPostProcessor {
 	
 	private List<EventItem> calculateDistanceFromEvent(List<EventItem> eventList, Location currentLocation){
 
+		//This may happen if the phone doesn't currently have a location
+		if (currentLocation == null)
+			return eventList;
+		
 		Log.i(TAG, "Calculating distance for each event to current location lat:"
 				+ currentLocation.getLatitude()
 				+ ", long:" + currentLocation.getLongitude());

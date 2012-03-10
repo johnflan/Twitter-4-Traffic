@@ -34,6 +34,10 @@
 	<string name="pref_sort_tweets_summary">Age or by ranking</string>	
 	<string name="pref_sort_tweets_key">sort_tweets</string>
 	
+	<string name="pref_profanity_filter_title">Enable profanity filter</string>
+	<string name="pref_profanity_filter_summary">Don\'t show tweets with profane content</string>	
+	<string name="pref_profanity_filter_key">profanity_filter</string>
+	
 	<string name="pull_to_refresh_pull_label">Pull to refresh</string>
     <string name="pull_to_refresh_release_label">Release to refresh</string>
     <string name="pull_to_refresh_refreshing_label">Loading</string>

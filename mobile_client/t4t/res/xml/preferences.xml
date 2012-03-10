@@ -39,6 +39,11 @@
            android:entries="@array/pref_sort_tweets_options"
            android:entryValues="@array/pref_sort_tweets_values"/>
 		
+		<CheckBoxPreference android:title="@string/pref_profanity_filter_title"
+		    android:summary="@string/pref_profanity_filter_summary"
+		    android:key="@string/pref_profanity_filter_key"
+		    android:defaultValue="false" />
+		
 		
     </PreferenceCategory>
 </PreferenceScreen>
