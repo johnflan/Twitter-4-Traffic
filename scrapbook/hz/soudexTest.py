@@ -54,6 +54,6 @@ def soundex(name, len=4):
 
             
 s = 'i am in london bridge Robert'
-k = 'i am in london brigde Rubin'
+k = 'i am in london bridge Rubin'
 print soundexcompare(s,k)
 

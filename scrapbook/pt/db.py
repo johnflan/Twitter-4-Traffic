@@ -13,6 +13,8 @@ def main(action, *args, **db):
         rmv(cursor, conn, *args)
     elif action=="drop":
         drop(cursor, conn, *args)
+    elif action=="setupall":
+        setupall(cursor, conn)
     
 ###############################################################################################
 ############################ Creates a connection to the db ###################################
@@ -31,9 +33,17 @@ def connect(**db):
         sys.exit("Database connection failed! -> %s" % (exceptionValue))
     return cursor,conn
 
+###############################################################################################
+################## Creates all the tables that are used by the application ####################
+###############################################################################################
+
+def setupall(cursor, conn):
+    setup(cursor, conn, "setupall", "archive", "tfl", "tweets",
+                        "static_events", "cluster_static_data", 
+                        "cameras", "tweets_metrics", "geolookup")
 
 ###############################################################################################
-############## Creates the tables for the database if they don't exist ########################
+################# Creates the tables for the database if they don't exist #####################
 ###############################################################################################
 
 def setup(cursor, conn, *args):
@@ -66,7 +76,7 @@ def setup(cursor, conn, *args):
                                 lonlat GEOGRAPHY(POINT, 4326),
                                 PRIMARY KEY (updated_at, ltisid)
                                 )""")
-                cursor.execute("CREATE INDEX archive_index ON tfl USING GIST (lonlat)")
+                cursor.execute("CREATE INDEX archive_index ON archive USING GIST (lonlat)")
                 print "> Table archive created"
             elif args[i]=="tfl":                
                 cursor.execute("""CREATE TABLE tfl(
@@ -117,11 +127,12 @@ def setup(cursor, conn, *args):
                                 meanY DECIMAL,
                                 PRIMARY KEY (eid)
                                 )""")
+                cursor.execute("""INSERT INTO static_events VALUES(0,0,0,0,0)""")
                 print "> Table static_events created"
             elif args[i]=="cluster_static_data":
                 cursor.execute("""CREATE TABLE cluster_static_data(
                                 eid BIGINT NOT NULL REFERENCES static_events(eid),
-                                tid BIGINT NOT NULL REFERENCES geolondon(tid)
+                                tid BIGINT NOT NULL REFERENCES tweets(tid)
                                 )""")
                 print "> Table cluster_static_data created"
             elif args[i]=="tweets":
@@ -162,11 +173,11 @@ def setup(cursor, conn, *args):
                 print "> Table tweets_metrics created"
             elif args[i]=="geolookup":
                 cursor.execute("""CREATE TABLE geolookup(
-                                screetaddress TEXT NOT NULL,
+                                streetaddress TEXT NOT NULL,
                                 soundex TEXT,
                                 latlon GEOGRAPHY(POINT, 4326),
                                 PRIMARY KEY (streetaddress)
-                                )"""
+                                )""")
                 print "> Table geolookup created"
 
         print "> Giving privileges"
@@ -186,7 +197,6 @@ def setup(cursor, conn, *args):
                 query = "GRANT ALL PRIVILEGES ON " + args[i] + " TO " + users[j]
                 cursor.execute(query)
                 
-        
         conn.commit()
         print "> T4T DB setup completed"
 
