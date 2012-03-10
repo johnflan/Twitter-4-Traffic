@@ -2,20 +2,19 @@ from pg8000 import DBAPI
 import sys
 import optparse
 import ConfigParser
-import time
-from datetime import datetime, timedelta
+import datetime
 import math
 
-def main(maxDistance,minPoints,maxTime):
-    date = datetime.now()
-    updated_at = date.strftime("%d/%m/%y %H:%M:%S")
+def main(clusters,maxTime):
+    #last entry in geolondon is 2012-03-03 02:17:18
+    d = datetime.date(2012,3,3)
+    t = datetime.time(2,17,18)
+    last_date = datetime.datetime.combine(d,t)
 
-    timeToSearch = date-timedelta(minutes=maxTime)
+    timeToSearch = last_date - datetime.timedelta(minutes=maxTime)
     timeToSearch = timeToSearch.strftime("%d/%m/%y %H:%M:%S")
-    print "\nSearching from time: "+timeToSearch
-    clusters = createClusters(maxDistance,minPoints,timeToSearch)
-    print clusters
-    print "\n"
+    print "\nSearching from time: " + timeToSearch
+    centers, clusters = createClusters(clusters,timeToSearch)
 
     try:
         query = """SELECT variancex, meanx,variancey, meany, eid FROM static_events"""
@@ -25,51 +24,35 @@ def main(maxDistance,minPoints,maxTime):
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         sys.exit("Select error! ->%s" % (exceptionValue))
 
+    i = 0
     for key in clusters.keys():
-        if key == 0:
-            continue
         s2x = 0
         sx = 0
         s2y = 0
         sy = 0
-        for value in clusters[key]:
-            sx += value[0]
-            sy += value[1]
-        mx = sx/len(clusters[key])
-        my = sy/len(clusters[key])
-        for value in clusters[key]:
-            s2x += (value[0] - mx)**2
-            s2y += (value[1] - my)**2
+        for point in clusters[key]:
+            s2x += (point.values()[0][0] - centers[i][0])**2
+            s2y += (point.values()[0][1] - centers[i][1])**2
         vx = s2x/len(clusters[key])
         vy = s2y/len(clusters[key])
 
+        print "New cluster "+str(centers[i][0])+" "+str(centers[i][1])
         for static_cluster in static_clusters:
-            prob = pdfGaussian2D(mx, my, static_cluster[1], static_cluster[3],
-                    static_cluster[0], static_cluster[2])
-            print prob
-            if prob > 0.5:
-                print "Cluster with center ("+mx+","+my+") belongs to cluster with id "+static_cluster[4]+" with probability "+prob
-
-    #try:
-        #conn.commit()
-    #except:
-    #    exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-    #    sys.exit("Commit error! ->%s" % (exceptionValue))
-
-    #print "Event Slice Clusters Updated @%s" % updated_at
+            dif = kl(centers[i], [vx, vy], [static_cluster[1], static_cluster[3]],
+                    [static_cluster[0], static_cluster[2]])
+            print str(static_cluster[1])+" "+str(static_cluster[3])+": "+str(dif)
+        print
+        i += 1
 
 
-def pdfGaussian2D(x, y, mx, my, vx, vy):
-    print x
-    print y
-    print mx
-    print my
-    print vx
-    print vy
-    return (1.0/
-            (2*math.pi*math.sqrt(vx)*math.sqrt(vy))*
-                math.exp(-0.5*((x-mx)*(x-mx)/vx + (y-my)*(y-my)/vy -
-                2*r*(x-mx)*(y-my)/(math.sqrt(vx)*math.sqrt(vy)))))
+def kl(m1, v1, m0, v0):
+    m0 = [float(m0[0]), float(m0[1])]
+    v0 = [float(v0[0]), float(v0[1])]
+    mx = (m1[0] - m0[0])**2
+    my = (m1[1] - m0[1])**2
+    return 0.5*(v0[0]*v1[1] + v1[0]*v0[1] + mx*v1[1] + my*v1[0] -
+            math.log(v0[0]*v0[1]/(v1[0]*v1[1])))
+
 
 def connect(**db):
     try:
@@ -85,107 +68,104 @@ def connect(**db):
     return cursor,conn
 
 
-def createClusters(maxDistance,minPoints,timeToSearch):
-   # try:
-        query = """SELECT tid, ST_AsText(geolocation) FROM tweets WHERE
-            geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
+def distance(loc1, loc2):
+    # Euclidean distance sqrt(sum((a[i]-b[i])^2)
+    ret = 0.0
+    for i in range(0,len(loc1)):
+        ret += (loc1[i]-loc2[i])**2
+    return math.sqrt(ret) 
 
-        cursor.execute(query)
-        pointRows = cursor.fetchall()
+
+def addInCluster(cid, tid, longt, lat, clist):
+    loc = {tid: [float(longt), float(lat)]}
+    if cid in clist.keys():
+        clist[cid].append(loc)
+    else:
+        clist[cid] = [loc]
+    return clist
 
 
-        clustered = []
-        counter = 1
-        clusters = {}
-        for point in pointRows:
-            tid, longitude, latitude = pointRow2vars(point)
+def avg2D(a):
+    temp = [0,0]
+    for b in a:
+        temp[0] += b.values()[0][0]
+        temp[1] += b.values()[0][1]
+    temp[0] /= len(a)
+    temp[1] /= len(a)
+    return temp
 
-            #look if tid is already clustered
-            if tid not in clustered:
-                neighbourPointRows = findNeighbourPoints(longitude,latitude,maxDistance,timeToSearch)
 
-                if len(neighbourPointRows) >= minPoints:
-                    clustered.append(tid) # add the first point of the cluster in the list
-                    cluster_temp = createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered,counter,
-                            float(longitude), float(latitude))
-                    for key in cluster_temp.keys():
-                        clusters[key] = cluster_temp[key]
-                    counter = counter + 1
-                else:
-                    clusters = addInCluster(0,[float(longitude),
-                        float(latitude)],clusters) # eid 0 for no cluster
-                    clustered.append(tid) # add in the clustered points list
-        return clusters
-    #except:
-        # Get the most recent exception
-     #   exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-      #  sys.exit("Error in createClusters! -> %s" % (exceptionValue))
+def findNewCenters(centers, points):
+    data = {}
+    clusters = len(centers)
+    for point in points:
+        tid, longitude, latitude = pointRow2vars(point)
+        min_dist = distance([longitude, latitude], centers[0])
+        cluster = 1
+        for i in range(1,clusters):
+            dist = distance([longitude, latitude], centers[i])
+            if min_dist > dist:
+                min_dist = dist
+                cluster = i+1
+        addInCluster(cluster, tid, longitude, latitude, data)
+    new_centers = []
+    for i in range(1,clusters+1):
+        temp = avg2D(data[i])
+        new_centers.append(temp)
+    return new_centers, data
 
-def createNewCluster(maxDistance,minPoints,timeToSearch,tid,neighbourPointRows,clustered,eid, init_long, init_lat):
-    try:
-        cluster_list = {}
-        # add tid in cluster
-        cluster_list = addInCluster(eid,[init_long, init_lat],cluster_list)
 
-        neighbourPointList = []
-        neighbourPointList.extend(neighbourPointRows)
+def notEquals(centers, new_centers):
+    for i in range(0,len(centers)):
+        if centers[i][0] != new_centers[i][0] or centers[i][1] != new_centers[i][1]:
+            return True
+    return False
 
-        for point in neighbourPointList:
-            tid, longitude, latitude = pointRow2vars(point)
 
-            if tid not in clustered:
-                newNeighbourPointRows = findNeighbourPoints(longitude,latitude,maxDistance,timeToSearch)
-
-                if len(newNeighbourPointRows)>=minPoints:
-                    cluster_list = addInCluster(eid, [float(longitude), float(latitude)], cluster_list)
-                    appendDistinct(neighbourPointList,newNeighbourPointRows)
-                    clustered.append(tid)
-                else:
-                    cluster_list = addInCluster(0, [float(longitude), float(latitude)], cluster_list) # eid 0 for no cluster
-                    clustered.append(tid)
-        return cluster_list
-    except:
-        # Get the most recent exception
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Error in createNewCluster! -> %s" % (exceptionValue))
-
-def appendDistinct(list, rows):
-    for object in rows:
-        if object not in list:
-            list.append(object)
-        
 def pointRow2vars(point):
     tid = point[0]
     coordinates = point[-1][6:-1]
     lonlatArray = coordinates.split(" ")
     longitude = lonlatArray[0]
     latitude = lonlatArray[1]
-    
-    return tid, longitude, latitude
-    
-def findNeighbourPoints(longitute,latitude,maxDistance,timeToSearch):
-    try:
-        query = """SELECT tid, ST_AsText(geolocation)
-                    FROM tweets
-                    WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)
-                    AND created_at >= '%s'""" % (longitute,latitude,maxDistance,timeToSearch)
-        cursor.execute(query)
-        neighbourPointRows = cursor.fetchall()
-        return neighbourPointRows
-    except:
-        # Get the most recent exception
-        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        # Exit the script and print an error telling what happened.
-        sys.exit("Error in findNeighbourPoints! -> %s" % (exceptionValue))
+    return tid, float(longitude), float(latitude)
 
-def addInCluster(eid, loc, clist):
-    if eid in clist.keys():
-        clist[eid].append(loc)
-    else:
-        clist[eid] = [loc]
-    return clist
+
+def createClusters(clusters,timeToSearch):
+    #try:
+        query = """SELECT DISTINCT tid, ST_AsText(geolocation) FROM geolondon WHERE
+        geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
+
+        cursor.execute(query)
+        pointRows = cursor.fetchall()
+
+        numOfCl = math.floor(math.sqrt(len(pointRows)/2.0))
+        if clusters > numOfCl:
+            clusters = numOfCl
+
+        if pointRows < clusters:
+            sys.exit("Less points given than the clusters you want");
+
+        centers = []
+        for i in range(0,clusters): #select first n elements as initial means
+            tid, longitude, latitude = pointRow2vars(pointRows[i])
+            centers.append([longitude, latitude])
+
+        new_centers, data = findNewCenters(centers, pointRows)
+
+        while notEquals(centers, new_centers):
+            centers = new_centers
+            new_centers, data = findNewCenters(centers, pointRows)
+        print "New centers:"
+        print new_centers
+        print
+
+        return new_centers, data
+    #except:
+        # Get the most recent exception
+     #   exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        # Exit the script and print an error telling what happened.
+     #   sys.exit("Error in createClusters! -> %s" % (exceptionValue))
 
 
 if __name__ == "__main__":
@@ -215,26 +195,22 @@ if __name__ == "__main__":
                     dest='password',
                     default=password,
                     help='The password for the DB')
-    parser.add_option('-D','--distance',
-                    dest='distance',
-                    default='5000',
-                    help='Maximum event distance')
+    parser.add_option('-n','--clusters',
+                    dest='clusters',
+                    default='6',
+                    help='Number of clusters')
     parser.add_option('-T','--time',
                     dest='time',
-                    default='1440',
+                    default='5760',
                     help='Minutes to search for tweets')
-    parser.add_option('-N','--ntweets',
-                    dest='ntweets',
-                    default='3',
-                    help='Number of tweets for cluster')
 
     (options, args) = parser.parse_args()
 
     db = dict([k,v] for k,v in options.__dict__.iteritems() if not v is None
-            and k not in ('distance','time','ntweets'))
+            and k not in ('clusters','time'))
     kwds = dict([k,v] for k,v in options.__dict__.iteritems() if not v is None
             and k not in ('host','database','user','password'))
     
     cursor, conn = connect(**db)
     
-    sys.exit(main(int(kwds['distance']),int(kwds['ntweets']),int(kwds['time'])))
+    sys.exit(main(int(kwds['clusters']),int(kwds['time'])))
