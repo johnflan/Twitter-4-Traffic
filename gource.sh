@@ -1,0 +1,2 @@
+perl fetchAvatars.pl
+../gource-0.37/gource --background 000000 --auto-skip-seconds 0.1 --file-idle-time 500 --max-files 500 --multi-sampling -1280x720 --stop-at-end --elasticity 0.1 -b 000000  --disable-progress --user-image-dir .git/avatar/ --user-friction .2 --bloom-intensity 0.2 --bloom-multiplier 0.2 --title "Twitter 4 traffic" --user-scale 1.5 --output-ppm-stream - | ffmpeg -an -threads 4 -y -vb 4000000 -aspect 16:9 -r 60  -f image2pipe -vcodec ppm -i - -vcodec libx264  gource.mp4
