@@ -368,22 +368,26 @@ def findGeolocation(text,sdx):
             latlon = get_db_geo(soundex)        
             latitude, longitude = latlon[6:-1].split()
             print "FOUND THE LATLON FROM THE TABLE : lat = %s and lon = %s" % (latitude, longitude)
-            return (latitude, longitude)
+            if latitude != None and longitude != None:
+                return (latitude, longitude)
         except:
+		    # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
             print "Error -> %s" % (exceptionValue)
-            # There is no such an address in the geolookup table so go and try to add it
-            try:
-                latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
-                geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
-                query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
-                cursor.execute(query)
-                print "FOUND THE LATLON FROM THE GOOGLEMPAS : lat = %S and lon = %s" % (latitude, longitude)
-                return (latitude, longitude)
-            except:
-                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                print "Error -> %s" % (exceptionValue)
-                return (None, None)
+			
+		# If there is no such an address in the geolookup table go and try to add it from the googlemaps
+        try:
+            latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
+            geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
+            query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
+            cursor.execute(query)
+            print "FOUND THE LATLON FROM THE GOOGLEMAPS : lat = %s and lon = %s" % (latitude, longitude)
+            return (latitude, longitude)
+        except:
+            # Get the most recent exception
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            print "Error -> %s" % (exceptionValue)
+			
     else:
         return(None, None)
 
