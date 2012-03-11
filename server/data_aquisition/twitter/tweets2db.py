@@ -349,7 +349,7 @@ def findGeolocation(text,sdx):
     # Check if the tweet contains the regex
     regexMatch = re.search(addressRegex, text, re.IGNORECASE)
     print "BEFORE THE REGEX"
-    if not regexMatch == None:
+    if regexMatch != None:
         print "INSIDE THE REGEX - match regex"
         addr = regexMatch.group(0)[3:] 
         addr = addr.strip(punctuation).lower().strip()
@@ -361,26 +361,29 @@ def findGeolocation(text,sdx):
             addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
             return (None, None)
 
-    # Try to find the corresponding geolocation in the local table geolookup
-    try:
-        # CHANGE: Replcae addr with soundex
-        # rows = get_db_geo(addr)
-        rows = get_db_geo(soundex)        
-        latitude = str(rows[6:15].replace(')',''))
-        longitude = str( rows[16:26].replace(')',''))
-        print "FOUND THE LATLON FROM THE TABLE : lat = %S and lon = %s" % (latitude, longitude)
-        return (latitude, longitude)
-    except:
-        # There is no such an address in the geolookup table so go and try to add it
+        # Try to find the corresponding geolocation in the local table geolookup
         try:
-            latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
-            geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
-            query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
-            cursor.execute(query)
-            print "FOUND THE LATLON FROM THE GOOGLEMPAS : lat = %S and lon = %s" % (latitude, longitude)
+            # CHANGE: Replcae addr with soundex
+            # rows = get_db_geo(addr)
+            latlon = get_db_geo(soundex)        
+            latitude, longitude = latlon[6:-1].split()
+            print "FOUND THE LATLON FROM THE TABLE : lat = %S and lon = %s" % (latitude, longitude)
             return (latitude, longitude)
         except:
-            return (None, None)
+            # There is no such an address in the geolookup table so go and try to add it
+            try:
+                latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
+                geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
+                query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
+                cursor.execute(query)
+                print "FOUND THE LATLON FROM THE GOOGLEMPAS : lat = %S and lon = %s" % (latitude, longitude)
+                return (latitude, longitude)
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                print "Error -> %s" % (exceptionValue)
+                return (None, None)
+    else:
+        return(None, None)
 
 ###############################################################################################
 ######## Parse the json file from google map and get lat and lon for the address ##############
