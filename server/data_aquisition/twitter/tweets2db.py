@@ -28,7 +28,7 @@ import thread
 import json
 from json import JSONDecoder
 
-addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r[(oa)]d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?[,.\s\z$]{1})" 
+addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r(oa)?d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?(\W|\Z))"
 
 GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
 
@@ -142,8 +142,9 @@ def updateDBBadWords():
             if word!=None and len(word)>0:
                 query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
         
-        cursor.execute(query[:-4])
-        conn.commit()
+        if len(kwargs['badwords'][0]) > 0:
+            cursor.execute(query[:-4])
+            conn.commit()
     except IOError:
         print "[Error] bad words could not be updated"
         sys.exit()
@@ -160,8 +161,9 @@ def updateDBBlacklist():
             if user!=None and len(user)>0:
                 query += "uname='" + user + "' OR "
         
-        cursor.execute(query[:-4])
-        conn.commit()
+        if len(kwargs['blacklist'][0]) > 0:
+            cursor.execute(query[:-4])
+            conn.commit()
     except IOError:
         print "[Error] blacklist could not be updated"
         sys.exit()
@@ -349,7 +351,7 @@ def findGeolocation(text,sdx):
     # Check if the tweet contains the regex
     regexMatch = re.search(addressRegex, text, re.IGNORECASE)
     print "BEFORE THE REGEX"
-    if not regexMatch == None:
+    if regexMatch != None:
         print "INSIDE THE REGEX - match regex"
         addr = regexMatch.group(0)[3:] 
         addr = addr.strip(punctuation).lower().strip()
@@ -361,26 +363,35 @@ def findGeolocation(text,sdx):
             addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
             return (None, None)
 
-    # Try to find the corresponding geolocation in the local table geolookup
-    try:
-        # CHANGE: Replcae addr with soundex
-        # rows = get_db_geo(addr)
-        rows = get_db_geo(soundex)        
-        latitude = str(rows[6:15].replace(')',''))
-        longitude = str( rows[16:26].replace(')',''))
-        print "FOUND THE LATLON FROM THE TABLE : lat = %S and lon = %s" % (latitude, longitude)
-        return (latitude, longitude)
-    except:
-        # There is no such an address in the geolookup table so go and try to add it
+        # Try to find the corresponding geolocation in the local table geolookup
+        try:
+            # CHANGE: Replcae addr with soundex
+            # rows = get_db_geo(addr)
+            latlon = get_db_geo(soundex)        
+            latitude, longitude = latlon[6:-1].split()
+            print "FOUND THE LATLON FROM THE TABLE : lat = %s and lon = %s" % (latitude, longitude)
+            if latitude != None and longitude != None:
+                return (latitude, longitude)
+        except:
+		    # Get the most recent exception
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            print "Error -> %s" % (exceptionValue)
+			
+		# If there is no such an address in the geolookup table go and try to add it from the googlemaps
         try:
             latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
             geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
             query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
             cursor.execute(query)
-            print "FOUND THE LATLON FROM THE GOOGLEMPAS : lat = %S and lon = %s" % (latitude, longitude)
+            print "FOUND THE LATLON FROM THE GOOGLEMAPS : lat = %s and lon = %s" % (latitude, longitude)
             return (latitude, longitude)
         except:
-            return (None, None)
+            # Get the most recent exception
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            print "Error -> %s" % (exceptionValue)
+			
+    else:
+        return(None, None)
 
 ###############################################################################################
 ######## Parse the json file from google map and get lat and lon for the address ##############
@@ -413,11 +424,11 @@ def get_db_geo(soundex):
     query = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE soundex ='"+str(soundex)+"'"
     cursor.execute(query)
     try:
-        ((latlon,),) = cursor.fetchall()
-        print "FOUND latlot : %s" % latlon
-        return latlon
+        result = cursor.fetchone()
+        print "FOUND latlot : %s" % result[0]
+        return result[0]
     except:
-        return 0
+        return None
 
 ###############################################################################################
 ########################## Classify a tweet to traffic or not traffic #########################

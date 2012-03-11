@@ -112,7 +112,7 @@ def disruptionsRoute02():
     if request.mimetype == "application/json":
         print"[INFO] recieved json body:", request.json
         points = getPointsFromJson(str(request.json))
-        response=app.make_response(findDisruptionsRoute(points,"n",1000))
+        response=app.make_response(findDisruptionsRoute(points,"n",300))
         response.mimetype='application/json'
         return response
     return "Invalid request", 400
@@ -358,7 +358,7 @@ def getPointsFromJson(json_data):
 #################### Returns a JSON text for the area that is selected ########################
 ###############################################################################################
         
-def findDisruptionsRoute(points, closestcam, radius=1000):
+def findDisruptionsRoute(points, closestcam, radius=300):
     try:
         route = "LINESTRING("
         for point in points:
