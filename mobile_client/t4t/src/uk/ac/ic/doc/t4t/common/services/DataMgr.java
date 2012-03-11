@@ -23,6 +23,8 @@ import uk.ac.ic.doc.t4t.eventmap.route.Route;
 import uk.ac.ic.doc.t4t.common.services.data.RoadProvider;
 
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 public class DataMgr extends Observable implements LocationObserver {
@@ -48,10 +50,12 @@ public class DataMgr extends Observable implements LocationObserver {
 	private EventPostProcessor eventPostProcessor;
 	private TweetPostProcessor tweetPostProcessor;
 	
-	List<EventItem> eventItems = new ArrayList<EventItem>();
-	
 	public DataMgr(Context context){
 		  this.context = context;
+		  
+		  LocationMgr locationManager = new LocationMgr(context);
+		  locationManager.addLocationObserver(this);
+		  
 		  eventRadius = PreferencesHelper.getServerRequestRadius(context);
 		  URL = PreferencesHelper.getServerURL(context) + ":" + 
 				  PreferencesHelper.getServerPort(context);
@@ -72,14 +76,21 @@ public class DataMgr extends Observable implements LocationObserver {
 	public List<EventItem> requestEvents(){
 		
 		String response;
+		List<EventItem> eventItems = new ArrayList<EventItem>();
 		
-		if (hasLocation == false){
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);  
+        
+		if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
 			
 			response = requestCache.getEventItems();
 		    
 		    eventItems = JSONParser.parseDisruptionEvents(response);
 			
 		} else {
+			
+			Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+	        latitude = lastKnownLocation.getLatitude();
+	        longitude = lastKnownLocation.getLongitude();
 			
 			String query = apiVersion + DISRUPTIONS_ENDPOINT + "latitude=" +
 					latitude + "&longitude=" + longitude + "&radius=" + eventRadius;
@@ -115,15 +126,6 @@ public class DataMgr extends Observable implements LocationObserver {
 		this.hasLocation = true;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		
-		requestEventsForObservers();
-	}
-	
-	private void requestEventsForObservers() {
-		List<EventItem> newEvents;
-		newEvents = requestEvents();
-		
-		notifyObservers(newEvents);
 		
 	}
 
@@ -166,21 +168,14 @@ public class DataMgr extends Observable implements LocationObserver {
 			conn = new java.net.URL(urlString.toString()).openConnection();
 			is = conn.getInputStream();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		}
 		
-		
-		Log.i(TAG, "Route response: " + is);
-		
-		//RoadProvider provider = new RoadProvider();
-		
+		Log.v(TAG, "Route response: " + is);
 		Route route = RoadProvider.getRoute(is);
 		
-		Log.i(TAG, "Route response: " + route);
 		
         return route;
 
@@ -189,13 +184,14 @@ public class DataMgr extends Observable implements LocationObserver {
 	public List<EventItem> requestRouteEvents(Route route){
 
 		String response;
+		List<EventItem> eventItems = new ArrayList<EventItem>();
                 
 		String routePointsJSON = JSONRouteRequestBuilder.parse(route);
 		String query = apiVersion + DISRUPTIONS_ROUTE_ENDPOINT;       
         response = HTTPRequester.httpPost(URL + query, routePointsJSON);
 		
 		if (response == null){
-			Log.i(TAG, "Received no response ");
+			Log.e(TAG, "Received no response ");
 			return null;
 		}
 		Log.i(TAG, "Response length " + response.length());

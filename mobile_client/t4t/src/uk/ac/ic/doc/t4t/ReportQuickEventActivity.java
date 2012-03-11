@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Locale;
 
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
+import uk.ac.ic.doc.t4t.common.services.DataMgr;
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
+import uk.ac.ic.doc.t4t.eventlist.EventItem;
+import uk.ac.ic.doc.t4t.eventmap.route.Route;
 import winterwell.jtwitter.OAuthSignpostClient;
 import winterwell.jtwitter.Twitter;
 import winterwell.jtwitter.TwitterException;
@@ -18,12 +21,14 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 import oauth.signpost.exception.OAuthNotAuthorizedException;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -91,14 +96,7 @@ public class ReportQuickEventActivity extends Activity {
         btnHazard = 	(ImageButton) findViewById(R.id.reportHazard);
         btnRoadClosed = (ImageButton) findViewById(R.id.reportRoadClosed);
         
-        locationMgr = new LocationMgr(this);
         
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-			addresses = geocoder.getFromLocation(locationMgr.getLatitude(), locationMgr.getLongitude(), 1);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
         
         mConsumer = new CommonsHttpOAuthConsumer(CONSUMER_KEY, CONSUMER_SECRET);
         mProvider = new CommonsHttpOAuthProvider(
@@ -408,7 +406,8 @@ public class ReportQuickEventActivity extends Activity {
 			}
     		
         	try {
-        		startActivity( new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)) );
+        		if (authUrl != null)
+        			startActivity( new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)) );
         	} catch (TwitterException e){
         		e.printStackTrace();
         	}
@@ -493,5 +492,34 @@ public class ReportQuickEventActivity extends Activity {
     		e.printStackTrace();
     		Toast.makeText(ReportQuickEventActivity.this, "Error posting to twitter",Toast.LENGTH_LONG).show();
     	}
+	}
+	
+	
+	private class GeocodeLocation extends AsyncTask<Void, Void, List<Address>>{
+
+		private Context context;
+		
+		public GeocodeLocation(Context context){
+			this.context = context;
+			locationMgr = new LocationMgr(context);
+		}
+
+		@Override
+		protected List<Address> doInBackground(Void... params) {
+			
+			Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+			List<Address> addresses = null;
+	        try {
+				addresses = geocoder.getFromLocation(locationMgr.getLatitude(), locationMgr.getLongitude(), 1);
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage());
+			}
+	        return addresses;
+		}
+		
+		@Override
+	    protected void onPostExecute(List<Address> addr) {
+			addresses = addr;
+	    }
 	}
 }

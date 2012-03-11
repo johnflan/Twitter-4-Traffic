@@ -29,13 +29,14 @@
     <TableLayout
         android:id="@+id/tableLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:stretchColumns="0,1">
 
         <TableRow
             android:id="@+id/tableRow1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_horizontal|center_vertical"
             android:paddingTop="20px">
 
             <ImageButton
@@ -43,16 +44,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/btn_report_event_traffic"
-                android:background="@null"
-                android:paddingRight="20px"/>
+                android:background="@null"/>
             
             <ImageButton
                 android:id="@+id/reportRoadworks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/btn_report_event_roadworks"
-                android:background="@null"
-                android:paddingLeft="20px"/>
+                android:background="@null"/>
 
         </TableRow>
 
@@ -60,7 +59,7 @@
             android:id="@+id/tableRow1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_horizontal|center_vertical"
             android:paddingTop="20px">
 
             <ImageButton
@@ -68,16 +67,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/btn_report_event_ooo_trafficlights"
-                android:background="@null"
-                android:paddingRight="20px"/>
+                android:background="@null"/>
             
             <ImageButton
                 android:id="@+id/reportTrafficAccident"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/btn_report_event_accident"
-                android:background="@null"
-                android:paddingLeft="20px"/>
+                android:background="@null"/>
 
         </TableRow>
 
@@ -85,7 +82,7 @@
             android:id="@+id/tableRow1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_horizontal|center_vertical"
             android:paddingTop="20px">
 
             <ImageButton
@@ -93,16 +90,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/btn_report_event_hazard"
-                android:background="@null"
-                android:paddingRight="20px"/>
+                android:background="@null"/>
             
             <ImageButton
                 android:id="@+id/reportRoadClosed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/btn_report_event_roadclosed"
-                android:background="@null"
-                android:paddingLeft="20px"/>
+                android:background="@null"/>
 
         </TableRow>
 

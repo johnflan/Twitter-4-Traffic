@@ -28,6 +28,9 @@ public class EventOverlay extends ItemizedOverlay<EventOverlayItem> {
 	
 	public void addOverlay(EventOverlayItem overlay) {
 	    mOverlays.add(overlay);
+	    
+	    setLastFocusedIndex(-1);
+	    
 	    populate();
 	    Log.v(TAG, "Adding overlay item, currently have " + mOverlays.size() + " items");
 	}

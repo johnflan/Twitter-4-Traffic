@@ -72,8 +72,15 @@ public class EventDetailsActivity extends Activity {
 		});
 
         tweetList.setAdapter(new TweetItemAdapter(this, R.layout.tweetitem, tweets));
-    	new FetchTweets(this).execute(eventDetails);
+    	
     }
+    
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		new FetchTweets(this).execute(eventDetails);
+	}
 
 
 	private void populateEvent(EventItem eventDetails) {

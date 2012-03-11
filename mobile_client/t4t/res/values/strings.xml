@@ -44,7 +44,7 @@
 	<string name="pref_profanity_filter_summary">Don\'t show tweets with profane content</string>	
 	<string name="pref_profanity_filter_key">profanity_filter</string>
 	
-	<string name="pref_show_route_home_title">Show only events on your route</string>
+	<string name="pref_show_route_home_title">Show your route only</string>
 	<string name="pref_show_route_home_summary">Display your route home on the map</string>	
 	<string name="pref_show_route_home_key">show_route_home</string>
 	

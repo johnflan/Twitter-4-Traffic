@@ -10,6 +10,7 @@ import java.util.Observer;
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.common.services.LocationMgr;
 import uk.ac.ic.doc.t4t.common.services.DataMgr;
+import uk.ac.ic.doc.t4t.common.services.location.LocationObserver;
 import uk.ac.ic.doc.t4t.eventlist.EventItem;
 import uk.ac.ic.doc.t4t.eventmap.EventOverlay;
 import uk.ac.ic.doc.t4t.eventmap.EventOverlayItem;
@@ -33,18 +34,25 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class EventMapActivity extends MapActivity implements Observer {
 	private static final String TAG = EventMapActivity.class.getSimpleName();
@@ -59,10 +67,10 @@ public class EventMapActivity extends MapActivity implements Observer {
 	private MyLocationOverlay myLocationOverlay;
 	private boolean displayingRouteHome = false;
 	private RouteOverlay mapRouteOverlay;
-
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.eventmap);
         
@@ -77,67 +85,73 @@ public class EventMapActivity extends MapActivity implements Observer {
 			}
 		});
         
-        
         mapView = (MapView) findViewById(R.id.mapview);
 
         mapOverlays = mapView.getOverlays();
         
-        //Here we set the rest client as a listener for the location service
-        //so once a location is returned, we can make a HTTP request.       
-        restClient = new DataMgr(this);
-        restClient.addObserver(this);
-        
         location = new LocationMgr(this);
-        location.addLocationObserver(restClient); 
-       
+
         mapController = mapView.getController();
         mapView.setBuiltInZoomControls(true);  
-        mapController.setZoom(15);
-
+        mapController.setZoom(14);
         
         Drawable drawable = this.getResources().getDrawable(R.drawable.map_pointer);
         eventOverlay = new EventOverlay(drawable, this);
         
         findMyLocation(location);
-
-        
-        if (PreferencesHelper.getDisplayRouteHome(this) &&
-        		!PreferencesHelper.getRouteHomeHomeAddr(this).equals("") &&
-    			!PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
-        	Log.i(TAG, "Loading route events");
-    		displayingRouteHome = true;
-        	new FetchRoute(this).execute(null);
-        } else {
-        	Log.i(TAG, "Loading all events");
-        	new FetchEvents(this).execute(null);
-        }
-        
         
     }
     
-    @Override
+
+
+	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
 		
-		if (PreferencesHelper.getDisplayRouteHome(this) &&
-        		!PreferencesHelper.getRouteHomeHomeAddr(this).equals("") &&
-    			!PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
+		if (myLocationOverlay != null)
+			myLocationOverlay.enableMyLocation();
+		
+		Log.d(TAG, "(onResume) Display only route: " + PreferencesHelper.getDisplayRouteHome(this));
+		
+		if (PreferencesHelper.getDisplayRouteHome(this)){
 			
-			new FetchRoute(this).execute(null);
+
+			if (PreferencesHelper.getRouteHomeHomeAddr(this).equals("") ||
+    			PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
+				
+				Toast.makeText(this, "You must set your home and work locations to view a route", 
+		                Toast.LENGTH_LONG).show();
+				new FetchEvents(this).execute(null);
+			} else {
+				new FetchRoute(this).execute(null);
+			}
+
             
         } else if (!PreferencesHelper.getDisplayRouteHome(this) && displayingRouteHome){
+        	new FetchEvents(this).execute(null);
         	displayingRouteHome = false;
         	mapOverlays.remove(mapRouteOverlay);
         } else {
+        	Log.d(TAG, "(onResume) Requesting all events");
         	new FetchEvents(this).execute(null);
         }
+
+	}
+	
+    @Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
 		
+		if (myLocationOverlay != null)
+			myLocationOverlay.disableMyLocation();
 	}
 
 	private void findMyLocation(LocationMgr location){
         myLocationOverlay = new MyLocationOverlay(this, mapView);
         myLocationOverlay.enableMyLocation();
+        
         mapController.animateTo(location.getGeoPoint());
         mapController.setCenter(location.getGeoPoint());
         mapView.getOverlays().add(myLocationOverlay);
@@ -227,6 +241,7 @@ public class EventMapActivity extends MapActivity implements Observer {
 		public FetchEvents(Context context){
 			this.context = context;
 			restClient = new DataMgr(context);
+
 		}
 
 		
@@ -237,8 +252,13 @@ public class EventMapActivity extends MapActivity implements Observer {
 		
 		@Override
 	    protected void onPostExecute(List<EventItem> events) {
-			if (events != null)
+			
+			if (events != null){
+				Log.d(TAG, "Got " + events.size() + " events");
 				addEventOverlay(events);
+			}
+				
+			
 	    }
 	}
 	
@@ -261,8 +281,12 @@ public class EventMapActivity extends MapActivity implements Observer {
 		
 		@Override
 	    protected void onPostExecute(List<EventItem> events) {
-			if (events != null)
+			
+			if (events != null){
+				Log.d(TAG, "Got " + events.size() + " events");
 				addEventOverlay(events);
+			}
+				
 	    }
 	}
 	
@@ -349,6 +373,6 @@ public class EventMapActivity extends MapActivity implements Observer {
 				
 	    }
 	}
-	
+
 
 }
