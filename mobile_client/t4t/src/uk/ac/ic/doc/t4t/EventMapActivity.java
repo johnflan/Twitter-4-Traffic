@@ -101,13 +101,17 @@ public class EventMapActivity extends MapActivity implements Observer {
         findMyLocation(location);
 
         
-        if (PreferencesHelper.getDisplayRouteHome(this)){
+        if (PreferencesHelper.getDisplayRouteHome(this) &&
+        		!PreferencesHelper.getRouteHomeHomeAddr(this).equals("") &&
+    			!PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
+        	Log.i(TAG, "Loading route events");
     		displayingRouteHome = true;
         	new FetchRoute(this).execute(null);
+        } else {
+        	Log.i(TAG, "Loading all events");
+        	new FetchEvents(this).execute(null);
         }
-        	
         
-        new FetchEvents(this).execute(null);
         
     }
     
@@ -116,20 +120,17 @@ public class EventMapActivity extends MapActivity implements Observer {
 		// TODO Auto-generated method stub
 		super.onResume();
 		
-		if (PreferencesHelper.getDisplayRouteHome(this) && !displayingRouteHome){
+		if (PreferencesHelper.getDisplayRouteHome(this) &&
+        		!PreferencesHelper.getRouteHomeHomeAddr(this).equals("") &&
+    			!PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
 			
-			
-			if (mapRouteOverlay == null){
-				new FetchRoute(this).execute(null);
-			} else {
-				displayingRouteHome = true;
-				mapOverlays.add(mapRouteOverlay);
-			}
-            
+			new FetchRoute(this).execute(null);
             
         } else if (!PreferencesHelper.getDisplayRouteHome(this) && displayingRouteHome){
         	displayingRouteHome = false;
         	mapOverlays.remove(mapRouteOverlay);
+        } else {
+        	new FetchEvents(this).execute(null);
         }
 		
 	}
@@ -241,6 +242,30 @@ public class EventMapActivity extends MapActivity implements Observer {
 	    }
 	}
 	
+	private class FetchRouteEvents extends AsyncTask<Route, Void, List<EventItem>>{
+
+		private Context context;
+		private DataMgr restClient;
+		
+		public FetchRouteEvents(Context context){
+			this.context = context;
+			restClient = new DataMgr(context);
+		}
+
+		
+		@Override
+		protected List<EventItem> doInBackground(Route... params) {
+			
+			return restClient.requestRouteEvents(params[0]);
+		}
+		
+		@Override
+	    protected void onPostExecute(List<EventItem> events) {
+			if (events != null)
+				addEventOverlay(events);
+	    }
+	}
+	
 	private class FetchRoute extends AsyncTask<Void, Void, Route>{
 
 		private Context context;
@@ -270,9 +295,6 @@ public class EventMapActivity extends MapActivity implements Observer {
 			if (!PreferencesHelper.getRouteHomeHomeAddr(context).equals("") &&
         			!PreferencesHelper.getRouteHomeWorkAddr(context).equals("")){
 				
-				Log.d(TAG, "Home addr: " + PreferencesHelper.getRouteHomeHomeAddr(context));
-				Log.d(TAG, "Work addr: " + PreferencesHelper.getRouteHomeWorkAddr(context));
-				
 				Geocoder geocoder = new Geocoder(context, Locale.getDefault());
 				List<Address> homeAddresses;
 				List<Address> workAddresses;
@@ -297,12 +319,13 @@ public class EventMapActivity extends MapActivity implements Observer {
 							LDN_UPPER_RIGHT_LONGITUDE);
 					
 					
-					
 					route = restClient.getRoute(
 							homeAddresses.get(0).getLatitude(),
 							homeAddresses.get(0).getLongitude(), 
 							workAddresses.get(0).getLatitude(), 
 							workAddresses.get(0).getLongitude());
+					
+					restClient.requestRouteEvents(route);
 					
 				} catch (IOException e) {
 					Log.e(TAG, e.getMessage());
@@ -316,10 +339,12 @@ public class EventMapActivity extends MapActivity implements Observer {
 		
 		@Override
 	    protected void onPostExecute(Route route) {
+			
 			if (route != null){
 				mapRouteOverlay = new RouteOverlay(route, mapView);
 				mapOverlays.add(mapRouteOverlay);
 				displayingRouteHome = true;
+				new FetchRouteEvents(context).execute(route);
 			}
 				
 	    }

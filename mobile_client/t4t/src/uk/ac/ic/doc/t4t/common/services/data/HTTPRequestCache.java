@@ -45,6 +45,8 @@ public class HTTPRequestCache {
 			Cursor cursor = database.rawQuery("SELECT * FROM " + EVENT_CACHE_TABLE , null);
 			int eventListCol = cursor.getColumnIndex("eventlist");
 			
+			Log.i(TAG, "Loading request cache from DB with " + cursor.getCount() + " row(s)");
+			
 			// Check if our result was valid.
 			if (cursor.getCount() > 0){
 				cursor.moveToFirst();

@@ -8,17 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.SAXException;
-
 import uk.ac.ic.doc.t4t.common.PreferencesHelper;
 import uk.ac.ic.doc.t4t.common.services.data.EventPostProcessor;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequestCache;
 import uk.ac.ic.doc.t4t.common.services.data.HTTPRequester;
 import uk.ac.ic.doc.t4t.common.services.data.JSONParser;
+import uk.ac.ic.doc.t4t.common.services.data.JSONRouteRequestBuilder;
 import uk.ac.ic.doc.t4t.common.services.data.TweetPostProcessor;
 import uk.ac.ic.doc.t4t.common.services.location.LocationObserver;
 import uk.ac.ic.doc.t4t.eventdetails.TweetItem;
@@ -41,6 +36,7 @@ public class DataMgr extends Observable implements LocationObserver {
 	
 	private String apiVersion = "/t4t/0.2/";
 	private static final String DISRUPTIONS_ENDPOINT = "disruptions?";	
+	private static final String DISRUPTIONS_ROUTE_ENDPOINT = "disruptions/route/";	
 	private static final String TWEETS_ENDPOINT = "tweets?disruptionID=";
 	private static final String PROFANITY_FILTER_TRUE = "&filter=y";
 	private static final String PROFANITY_FILTER_FALSE = "&filter=n";
@@ -180,13 +176,40 @@ public class DataMgr extends Observable implements LocationObserver {
 		
 		Log.i(TAG, "Route response: " + is);
 		
-		RoadProvider provider = new RoadProvider();
+		//RoadProvider provider = new RoadProvider();
 		
-		Route route = provider.getRoute(is);
+		Route route = RoadProvider.getRoute(is);
 		
 		Log.i(TAG, "Route response: " + route);
 		
         return route;
+
+	}
+	
+	public List<EventItem> requestRouteEvents(Route route){
+
+		String response;
+                
+		String routePointsJSON = JSONRouteRequestBuilder.parse(route);
+		String query = apiVersion + DISRUPTIONS_ROUTE_ENDPOINT;       
+        response = HTTPRequester.httpPost(URL + query, routePointsJSON);
+		
+		if (response == null){
+			Log.i(TAG, "Received no response ");
+			return null;
+		}
+		Log.i(TAG, "Response length " + response.length());
+		requestCache.setEventItems(response);
+	    eventItems = JSONParser.parseDisruptionEvents(response);
+
+		
+		if (eventItems != null){
+			
+			eventItems = eventPostProcessor.processEvents(eventItems);
+			Log.i(TAG, "Parsed " + eventItems.size() + " event items");
+	        
+		}
+		return eventItems;
 
 	}
 
