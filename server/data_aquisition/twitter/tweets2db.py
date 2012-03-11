@@ -28,7 +28,7 @@ import thread
 import json
 from json import JSONDecoder
 
-addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r[(oa)]d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?[,.\s\z$]{1})" 
+addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r(oa)?d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?(\W|\Z))"
 
 GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
 
