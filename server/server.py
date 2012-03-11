@@ -49,6 +49,10 @@ if __name__=='__main__':
             dest='badwords',
             default='data_aquisition/twitter/dirty_words.txt',
             help='The bad words for the profanity filter')
+    parser.add_option('-b', '--blacklist',
+            dest='blacklist',
+            default='data_aquisition/twitter/blacklist.txt',
+            help='The blacklist for twitter users')
     parser.add_option('-c', '--classifier',
             dest='classifier',
             default='/srv/t4t/classifier_files/naive_bayes.pickle',

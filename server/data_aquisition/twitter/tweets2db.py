@@ -49,11 +49,19 @@ def main():
     # Update the database's bad words in tweets
     updateDBBadWords()
     
+    # Load the twitter user blacklist from a file
+    loadBlacklist()
+    
+    # Remove from the database previously posted tweets from blacklisted users
+    updateDBBlacklist()
+    
     # Find the maximum tweet id that was previously stored in the database
     start_id = get_max_id()
 
     if start_id is not None:
         kwargs['start_id'] = int(start_id)
+    else:
+        kwargs['start_id'] = 0
 
     rl = GetRateLimiter()
     rl.api._cache_timeout = 30
@@ -106,6 +114,19 @@ def loadBadWords():
         sys.exit()
         
 ###############################################################################################
+######################## Loads the twitter user blacklist from a file #########################
+###############################################################################################
+        
+def loadBlacklist():
+    try:
+        f = open(kwargs['blacklist'], "r")
+        blacklist = f.read()
+        kwargs['blacklist'] = blacklist.split("\n")[:-1]
+    except IOError:
+        print "[Error] blacklist file not found"
+        sys.exit()
+
+###############################################################################################
 ####################### Update the tweets column for the new bad words ########################
 ###############################################################################################
         
@@ -118,12 +139,31 @@ def updateDBBadWords():
         query = "UPDATE tweets SET profanity='y' WHERE "
         
         for word in kwargs['badwords']:
-            query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
+            if word!=None and len(word)>0:
+                query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
         
         cursor.execute(query[:-4])
         conn.commit()
     except IOError:
         print "[Error] bad words could not be updated"
+        sys.exit()
+        
+###############################################################################################
+####################### Update the tweets column for the new bad words ########################
+###############################################################################################
+        
+def updateDBBlacklist():
+    try:
+        query = "DELETE FROM tweets WHERE "
+        
+        for user in kwargs['blacklist']:
+            if user!=None and len(user)>0:
+                query += "uname='" + user + "' OR "
+        
+        cursor.execute(query[:-4])
+        conn.commit()
+    except IOError:
+        print "[Error] blacklist could not be updated"
         sys.exit()
 
 ###############################################################################################
@@ -189,6 +229,10 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     probability = 1.0
                     isTraffic = True
                     isRetweet = False
+                    
+                    # If the user is blacklisted do not store the tweet
+                    if uname in kwargs['blacklist']:
+                        continue
                     
                     # Find if it is a retweet
                     if hashtagRT not in text: 
@@ -309,10 +353,10 @@ def findGeolocation(text,sdx):
         print "INSIDE THE REGEX - match regex"
         addr = regexMatch.group(0)[3:] 
         addr = addr.strip(punctuation).lower().strip()
-		
+        
         #CHANGE: Find the soundex for the address
         soundex = sdx.soundexstring(str(addr))
-		
+        
         if ("the street" in addr) or ("my street" in addr) or ("this street" in addr) or ("our street" in
             addr) or ("a street" in addr) or ("high street" in addr) or ("upper st" in addr) or ("car park" in addr) or ("the park" in addr) or ("in every" in addr):
             return (None, None)
@@ -321,7 +365,7 @@ def findGeolocation(text,sdx):
     try:
         # CHANGE: Replcae addr with soundex
         # rows = get_db_geo(addr)
-        rows = get_db_geo(soundex)		
+        rows = get_db_geo(soundex)        
         latitude = str(rows[6:15].replace(')',''))
         longitude = str( rows[16:26].replace(')',''))
         print "FOUND THE LATLON FROM THE TABLE : lat = %S and lon = %s" % (latitude, longitude)
@@ -354,7 +398,7 @@ def geocode(address, sensor):
     jsonObj = decoder.decode(response)
     lat = jsonObj['results'][0]['geometry']['location']['lat']
     lng = jsonObj['results'][0]['geometry']['location']['lng']
-	
+    
     print "INSIDE GEOCODE : GOT the lat %s and lng %s from googlempas:" % (lat,lng)
     return (lat,lng)
 
@@ -424,6 +468,10 @@ if __name__ == '__main__':
                         dest='badwords',
                         default='dirty_words.txt',
                         help='The bad words for the profanity filter')
+    parser.add_option('-b', '--blacklist',
+                        dest='blacklist',
+                        default='blacklist.txt',
+                        help='The blacklist for twitter users')
     parser.add_option('-c', '--classifier',
                         dest='classifier',
                         default='/srv/t4t/classifier_files/naive_bayes.pickle',
