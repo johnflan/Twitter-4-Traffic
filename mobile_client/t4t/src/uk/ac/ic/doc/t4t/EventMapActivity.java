@@ -132,11 +132,13 @@ public class EventMapActivity extends MapActivity implements Observer {
         	new FetchEvents(this).execute(null);
         	displayingRouteHome = false;
         	mapOverlays.remove(mapRouteOverlay);
+        	
         } else {
         	Log.d(TAG, "(onResume) Requesting all events");
         	new FetchEvents(this).execute(null);
+        	mapOverlays.remove(mapRouteOverlay);
         }
-
+		
 	}
 	
     @Override

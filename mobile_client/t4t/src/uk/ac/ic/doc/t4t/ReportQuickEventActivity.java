@@ -96,15 +96,14 @@ public class ReportQuickEventActivity extends Activity {
         btnHazard = 	(ImageButton) findViewById(R.id.reportHazard);
         btnRoadClosed = (ImageButton) findViewById(R.id.reportRoadClosed);
         
-        
+        locationMgr = new LocationMgr(this);
+        new GeocodeLocation(this).execute(null);
         
         mConsumer = new CommonsHttpOAuthConsumer(CONSUMER_KEY, CONSUMER_SECRET);
         mProvider = new CommonsHttpOAuthProvider(
                 "http://twitter.com/oauth/request_token",
                 "http://twitter.com/oauth/access_token",
                 "http://twitter.com/oauth/authorize");
-        
-        Log.d(TAG, "Location address " + addresses);
         
         btnTraffic.setOnClickListener(new View.OnClickListener() {	
 			@Override
@@ -520,6 +519,7 @@ public class ReportQuickEventActivity extends Activity {
 		@Override
 	    protected void onPostExecute(List<Address> addr) {
 			addresses = addr;
+			Log.d(TAG, "Location address " + addresses);
 	    }
 	}
 }

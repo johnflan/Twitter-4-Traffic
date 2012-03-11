@@ -111,8 +111,8 @@ public class EventListActivity extends Activity implements Observer {
         
         if (PreferencesHelper.getDisplayRouteHome(this)) {
     
-		    if ( !PreferencesHelper.getRouteHomeHomeAddr(this).equals("") ||
-					!PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
+		    if ( PreferencesHelper.getRouteHomeHomeAddr(this).equals("") ||
+					PreferencesHelper.getRouteHomeWorkAddr(this).equals("")){
 					
 					Toast.makeText(this, "You must set your home and work locations to view a route", 
 			                Toast.LENGTH_LONG).show();
