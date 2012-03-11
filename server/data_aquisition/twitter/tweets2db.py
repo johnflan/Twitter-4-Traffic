@@ -367,9 +367,11 @@ def findGeolocation(text,sdx):
             # rows = get_db_geo(addr)
             latlon = get_db_geo(soundex)        
             latitude, longitude = latlon[6:-1].split()
-            print "FOUND THE LATLON FROM THE TABLE : lat = %S and lon = %s" % (latitude, longitude)
+            print "FOUND THE LATLON FROM THE TABLE : lat = %s and lon = %s" % (latitude, longitude)
             return (latitude, longitude)
         except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            print "Error -> %s" % (exceptionValue)
             # There is no such an address in the geolookup table so go and try to add it
             try:
                 latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
@@ -416,11 +418,11 @@ def get_db_geo(soundex):
     query = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE soundex ='"+str(soundex)+"'"
     cursor.execute(query)
     try:
-        ((latlon,),) = cursor.fetchall()
-        print "FOUND latlot : %s" % latlon
-        return latlon
+        result = cursor.fetchone()
+        print "FOUND latlot : %s" % result[0]
+        return result[0]
     except:
-        return 0
+        return None
 
 ###############################################################################################
 ########################## Classify a tweet to traffic or not traffic #########################
