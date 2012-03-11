@@ -142,8 +142,9 @@ def updateDBBadWords():
             if word!=None and len(word)>0:
                 query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
         
-        cursor.execute(query[:-4])
-        conn.commit()
+        if len(kwargs['badwords'][0]) > 0:
+            cursor.execute(query[:-4])
+            conn.commit()
     except IOError:
         print "[Error] bad words could not be updated"
         sys.exit()
@@ -160,8 +161,9 @@ def updateDBBlacklist():
             if user!=None and len(user)>0:
                 query += "uname='" + user + "' OR "
         
-        cursor.execute(query[:-4])
-        conn.commit()
+        if len(kwargs['blacklist'][0]) > 0:
+            cursor.execute(query[:-4])
+            conn.commit()
     except IOError:
         print "[Error] blacklist could not be updated"
         sys.exit()
