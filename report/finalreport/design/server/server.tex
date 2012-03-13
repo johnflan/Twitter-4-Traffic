@@ -16,30 +16,30 @@ In contrast to the TfL, the Twitter data are returned in a JSON format. For this
 \subsubsection{Storage}
 For the storage of data we use a PostgreSQL database. Because of the high amount of database queries we needed to use an efficient way to store and analyze the information we acquired from the tfl feeds and twitter. For this reason, we decided to use a Geographic Information System called PostGIS. This allowed us to store geolocations (longitude and latitude) as points.
 
-With the use of PostGIS queries to the database became easier and more efficient. The use of functions provided by PostGIS, such as ST_DWithin to find all points around a route or a point within a radius, or ST_Distance to find the distance between two points, made all queries simpler. In addition, the main advantage of PostGIS is that it uses generalized search trees (GiST) to index the geometries. 
+With the use of PostGIS queries to the database became easier and more efficient. The use of functions provided by PostGIS, such as ST\_DWithin to find all points around a route or a point within a radius, or ST\_Distance to find the distance between two points, made all queries simpler. In addition, the main advantage of PostGIS is that it uses generalized search trees (GiST) to index the geometries. 
 
-A GiST like a B-tree uses key-pointer pairs. The difference with B-trees is that a GiST key is a user-defined data type. This allows different types of operations, rather than simple comparisons, such as nearest-neighbor searches and statistical approximations over large data sets. In PostGIS, the GiST is used for spatial indexing by allowing the index to use a bounding box for each geometry (e.g. line) instead of storing the whole geometry in it. Therefore, with bounding box comparison, instead of comparing geometries, functions such as ST_DWithin are made more efficient.
+A GiST like a B-tree uses key-pointer pairs. The difference with B-trees is that a GiST key is a user-defined data type. This allows different types of operations, rather than simple comparisons, such as nearest-neighbor searches and statistical approximations over large data sets. In PostGIS, the GiST is used for spatial indexing by allowing the index to use a bounding box for each geometry (e.g. line) instead of storing the whole geometry in it. Therefore, with bounding box comparison, instead of comparing geometries, functions such as ST\_DWithin are made more efficient.
 
 For the project we used the following tables:
 \begin{itemize}
 \item Tables used by the final application
   \begin{itemize}
-  \item tfl - The current tfl disruption events
-  \item archive - To store old tfl disruption events for further analysis
-  \item tflcameras - The current camera pictures' url
-  \item tweets - To store the traffic tweets acquired from twitter
-  \item geolookup - Used to store addresses with their SoundEX value and their geolocation which is acquired from Google Maps
-  \item tweets_metrics - Used to store different types of metrics for the tweets
+  \item tfl: The current tfl disruption events
+  \item archive: To store old tfl disruption events for further analysis
+  \item tflcameras: The current camera pictures' url
+  \item tweets: To store the traffic tweets acquired from twitter
+  \item geolookup: Used to store addresses with their SoundEX value and their geolocation which is acquired from Google Maps
+  \item tweets\_metrics: Used to store different types of metrics for the tweets
   \end{itemize}
 \item Tables used to train the classifier
   \begin{itemize}
-  \item labelled_tweets - To store manually labelled tweets as traffic or non-traffic
-  \item stop_words - Words that can be removed before data analysis
+  \item labelled\_tweets: To store manually labelled tweets as traffic or non-traffic
+  \item stop\_words: Words that can be removed before data analysis
   \end{itemize}
 \item Tables used by PostGIS
   \begin{itemize}
-  \item geography_columns - This is a view that shows all the columns of the database that use geography points
-  \item spatial_ref_sys - A list of spatial reference systems and details to transform between them
+  \item geography\_columns: This is a view that shows all the columns of the database that use geography points
+  \item spatial\_ref\_sys: A list of spatial reference systems and details to transform between them
   \end{itemize}
 \end{itemize}
 \subsubsection{Interface}
