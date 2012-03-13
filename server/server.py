@@ -3,9 +3,9 @@ import ConfigParser
 import time
 
 # Import the scripts that will be used as threads
-import data_aquisition.tfl.tfl2db as tfl2db
-import data_aquisition.tfl.tflcam2db as tflcam2db
-import data_aquisition.twitter.tweets2db as tweets2db
+import data_acquisition.tfl.tfl2db as tfl2db
+import data_acquisition.tfl.tflcam2db as tflcam2db
+import data_acquisition.twitter.tweets2db as tweets2db
 import rest_server.restserver as restserver
 
 if __name__=='__main__':
@@ -43,15 +43,15 @@ if __name__=='__main__':
             type=int)
     parser.add_option('-t', '--terms',
             dest='terms',
-            default='data_aquisition/twitter/searchTerms.txt',
+            default='data_acquisition/twitter/searchTerms.txt',
             help='The search terms for twitter')
     parser.add_option('-w', '--words',
             dest='badwords',
-            default='data_aquisition/twitter/dirty_words.txt',
+            default='data_acquisition/twitter/dirty_words.txt',
             help='The bad words for the profanity filter')
     parser.add_option('-b', '--blacklist',
             dest='blacklist',
-            default='data_aquisition/twitter/blacklist.txt',
+            default='data_acquisition/twitter/blacklist.txt',
             help='The blacklist for twitter users')
     parser.add_option('-c', '--classifier',
             dest='classifier',

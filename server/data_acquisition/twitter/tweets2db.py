@@ -258,12 +258,10 @@ def tweets(rl, georadius="19.622mi", start_id=0):
 
                     # If the tweet does not have geolocation
                     if geo is None:
-                        print "IT DOESNT HAVE GEOLOCATION"
                         geolat, geolong = findGeolocation(text,sdx)
                         if geolat!=None and geolong!=None:
                             foundgeotweets += 1
                     elif not geo is None and geo.get('type') == 'Point':
-                        print "IT HAS GEOLOCATION"
                         geolat, geolong = geo['coordinates']
                     else:
                         continue
@@ -350,13 +348,11 @@ def tweets(rl, georadius="19.622mi", start_id=0):
 def findGeolocation(text,sdx):
     # Check if the tweet contains the regex
     regexMatch = re.search(addressRegex, text, re.IGNORECASE)
-    print "BEFORE THE REGEX"
     if regexMatch != None:
-        print "INSIDE THE REGEX - match regex"
         addr = regexMatch.group(0)[3:] 
         addr = addr.strip(punctuation).lower().strip()
         
-        #CHANGE: Find the soundex for the address
+        # Find the soundex for the address
         soundex = sdx.soundexstring(str(addr))
         
         if ("the street" in addr) or ("my street" in addr) or ("this street" in addr) or ("our street" in
@@ -365,25 +361,20 @@ def findGeolocation(text,sdx):
 
         # Try to find the corresponding geolocation in the local table geolookup
         try:
-            # CHANGE: Replcae addr with soundex
-            # rows = get_db_geo(addr)
             latlon = get_db_geo(soundex)        
             latitude, longitude = latlon[6:-1].split()
-            print "FOUND THE LATLON FROM THE TABLE : lat = %s and lon = %s" % (latitude, longitude)
             if latitude != None and longitude != None:
                 return (latitude, longitude)
         except:
-		    # Get the most recent exception
+            # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            print "Error -> %s" % (exceptionValue)
 			
-		# If there is no such an address in the geolookup table go and try to add it from the googlemaps
+        # If there is no such an address in the geolookup table go and try to add it from the googlemaps
         try:
             latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
             geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
             query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
             cursor.execute(query)
-            print "FOUND THE LATLON FROM THE GOOGLEMAPS : lat = %s and lon = %s" % (latitude, longitude)
             return (latitude, longitude)
         except:
             # Get the most recent exception
@@ -410,7 +401,6 @@ def geocode(address, sensor):
     lat = jsonObj['results'][0]['geometry']['location']['lat']
     lng = jsonObj['results'][0]['geometry']['location']['lng']
     
-    print "INSIDE GEOCODE : GOT the lat %s and lng %s from googlempas:" % (lat,lng)
     return (lat,lng)
 
 ###############################################################################################
@@ -418,14 +408,11 @@ def geocode(address, sensor):
 ###############################################################################################
 
 def get_db_geo(soundex):
-    # CHANGE : Select the lat and the lon from the geolookup if the soundex matches
-    # query1 = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE streetaddress ='"+str(addr)+"'"
-    print "INSIDE get_db_geo : SOUNDEX : %s" % soundex
+    # Select the lat and the lon from the geolookup if the soundex matches
     query = "SELECT ST_AsText(latlon) as latlon FROM geolookup WHERE soundex ='"+str(soundex)+"'"
     cursor.execute(query)
     try:
         result = cursor.fetchone()
-        print "FOUND latlot : %s" % result[0]
         return result[0]
     except:
         return None
