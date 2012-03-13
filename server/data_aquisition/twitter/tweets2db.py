@@ -211,7 +211,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
         results = None
         page = 0
         hashtagRT = '#RightTurn'
-        while results != [] and page <= 15:
+        while results != [] and page < 15:
             page += 1
             try:
                 results = None

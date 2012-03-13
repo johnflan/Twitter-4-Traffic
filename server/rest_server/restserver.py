@@ -592,7 +592,7 @@ def findCamerasRadius(lon, lat, radius):
 ################## Returns a JSON text for the area around a disruption #######################
 ###############################################################################################
 
-def findCamerasDisruption(ltisid, radius=500):
+def findCamerasDisruption(ltisid, radius=300):
     try:
         query = """SELECT title,
                             link,
@@ -617,7 +617,7 @@ def findCamerasDisruption(ltisid, radius=500):
 ############## Returns a JSON text for the closest camera around a disruption #################
 ###############################################################################################
 
-def findCamerasDisruptionClosest(ltisid, radius=500):
+def findCamerasDisruptionClosest(ltisid, radius=300):
     try:
         query = """SELECT title, link, st_distance, geolocation
                     FROM (SELECT title,
