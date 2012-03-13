@@ -27,6 +27,18 @@ was returning static data sets to the client.
 
 \subsection{Testing} 
 \subsubsection{Classifier Evaluation} 
-\subsubsection{Functional\\Integration Testing} 
+\subsubsection{Functional/Integration Testing}
+One of the most important parts of the project was the server API interface. A lot of requests will 
+be made from the users of the mobile application and it must be confirmed that the server interface 
+will handle them but also return the correct results in the correct format to the client. In order 
+to test the server interface the Apache JMeter desktop application was used. This software is 
+designed to load test functional behaviour and measure performance of static and dynamic recourses. 
+Using JMeter proved to be a very effective way to test servers interface. Various test plans where 
+created testing every GET or POST request available to use through the API. Tests were also 
+implemented to ensure that the server was returning the correct messages and response codes when it 
+was encountering an error. More tests were made to check the content-type of every response. This 
+process was really helpful because it was very easy later on to check whether new features or code 
+refactoring were breaking the interface. 
+
 \subsubsection{Unit Testing} 
 
