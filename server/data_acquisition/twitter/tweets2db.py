@@ -27,16 +27,50 @@ from optparse import OptionParser
 import thread
 import json
 from json import JSONDecoder
+import logging
 
 addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r(oa)?d|bridge|ave(nue)?|park){1,2}(\sstation|\smarket)?(\W|\Z))"
 
 GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
 
 ###############################################################################################
+###################### Create a new logger to store messages in a file ########################
+###############################################################################################
+
+def createLogger():
+    global logger
+    logger = logging.getLogger('TweetLogger')
+    logger.setLevel(kwargs['verbosity'])
+    ch = logging.FileHandler(kwargs['twitterlog'])
+    ch.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+###############################################################################################
+################### Display an error message and store it in the log file #####################
+###############################################################################################
+
+def errorMessage(errorMsg):
+    logger.error(errorMsg)
+    print errorMsg
+
+###############################################################################################
+#################### Display an info message and store it in the log file #####################
+###############################################################################################
+
+def infoMessage(infoMsg):
+    logger.info(infoMsg)
+    print infoMsg
+
+###############################################################################################
 ############################ Start the twitter collection feed ################################
 ###############################################################################################
 
 def main():
+    # Create a log file
+    createLogger()
+
     # Connect to the database
     connect()
 
@@ -72,6 +106,7 @@ def main():
 ###############################################################################################
 
 def connect():
+    logger.debug('Connecting to the database')
     global conn
     global cursor
     try:
@@ -83,20 +118,22 @@ def connect():
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script/thread and print an error telling what happened.
-        print "Database connection failed! -> %s" % (exceptionValue)
+        errorMessage("Database connection failed! -> %s" % (exceptionValue))
         sys.exit()
+    logger.debug('Connected to the database')
 
 ###############################################################################################
 ######################## Loads the twitter search terms from a file ###########################
 ###############################################################################################
         
 def loadSearchTerms():
+    logger.debug('Loading Search Terms')
     try:
         f = open(kwargs['terms'], "r")
         terms = f.read()
         kwargs['terms'] = terms.strip()
     except IOError:
-        print "[Error] search terms file not found"
+        errorMessage("Search terms file not found")
         sys.exit()
         
 ###############################################################################################
@@ -104,13 +141,14 @@ def loadSearchTerms():
 ###############################################################################################
         
 def loadBadWords():
+    logger.debug('Loading Bad Words')
     try:
         f = open(kwargs['badwords'], "r")
         badwords = f.read()
         # Add all words but remove the last new line
         kwargs['badwords'] = badwords.split("\n")[:-1]
     except IOError:
-        print "[Error] bad words file not found"
+        errorMessage("Bad words file not found")
         sys.exit()
         
 ###############################################################################################
@@ -118,12 +156,13 @@ def loadBadWords():
 ###############################################################################################
         
 def loadBlacklist():
+    logger.debug('Loading Blacklist')
     try:
         f = open(kwargs['blacklist'], "r")
         blacklist = f.read()
         kwargs['blacklist'] = blacklist.split("\n")[:-1]
     except IOError:
-        print "[Error] blacklist file not found"
+        errorMessage("Blacklist file not found")
         sys.exit()
 
 ###############################################################################################
@@ -145,8 +184,8 @@ def updateDBBadWords():
         if len(kwargs['badwords'][0]) > 0:
             cursor.execute(query[:-4])
             conn.commit()
-    except IOError:
-        print "[Error] bad words could not be updated"
+    except:
+        errorMessage("Bad words could not be updated, query=%s" % query[:-4])
         sys.exit()
         
 ###############################################################################################
@@ -154,18 +193,18 @@ def updateDBBadWords():
 ###############################################################################################
         
 def updateDBBlacklist():
+    
+    query = "DELETE FROM tweets WHERE "
+        
+    for user in kwargs['blacklist']:
+        if user!=None and len(user)>0:
+            query += "uname='" + user + "' OR "
     try:
-        query = "DELETE FROM tweets WHERE "
-        
-        for user in kwargs['blacklist']:
-            if user!=None and len(user)>0:
-                query += "uname='" + user + "' OR "
-        
         if len(kwargs['blacklist'][0]) > 0:
             cursor.execute(query[:-4])
             conn.commit()
-    except IOError:
-        print "[Error] blacklist could not be updated"
+    except:
+        errorMessage("Blacklist could not be updated, query=%s" % query[:-4])
         sys.exit()
 
 ###############################################################################################
@@ -173,10 +212,13 @@ def updateDBBlacklist():
 ###############################################################################################
         
 def get_max_id():
-    query = 'SELECT MAX(tid) FROM tweets'
-    cursor.execute(query)
-    ((start_id,),) = cursor.fetchall()
-    return start_id
+    try:
+        query = 'SELECT MAX(tid) FROM tweets'
+        cursor.execute(query)
+        ((start_id,),) = cursor.fetchall()
+        return start_id
+    except:
+        errorMessage("Error selecting MAX(tid)")
 
 ###############################################################################################
 ########################## Store the traffic tweets in the database ###########################
@@ -195,6 +237,8 @@ def tweets(rl, georadius="19.622mi", start_id=0):
     # Create the object for the class returnsoundex
     sdx = soundex.returnsoundex.returnSoundex()
 
+    hashtagRT = '#RightTurn'
+
     while True:
         # Metrics for the tweets
         total_tweets = 0
@@ -210,7 +254,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
         since_id = most_recent_id
         results = None
         page = 0
-        hashtagRT = '#RightTurn'
+        
         while results != [] and page < 15:
             page += 1
             try:
@@ -296,7 +340,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         except:
                             # Get the most recent exception
                             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                            print "Error -> %s, tid = %s" % (exceptionValue,tid)
+                            errorMessage("Error storing tweet with geolocation -> %s, query=%s" % (exceptionValue,query))
                             continue
                     
                     # If the tweet does not have geolocation
@@ -310,36 +354,62 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         except:
                             # Get the most recent exception
                             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                            print "Error -> %s, tid = %s" % (exceptionValue,tid)
+                            errorMessage("Error storing tweet without geolocation -> %s, query=%s" % (exceptionValue,query%params))
                             continue
                     # Commit the changes to the database
                     conn.commit()
-                print "Tweets Stored until tid %s @%s" % (most_recent_id,updated_at)
+                infoMessage("Tweets Stored until tid %s, page %s @%s" % (most_recent_id,page,updated_at))
             except TwitterError, e:
-                print "[ERROR] TwitterError: ", e, "page:",page, "since_id",since_id
+                errorMessage("TwitterError: %s page: %s since_id %s" % (e,page,since_id))
                 results = []
             except URLError, e:
-                print "[ERROR] URLError: ", e, "page:",page, "since_id",since_id
+                errorMessage("URLError: %s page: %s since_id %s" % (e,page,since_id))
                 results = []
-        try:
-            # Delete old tweets from the table
-            query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '7' day"""
-            cursor.execute(query)
+
+        # Delete old tweets from the table
+        deleteOldTweets()
             
-            # Update tweet metrics
-            query = """UPDATE tweets_metrics SET total_tweets=total_tweets+%s,
-                                                 traffic_tweets=traffic_tweets+%s,
-                                                 rightturn_tweets=rightturn_tweets+%s,
-                                                 retweets=retweets+%s,
-                                                 geotweets=geotweets+%s,
-                                                 foundgeotweets=foundgeotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets),str(foundgeotweets))
-            cursor.execute(query)
+        # Update tweet metrics
+        updateMetrics(total_tweets, traffic_tweets, rightturn_tweets, retweets, geotweets, foundgeotweets)
+
+        try:
             # Commit the changes to the database
             conn.commit()
         except:
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            print "Error -> %s" % (exceptionValue)
+            errorMessage("Error in commit -> %s" % (exceptionValue))
+
+###############################################################################################
+###################################### Delete old tweets ######################################
+###############################################################################################
+
+def deleteOldTweets():
+    query = """DELETE FROM tweets WHERE created_at < current_timestamp - interval '7' day"""
+    try:
+        cursor.execute(query)
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        errorMessage("Error in deleting old tweets -> %s, query=%s" % (exceptionValue,query))
+
+###############################################################################################
+###################################### Update Metrics ######################################
+###############################################################################################
+
+def updateMetrics(total_tweets, traffic_tweets, rightturn_tweets, retweets, geotweets, foundgeotweets):
+    query = """UPDATE tweets_metrics SET total_tweets=total_tweets+%s,
+                                             traffic_tweets=traffic_tweets+%s,
+                                             rightturn_tweets=rightturn_tweets+%s,
+                                             retweets=retweets+%s,
+                                             geotweets=geotweets+%s,
+                                             foundgeotweets=foundgeotweets+%s""" % (str(total_tweets),str(traffic_tweets),str(rightturn_tweets),str(retweets),str(geotweets),str(foundgeotweets))
+    try:
+        cursor.execute(query)
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        errorMessage("Error in metrics -> %s, query=%s" % (exceptionValue,query))
 
 ###############################################################################################
 ##################### Find the geolocation and update the geolookup table #####################
@@ -364,23 +434,29 @@ def findGeolocation(text,sdx):
             latlon = get_db_geo(soundex)        
             latitude, longitude = latlon[6:-1].split()
             if latitude != None and longitude != None:
+                logger.debug('Found geolocation in the geolookup table - text=%s' % (text))
                 return (latitude, longitude)
         except:
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
 			
         # If there is no such an address in the geolookup table go and try to add it from the googlemaps
-        try:
-            latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
-            geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
+        latitude, longitude = geocode(address = addr+",london, UK", sensor = "false")
+        geoloc = "ST_GeographyFromText('SRID=4326;POINT("+str(latitude)+" "+str(longitude)+")')"
+
+        if(latitude!=None and longitude!=None):
+            logger.debug('Found geolocation with Google Maps - text=%s' % (text))
             query = "INSERT INTO geolookup (streetaddress,latlon,soundex)VALUES('"+str(addr)+"',"+geoloc+",'"+soundex+"')"
-            cursor.execute(query)
-            return (latitude, longitude)
-        except:
-            # Get the most recent exception
-            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            print "Error -> %s" % (exceptionValue)
-			
+            try:
+                cursor.execute(query)
+                return (latitude, longitude)
+            except:
+                # Get the most recent exception
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                errorMessage("Error storing the geolocation found with Google Maps -> %s, query=%s" % (exceptionValue,query))
+        else:
+            logger.debug('Could not find geolocation with Google Maps - text=%s' % (text))
+            return(None, None)			
     else:
         return(None, None)
 
@@ -389,19 +465,24 @@ def findGeolocation(text,sdx):
 ###############################################################################################
 
 def geocode(address, sensor):
-    geo_args = dict({"address":address,"sensor":sensor})
+    try:
+        geo_args = dict({"address":address,"sensor":sensor})
     
-    url = GEOCODE_BASE_URL + '?' + urllib.urlencode(geo_args)
-    req = urllib2.Request(url)
-    result = urllib2.urlopen(req)
-    response = result.read()
+        url = GEOCODE_BASE_URL + '?' + urllib.urlencode(geo_args)
+        req = urllib2.Request(url)
+        result = urllib2.urlopen(req)
+        response = result.read()
 
-    decoder = json.JSONDecoder()
-    jsonObj = decoder.decode(response)
-    lat = jsonObj['results'][0]['geometry']['location']['lat']
-    lng = jsonObj['results'][0]['geometry']['location']['lng']
+        decoder = json.JSONDecoder()
+        jsonObj = decoder.decode(response)
+        lat = jsonObj['results'][0]['geometry']['location']['lat']
+        lng = jsonObj['results'][0]['geometry']['location']['lng']
     
-    return (lat,lng)
+        return (lat,lng)
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        errorMessage("Error founding the address with Google Maps -> %s, address=%s" % (exceptionValue,address))
 
 ###############################################################################################
 ###### Get the lon and lat from the geolookup and match them with the addr if it exists #######
@@ -479,6 +560,10 @@ if __name__ == '__main__':
                         default=WARNING, 
                         type=int,
                         help='Set the verbosity')
+    parser.add_option('--twitterlog',
+                        dest='twitterlog',
+                        default='twitter.log',
+                        help='The location for the log file')
     (options, args) = parser.parse_args()
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
     

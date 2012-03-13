@@ -7,12 +7,44 @@ import time
 from time import strftime
 import urllib2
 import thread
+import logging
+
+###############################################################################################
+###################### Create a new logger to store messages in a file ########################
+###############################################################################################
+
+def createLogger():
+    global logger
+    logger = logging.getLogger('CameraLogger')
+    logger.setLevel(kwargs['verbosity'])
+    ch = logging.FileHandler(kwargs['tflcameraslog'])
+    ch.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+###############################################################################################
+################### Display an error message and store it in the log file #####################
+###############################################################################################
+
+def errorMessage(errorMsg):
+    logger.error(errorMsg)
+    print errorMsg
+
+###############################################################################################
+#################### Display an info message and store it in the log file #####################
+###############################################################################################
+
+def infoMessage(infoMsg):
+    logger.info(infoMsg)
+    print infoMsg
 
 ###############################################################################################
 ############################ Creates a connection to the db ###################################
 ###############################################################################################
 
 def connect():
+    logger.debug('Connecting to the database')
     global conn
     global cursor
     try:
@@ -24,21 +56,27 @@ def connect():
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script/thread and print an error telling what happened.
-        print "Database connection failed! -> %s" % (exceptionValue)
+        errorMessage("Database connection failed! -> %s" % (exceptionValue))
         sys.exit()
+    logger.debug('Connected to the database')
 
 ###############################################################################################
 ############################# Loads a camera feed from tfl ####################################
 ###############################################################################################
 
 def sampleFeed():
+    # Create a log file
+    createLogger()
+
     # Connect to the database
     connect()
+
     # The url for the tfl feed
     url = 'http://www.tfl.gov.uk/tfl/businessandpartners/syndication/feed.aspx?email=%s&feedid=%s' % (tfl['email'], tfl['camfeedid'])
     refresh = 300
     while True:
         try:
+            logger.debug('Starting to get a new tfl feed')
             tStart = time.time()
             # Get the current time
             updated_at = strftime("%d/%m/%y %H:%M:%S")
@@ -54,13 +92,13 @@ def sampleFeed():
             tEnd = time.time()
             # Find the time that remains until the next update
             remain = refresh - ( tEnd - tStart )
-            print "TfL Camera Feed Stored @%s" % updated_at
-            print "Sleeping For", remain, "Seconds"
+            infoMessage("TfL Camera Feed Stored @%s" % updated_at)
+            infoMessage("Sleeping For %s Seconds" % remain)
             if remain > 0: time.sleep(remain)
         except:
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            print "Error -> %s" % (exceptionValue)
+            errorMessage("Error in sampleFeed -> %s" % (exceptionValue))
             time.sleep(refresh)
 
 ###############################################################################################
@@ -69,21 +107,32 @@ def sampleFeed():
 
 def storeTflData(dom):
     cameras = dom.getElementsByTagName('rss')[0].getElementsByTagName('channel')[0].getElementsByTagName('item')
-    # Delete previous data from the table
-    cursor.execute("DELETE FROM cameras")    
+    try:
+        # Delete previous data from the table
+        cursor.execute("DELETE FROM cameras")    
 
-    # For every tfl camera find each element
-    for camera in cameras:
-        cam = {}
-        cam['title'] = camera.getElementsByTagName("title")[0].firstChild.data
-        cam['link'] = camera.getElementsByTagName("link")[0].firstChild.data
-        cam['description'] = camera.getElementsByTagName("description")[0].firstChild.data
-        cam['geolocation'] = camera.getElementsByTagName("georss:point")[0].firstChild.data
-        # Insert the tfl camera in the database
-        updateCamera(**cam)
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        errorMessage("Delete failed in storeTfLData -> %s" % (exceptionValue))
 
-    # Commit all database changes after all cameras have been stored
-    conn.commit()
+    try:
+        # For every tfl camera find each element
+        for camera in cameras:
+            cam = {}
+            cam['title'] = camera.getElementsByTagName("title")[0].firstChild.data
+            cam['link'] = camera.getElementsByTagName("link")[0].firstChild.data
+            cam['description'] = camera.getElementsByTagName("description")[0].firstChild.data
+            cam['geolocation'] = camera.getElementsByTagName("georss:point")[0].firstChild.data
+            # Insert the tfl camera in the database
+            updateCamera(**cam)
+
+        # Commit all database changes after all cameras have been stored
+        conn.commit()
+    except:
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        errorMessage("Commit failed in storeTfLData -> %s" % (exceptionValue))
 
 ###############################################################################################
 ####################### Update the cameras table of the database ##############################
@@ -95,16 +144,15 @@ def updateCamera(**cam):
     if lat=="NaN" or lon=="NaN":
         return
 
+    query_tfl = "INSERT INTO cameras(title,link,description,geolocation) VALUES(%s,%s,%s,"+geoValue+")"
+    params = (cam['title'],cam['link'],cam['description'])
+
     try:
-        query_tfl = "INSERT INTO cameras(title,link,description,geolocation) VALUES(%s,%s,%s,"+geoValue+")"
-        params = (cam['title'],cam['link'],cam['description'])
-        
         cursor.execute(query_tfl,params)
-        return
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Insert failed! -> %s" % (exceptionValue)
+        errorMessage("Insert failed in updateCamera -> %s, query=%s" % (exceptionValue,query_tfl%params))
 
 ###############################################################################################
 ######################### Executed if the script is run directly ##############################
@@ -134,10 +182,22 @@ if __name__ == "__main__":
             default=0,
             help='Set the verbosity',
             type=int)
+    parser.add_option('--tflcameraslog',
+            dest='tflcameraslog',
+            default='tflcameras.log',
+            help='The location for the log file')
     (options, args)=parser.parse_args()
     
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
     
+    logger = logging.getLogger('CameraLogger')
+    logger.setLevel(kwargs['verbosity'])
+    ch = logging.FileHandler(kwargs['tflcameraslog'])
+    ch.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     sampleFeed()
 
 ###############################################################################################
@@ -148,6 +208,7 @@ else:
     db = dict()
     tfl = dict()
     kwargs = dict()
+    
     
 def startThread():
     # Create a new thread

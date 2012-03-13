@@ -6,6 +6,7 @@ from pg8000 import DBAPI
 import json
 import thread
 from datetime import datetime
+import logging
 
 app = Flask(__name__)
 
@@ -34,17 +35,19 @@ def getResponse(endpoint):
     if not response == None:
         return response
     else:
+        errorMessage("Error requested data not found: %s" % endpoint)
         return "Error no data found"
 
 ################################## Load responses from files ##################################    
 def loadResponseData(respDir):
+    logger.debug('Loading Response Data')
     iterFilesList = response_data.copy()
     for fileName in iterFilesList:
         try:
             f = open(respDir+'/'+fileName, 'r')
             response_data[fileName] = f.read()
-        except IOError:
-            print "Error unable to open: ", fileName
+        except:
+            errorMessage("Error unable to open: %s" % fileName)
             
 ###############################################################################################
 ############################# VERSION 0.2 Requests for the server #############################
@@ -68,16 +71,13 @@ def disruptions02():
         longitude=is_number(request.args['longitude'])
         if (radius!=None and latitude!=None and longitude!=None):
             if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
-                print "[INFO] Valid disruptions request:"
-            else:
-                return "Invalid disruptions request", 400
-        else:
-            return "Invalid disruptions request", 400
-        response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
+                infoMessage("Valid disruptions request")
+                response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius'], closestcam))
-        response.mimetype='application/json'
-        return response
+                response.mimetype='application/json'
+                return response
+  
     # Disruptions within a rectangle
     if ('topleftlat' in request.args and 'topleftlong' in request.args and
         'bottomrightlat' in request.args and 'bottomrightlong' in
@@ -92,29 +92,28 @@ def disruptions02():
                     and abs(topleftlong)<=180
                     and abs(bottomrightlat)<=90
                     and abs(bottomrightlong)<=180):
-                print "[INFO] Valid disruptions request:"
-            else:
-                return "Invalid disruptions request", 400
-        else:
-            return "Invalid disruptions request", 400
-        response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
+                infoMessage("Valid disruptions request")
+                response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
                                request.args['bottomrightlat'], closestcam))
-        response.mimetype='application/json'
-        return response
-
+                response.mimetype='application/json'
+                return response
+    
+    errorMessage("Invalid disruptions request: %s" % request.args)
     return "Invalid disruptions request", 400
 
 ################################ Get disruptions around a route ###############################
 @app.route("/t4t/0.2/disruptions/route/", methods=['PUT','POST'])
 def disruptionsRoute02():
     if request.mimetype == "application/json":
-        print"[INFO] recieved json body:", request.json
+        infoMessage("Recieved json body for route: %s" % request.json)
         points = getPointsFromJson(str(request.json))
         response=app.make_response(findDisruptionsRoute(points,"n",300))
         response.mimetype='application/json'
         return response
+
+    errorMessage("Invalid route posted")
     return "Invalid request", 400
 
 ######################################### Get tweets ##########################################
@@ -131,14 +130,10 @@ def tweets02():
         disruptionID=is_int(request.args['disruptionID'])
         if (disruptionID!=None):
             if (disruptionID>=0):
-                print "[INFO] Valid tweets request:"
-            else:
-                return "Invalid tweets request", 400
-        else:
-            return "Invalid tweets request", 400
-        response=app.make_response(findTweetsDisruption(request.args['disruptionID'], proffilter))
-        response.mimetype='application/json'
-        return response
+                infoMessage("Valid tweets request")
+                response=app.make_response(findTweetsDisruption(request.args['disruptionID'], proffilter))
+                response.mimetype='application/json'
+                return response
     
     # Get tweets within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
@@ -148,17 +143,15 @@ def tweets02():
         longitude=is_number(request.args['longitude'])
         if (radius!=None and latitude!=None and longitude!=None):
             if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
-                print "[INFO] Valid tweets request:"
-            else:
-                return "Invalid tweets request", 400
-        else:
-            return "Invalid tweets request", 400
-        response=app.make_response(findTweetsRadius(request.args['longitude'],
+                infoMessage("Valid tweets request")
+                response=app.make_response(findTweetsRadius(request.args['longitude'],
                                                     request.args['latitude'],
                                                     request.args['radius'],
                                                     proffilter))
-        response.mimetype='application/json'
-        return response
+                response.mimetype='application/json'
+                return response
+
+    errorMessage("Invalid tweets request: %s" % request.args)
     return "Invalid tweets request", 400
 
 ################################## Get traffic cameras ########################################
@@ -169,21 +162,16 @@ def cameras02():
         disruptionID=is_int(request.args['disruptionID'])
         if (disruptionID!=None):
             if (disruptionID>=0):
-                print "[INFO] Valid cameras request:"
-            else:
-                return "Invalid cameras request", 400
-        else:
-            return "Invalid cameras request", 400
-
-        if ('closestcam' in request.args):
-            if request.args['closestcam']=="y":
-                response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
-                response.mimetype='application/json'
-                return response
-        else:
-            response=app.make_response(findCamerasDisruption(request.args['disruptionID']))
-            response.mimetype='application/json'
-            return response
+                infoMessage("Valid cameras request")
+                if ('closestcam' in request.args):
+                    if request.args['closestcam']=="y":
+                        response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
+                        response.mimetype='application/json'
+                        return response
+                else:
+                    response=app.make_response(findCamerasDisruption(request.args['disruptionID']))
+                    response.mimetype='application/json'
+                    return response
     
     # Get cameras within a circle
     if ( 'radius' in request.args and 'latitude' in request.args and 'longitude'
@@ -193,24 +181,23 @@ def cameras02():
         longitude=is_number(request.args['longitude'])
         if (radius!=None and latitude!=None and longitude!=None):
             if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
-                print "[INFO] Valid cameras request:"
-            else:
-                return "Invalid cameras request", 400
-        else:
-            return "Invalid cameras request", 400
-        response=app.make_response(findCamerasRadius(request.args['longitude'], 
+                infoMessage("Valid cameras request")
+                response=app.make_response(findCamerasRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius']))
-        response.mimetype='application/json'
-        return response
+                response.mimetype='application/json'
+                return response
+
+    errorMessage("Invalid cameras request: %s" % request.args)
     return "Invalid cameras request", 400
 
 ######################################## Report event #########################################
 app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
 def report02():
     if (request.mimetype == "application/json"):
-        print "[INFO] received json body, ", request.json
+        infoMessage("Received json body, %s" % request.json)
         return "Success"
+    errorMessage("Invalid report posted")
     return "Invalid request", 400
 
 ################################## Check if float #############################################
@@ -232,18 +219,54 @@ def is_int(s):
 ###############################################################################################
 
 def startServer():
+    # Create a log file
+    createLogger()
+
     # Connect to the database
     connect()
+
     # Load responses from files for the mock server and the test webpage
     loadResponseData(kwargs['resp'])
+
     # Start the server
     app.run(host=kwargs['server'],port=kwargs['port'])
 
 ###############################################################################################
-################################ Connects to the database #####################################
+###################### Create a new logger to store messages in a file ########################
 ###############################################################################################
-    
+
+def createLogger():
+    global logger
+    logger = logging.getLogger('RestServerLogger')
+    logger.setLevel(kwargs['verbosity'])
+    ch = logging.FileHandler(kwargs['restserverlog'])
+    ch.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+###############################################################################################
+################### Display an error message and store it in the log file #####################
+###############################################################################################
+
+def errorMessage(errorMsg):
+    logger.error(errorMsg)
+    print errorMsg
+
+###############################################################################################
+#################### Display an info message and store it in the log file #####################
+###############################################################################################
+
+def infoMessage(infoMsg):
+    logger.info(infoMsg)
+    print infoMsg
+
+###############################################################################################
+############################ Creates a connection to the db ###################################
+###############################################################################################
+
 def connect():
+    logger.debug('Connecting to the database')
     global conn
     global cursor
     try:
@@ -255,17 +278,17 @@ def connect():
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script/thread and print an error telling what happened.
-        print "Database connection failed! -> %s" % (exceptionValue)
+        errorMessage("Database connection failed! -> %s" % (exceptionValue))
         sys.exit()
+    logger.debug('Connected to the database')
 
 ###############################################################################################
 ############# Returns a JSON text for the rectangular area that is selected ###################
 ###############################################################################################
         
 def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
-    try:
-        rectangle = "%s %s, %s %s, %s %s, %s %s, %s %s" % (lonTL,latTL, lonTL,latBR, lonBR,latBR, lonBR,latTL, lonTL,latTL)
-        query = """SELECT updated_at,
+    rectangle = "%s %s, %s %s, %s %s, %s %s, %s %s" % (lonTL,latTL, lonTL,latBR, lonBR,latBR, lonBR,latTL, lonTL,latTL)
+    query = """SELECT updated_at,
                             ltisid, 
                             eventstartdate,
                             eventstarttime,
@@ -287,9 +310,9 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
                             grideasting,
                             gridnorthing,
                             ST_AsText(lonlat)
-                    FROM tfl 
-                    WHERE ST_Covers(ST_GeometryFromText('POLYGON((%s))', 4326), lonlat)""" % rectangle
-
+               FROM tfl 
+               WHERE ST_Covers(ST_GeometryFromText('POLYGON((%s))', 4326), lonlat)""" % rectangle
+    try:
         cursor.execute(query)
         disruptionRows = cursor.fetchall()
         
@@ -299,7 +322,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid disruptions request", 400
 
 ###############################################################################################
@@ -307,8 +330,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
 ###############################################################################################
         
 def findDisruptionsRadius(lon, lat, radius, closestcam):
-    try:
-        query = """SELECT updated_at,
+    query = """SELECT updated_at,
                             ltisid, 
                             eventstartdate,
                             eventstarttime,
@@ -330,9 +352,9 @@ def findDisruptionsRadius(lon, lat, radius, closestcam):
                             grideasting,
                             gridnorthing,
                             ST_AsText(lonlat)
-                    FROM tfl 
-                    WHERE ST_DWithin(lonlat,'POINT(%s %s)', %s)""" % (lon,lat,radius)
-
+               FROM tfl 
+               WHERE ST_DWithin(lonlat,'POINT(%s %s)', %s)""" % (lon,lat,radius)
+    try:
         cursor.execute(query)
         disruptionRows = cursor.fetchall()
         
@@ -342,7 +364,7 @@ def findDisruptionsRadius(lon, lat, radius, closestcam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid disruptions request", 400
 
 ###############################################################################################
@@ -359,13 +381,12 @@ def getPointsFromJson(json_data):
 ###############################################################################################
         
 def findDisruptionsRoute(points, closestcam, radius=300):
-    try:
-        route = "LINESTRING("
-        for point in points:
-            route += "%s %s," % (point['lon'], point['lat'])
-        route = route[:-1]+")"
+    route = "LINESTRING("
+    for point in points:
+        route += "%s %s," % (point['lon'], point['lat'])
+    route = route[:-1]+")"
 
-        query = """SELECT updated_at,
+    query = """SELECT updated_at,
                             ltisid, 
                             eventstartdate,
                             eventstarttime,
@@ -385,9 +406,10 @@ def findDisruptionsRoute(points, closestcam, radius=300):
                             remarktime,
                             remark,
                             ST_AsText(lonlat)
-                    FROM tfl 
-                    WHERE ST_DWithin(lonlat,'%s', %s)""" % (route,radius)
-        
+                FROM tfl 
+                WHERE ST_DWithin(lonlat,'%s', %s)""" % (route,radius)
+
+    try:
         cursor.execute(query)
         disruptionRows = cursor.fetchall()
         
@@ -397,7 +419,7 @@ def findDisruptionsRoute(points, closestcam, radius=300):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)       
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))      
         return "Invalid disruptions request", 400
 
 ###############################################################################################
@@ -454,13 +476,12 @@ def disruptionRows2JSON(disruptionRows, closestcam):
 ###############################################################################################
 
 def findTweetsRadius(lon, lat, radius, proffilter):
-    try:
-        # Filter profanities
-        queryForFilter = ""
-        if proffilter=="y":
-            queryForFilter = " WHERE profanity='n'"
+    # Filter profanities
+    queryForFilter = ""
+    if proffilter=="y":
+        queryForFilter = " WHERE profanity='n'"
             
-        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+    query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             rname,
                             created_at,
@@ -469,9 +490,10 @@ def findTweetsRadius(lon, lat, radius, proffilter):
                             probability,
                             ST_Distance(geolocation,'POINT(%s %s)') AS st_distance,
                             ST_AsText(geolocation) as geolocation
-                    FROM tweets%s) AS distances
-                    WHERE st_distance <= %s""" % (lon,lat,queryForFilter,radius)
+                FROM tweets%s) AS distances
+                WHERE st_distance <= %s""" % (lon,lat,queryForFilter,radius)
 
+    try:
         cursor.execute(query)
         tweetRows = cursor.fetchall()
                 
@@ -481,7 +503,7 @@ def findTweetsRadius(lon, lat, radius, proffilter):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid tweets request", 400
 
         
@@ -490,13 +512,12 @@ def findTweetsRadius(lon, lat, radius, proffilter):
 ###############################################################################################
 
 def findTweetsDisruption(ltisid, proffilter, radius=1000):
-    try:
-        # Filter profanities
-        queryForFilter = ""
-        if proffilter=="y":
-            queryForFilter = " WHERE profanity='n'"
+    # Filter profanities
+    queryForFilter = ""
+    if proffilter=="y":
+        queryForFilter = " WHERE profanity='n'"
             
-        query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
+    query = """SELECT tid, uname, rname, created_at, location, text, probability, st_distance, geolocation FROM (SELECT tid,
                             uname,
                             rname,
                             created_at,
@@ -505,9 +526,10 @@ def findTweetsDisruption(ltisid, proffilter, radius=1000):
                             probability,
                             ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
                             ST_AsText(geolocation) as geolocation
-                    FROM tweets%s) AS distances
-                    WHERE st_distance <= %s""" % (ltisid,queryForFilter,radius)
+               FROM tweets%s) AS distances
+               WHERE st_distance <= %s""" % (ltisid,queryForFilter,radius)
 
+    try:
         cursor.execute(query)
         tweetRows = cursor.fetchall()
                 
@@ -516,7 +538,7 @@ def findTweetsDisruption(ltisid, proffilter, radius=1000):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid tweets request", 400
 
 ###############################################################################################
@@ -568,13 +590,13 @@ def calculateRank(prob, distance, radius, created_at):
 ###############################################################################################
 
 def findCamerasRadius(lon, lat, radius):
-    try:
-        query = """SELECT title,
-                            link,
-                            ST_AsText(geolocation)
-                    FROM cameras
-                    WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
+    query = """SELECT title,
+                      link,
+                      ST_AsText(geolocation)
+               FROM cameras
+               WHERE ST_DWithin(geolocation,'POINT(%s %s)', %s)""" % (lon,lat,radius)
 
+    try:
         cursor.execute(query)
         cameraRows = cursor.fetchall()
         
@@ -584,7 +606,7 @@ def findCamerasRadius(lon, lat, radius):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid cameras request", 400
 
         
@@ -593,13 +615,13 @@ def findCamerasRadius(lon, lat, radius):
 ###############################################################################################
 
 def findCamerasDisruption(ltisid, radius=300):
-    try:
-        query = """SELECT title,
-                            link,
-                            ST_AsText(geolocation)
-                    FROM cameras
-                    WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
+    query = """SELECT title,
+                      link,
+                      ST_AsText(geolocation)
+               FROM cameras
+               WHERE ST_DWithin(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s), %s)""" % (ltisid,radius)
 
+    try:
         cursor.execute(query)
         cameraRows = cursor.fetchall()
         
@@ -609,7 +631,7 @@ def findCamerasDisruption(ltisid, radius=300):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid cameras request", 400
 
 
@@ -618,17 +640,17 @@ def findCamerasDisruption(ltisid, radius=300):
 ###############################################################################################
 
 def findCamerasDisruptionClosest(ltisid, radius=300):
-    try:
-        query = """SELECT title, link, st_distance, geolocation
-                    FROM (SELECT title,
+    query = """SELECT title, link, st_distance, geolocation
+               FROM (SELECT title,
                             link,
                             ST_Distance(geolocation,(SELECT lonlat FROM tfl WHERE ltisid=%s)) AS st_distance,
                             ST_AsText(geolocation) AS geolocation
                             FROM cameras) AS closestcam
-                    WHERE st_distance<=%s 
-                    ORDER BY st_distance ASC
-                    LIMIT(1)""" % (ltisid,radius)
-                    
+               WHERE st_distance<=%s 
+               ORDER BY st_distance ASC
+               LIMIT(1)""" % (ltisid,radius)
+
+    try:          
         cursor.execute(query)
         cameraRows = cursor.fetchall()
         
@@ -638,7 +660,7 @@ def findCamerasDisruptionClosest(ltisid, radius=300):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        print "Error -> %s" % (exceptionValue)
+        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid cameras request", 400
 
 
@@ -700,6 +722,10 @@ if __name__ == "__main__":
             default=0,
             help='How to display information',
             type=int)
+    parser.add_option('--restserverlog',
+            dest='restserverlog',
+            default='restserver.log',
+            help='The location for the log file')
     (options, args)=parser.parse_args()
     
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])

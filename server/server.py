@@ -65,6 +65,22 @@ if __name__=='__main__':
             dest='resp',
             default='rest_server/responses',
             help='The directory where the mock server responses are saved')
+    parser.add_option('--tfleventslog',
+            dest='tfleventslog',
+            default='logs/tflevents.log',
+            help='The location for the log file')
+    parser.add_option('--tflcameraslog',
+            dest='tflcameraslog',
+            default='logs/tflcameras.log',
+            help='The location for the log file')
+    parser.add_option('--twitterlog',
+            dest='twitterlog',
+            default='logs/twitter.log',
+            help='The location for the log file')
+    parser.add_option('--restserverlog',
+            dest='restserverlog',
+            default='logs/restserver.log',
+            help='The location for the log file')
     (options, args)=parser.parse_args()
     
     kwargs = dict([[k,v] for k,v in options.__dict__.iteritems() if not v is None ])
