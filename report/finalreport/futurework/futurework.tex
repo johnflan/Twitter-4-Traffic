@@ -3,6 +3,16 @@
 \subsection{Gamification}
 
 \subsection{Analysis of other sources}
-i.e. news reports, tfl twitter bot, other social media (facebook)
+As the aim of this project is providing information to the user about traffic disruptions, more sources can 
+easily be used for acquiring more information about disruptions in London and other areas. Such examples 
+of sources would be news reports published in various websites. These reports could include accidents, general traffic or even 
+bad road conditions due to the weather. Moreover, there exist TfL Twitter bots that frequently tweet
+about traffic disruptions. Another source that can be used is Facebook. Data regarding traffic can be
+extracted from posts, comments or even public groups whose current location is London.
 
 \subsection{Enhanced tweet geocoding}
+Mobile users sometimes cannot tweet the right place where the disruption is. Checking correctness of tweets' geolocation is very important. Address can be extracted from tweet text and be analysed with geolocation in database to get the right result.\\
+Some geolocations related to street will change in the future. It is necessary to update the current geolocation for all streets in the database. Information in the database should be checked periodically. Google maps geocoding function can be implemented to provide the latest information for those street addresses.\\
+Algorithm for extracting street address from text need to be optimized to get more accurate results. Then those results can be used to receive responding longitude and latitude from Google Map geocoding.\\
+Some geolocations provided by Google map are very far away from the expected address. Those street names should be removed from database and cannot be used again via setting up a area constraint for a specified area.\\
+An Android application which is only available in London is not enough to be deployed in Android market. Geolocation should be relevant to all street in the world. That means a very huge database should be created.
