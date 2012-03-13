@@ -1,3 +1,16 @@
+# convert emoticons	DONE
+# convert links 
+# convert can't -> can not actually 't not -(decided not to delete ') DONE
+# remove usernames and any other regular expression we dont need	DONE
+# convert curse words eg. sh!t  _curse_  ????? (from 240k only around 100 have those words)
+# remove stop-marks/puncuation DONE
+# Converts upper case letters to lower case. DONE
+# tokenazation DONE
+# remove single characters (after the puncuation) DONE
+# lemmanization	DONE
+# remove noise words(stopwords) DONE
+# find bigramms DONE
+
 import re
 import nltk
 import tldextract
@@ -82,12 +95,19 @@ class preprocessor:
 		return lemmas
 		
 		
-	def include_bigrams(self, words, score_fn=BigramAssocMeasures.chi_sq, n=200):
-		""" Find the bigramms and include them in the tokens """
-		bigram_finder = BigramCollocationFinder.from_words(words)
+	def include_bigrams_train(self, words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+		""" Find the bigramms and include them in the tokens (for the classifier training)"""
+		bigram_finder = BigramCollocationFinder.from_words(words)	
 		bigrams = bigram_finder.nbest(score_fn, n)
 		return words + bigrams
-		
+	
+	def include_bigrams(self, words):
+		""" Find the bigramms and include them in the tokens """
+		bigrams=[]
+		bigram_finder = BigramCollocationFinder.from_words(words)
+		for bigram, freq in bigram_finder.ngram_fd.items():
+			bigrams.append(bigram)
+		return words + bigrams
 		
 	def preprocess(self, tweet, stopwords):
 		tweet = self.convert_links(tweet)
@@ -98,7 +118,7 @@ class preprocessor:
 		tokens = self.tokenazation(tweet,stopwords)
 		tokens = self.remove_reg_expr(tokens)
 		tokens = self.lemmanazation(tokens)
-		tokens = self.include_bigrams(tokens)
+		tokens = self.include_bigrams(tokens) # Replace with include_bigrams_train for the classifier training
 		return tokens
 		
 		
