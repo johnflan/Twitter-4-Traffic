@@ -32,3 +32,4 @@ Hanguang Zhou, John Flanagan
 - Python Flask - http://flask.pocoo.org/
 - Python pg8000 - http://pybrary.net/pg8000/
 - Python NLTK - http://code.google.com/p/nltk/
+- Python python-twitter - http://code.google.com/p/python-twitter/
