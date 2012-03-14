@@ -20,7 +20,7 @@ identify each of the areas of experience of each person on the team.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=0.7\textwidth]{images/specification/whiteboard_session.jpg}
+\includegraphics[width=0.6\textwidth]{images/specification/whiteboard_session.jpg}
 \caption{Whiteboarding session}
 \label{fig:whiteboarding_session}
 \end{figure}
@@ -35,35 +35,43 @@ detailed.
 \subsection{Server}
 
 \begin{center}
-\begin{tabular}{ | p{9cm} | c | c | p{1.8cm} | }
+\begin{tabular}{ | p{8.5cm} | c | c | c | }
 \hline
 \multicolumn{4}{|c|}{\textbf{Server Application}} \\ \hline
-\textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date}
+\textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Completed}
 \\ \hline
 \textbf{Store disruptions from TfL} \newline
-Create a geographic database of live events from TfL. Evolve these database events with data from the feed, in order to have a current representation of the event. & 1 & 3 & Week 2 \\ \hline
+Create a geographic database of live events from TfL. Evolve these database events with data from the feed, in order to have a current representation of the event. & 1 & 3 & Yes \\ \hline
+
 \textbf{Store and categorise social data} \newline
 For tweets with an explicit location, store them in a geographical database
 table. And those tweets without this explicit information store them separately for later
-analysis. & 2 & 2 & Week 2 \\ \hline
+analysis. & 2 & 2 & Yes \\ \hline
+
 \textbf{Process mobile client reports} \newline
 Take twitter messages reported from the mobile client and process these in a
-separate pipeline. & 3 & 2 & Week 6 \\ \hline
+separate pipeline. & 3 & 2 & Yes \\ \hline
+
 \textbf{Classify tweets from Twitter with a simple classifier} \newline
 Train a document classifier using a manually labeled training set to 
-identify traffic related tweets. & 4 & 5 & Week 5 \\ \hline \hline
+identify traffic related tweets. & 4 & 5 & Yes \\ \hline \hline
+
 \textbf{Identify traffic disruptions from Twitter} \newline
 Inspect incoming traffic tweets and determine new non-TfL disruptions from
-those. & 5 & 5 & Week 5 \\ \hline
+those. & 5 & 5 & No \\ \hline
+
 \textbf{Geocoding of messages without explicit locations} \newline
-Resolve geographic locations extracted from the message context. & 6 & 7 & Week 6 \\ \hline
+Resolve geographic locations extracted from the message context. & 6 & 7 & Yes \\ \hline
+
 \textbf{Enhance classification and clustering algorithms} \newline
 From insight and data gained from initial classification and clustering
-techniques, attempt to improve the accuracy of the results. & 7 & 9 & Week 7 \\ \hline
+techniques, attempt to improve the accuracy of the results. & 7 & 9 & No \\ \hline
+
 \textbf{Store traffic cameras by geolocation(New)}\newline
 Store a list of public traffic cameras in the database by their geographic
 location. When returning traffic disruptions in the vicinity of a camera,
-attach a link to the most relevant camera. &  8 &  4 & Week 7 \\ \hline
+attach a link to the most relevant camera. &  8 &  4 & Yes \\ \hline
+
 \multicolumn{4}{|c|}{Minimum specifications for the server application are
 features including and below priority 4.} \\ \hline
 \end{tabular}
@@ -72,25 +80,31 @@ features including and below priority 4.} \\ \hline
 \subsection{Client}
 
 \begin{center}
-\begin{tabular}{ | p{9cm} | c | c | p{1.8cm} | }
+\begin{tabular}{ | p{8.5cm} | c | c | c | }
 \hline
 \multicolumn{4}{|c|}{\textbf{Mobile Application}} \\ \hline
-\textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Due date} \\ \hline
+\textbf{Feature} & \textbf{Priority} & \textbf{Feasibility} & \textbf{Completed} \\ \hline
 \textbf{Report events}\newline
-Report traffic disruptions through the mobile application on Twitter. & 1 & 2 & Week 3 \\ \hline
+Report traffic disruptions through the mobile application on Twitter. & 1 & 2 & Yes \\ \hline
+
 \textbf{Present a list of classified and grouped tweets}\newline
 Present to the user tweets identified as describing a traffic disruption,
-clustered around an event. & 2 & 4 & Week 6 \\ \hline
+clustered around an event. & 2 & 4 & Yes \\ \hline
+
 \textbf{Show local disruption map}\newline
-Show positions of known disruptions on a map. Enable the user to click on an event for further information. & 3 & 5 & Week 6 \\ \hline
+Show positions of known disruptions on a map. Enable the user to click on an event for further information. & 3 & 5 & Yes \\ \hline
+
 \textbf{Stored Routes}\newline
-Find and show disruptions for user defined stored routes. & 4 & 7 & Week 7 \\ \hline \hline
+Find and show disruptions for user defined stored routes. & 4 & 7 & Yes \\ \hline \hline
+
 \textbf{Present tweets on the map}\newline 
-Display high ranked tweets on the map.& 6 & 7 & Week 6 \\ \hline 
+Display high ranked tweets on the map.& 6 & 7 & No \\ \hline 
+
 \textbf{Present traffic camera for events}\newline
 If a traffic event occurs in the vicinity of a traffic camera, present the user
 with a camera icon. If they click on the icon they are presented with a live
-view of the event. &  8 & 4 & Week 7 \\ \hline
+view of the event. &  8 & 4 & Yes \\ \hline
+
 \multicolumn{4}{|c|}{Minimum specifications for the mobile application are
 features including and below priority 3.} \\ \hline
 \end{tabular}
