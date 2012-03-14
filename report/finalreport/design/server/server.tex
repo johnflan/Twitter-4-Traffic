@@ -80,7 +80,7 @@ cameras.
 
 The server is consisted of four different threads. Three of these threads are used to collect the data feeds from TfL and Twitter, as described in a previous section. The last thread is used by the REST server to receive and respond to mobile client requests. The reason for the implementation of the different threads is to achieve a fault resilient server. If one of them stops working because of an unexpected error, the remaining threads can continue to work unaffected. Furthermore, each thread uses a log file to store information about its actions and the errors it has encountered which makes debugging simpler.
 
-The REST server can receive GET or POST requests from the mobile client. The different types of request are:
+The REST server can receive GET or POST requests from the mobile client. If the request was not in the correct format then the server returns a bad request (Error 400). The response to these requests is a JSON file. The different types of requests are:
 
 \begin{itemize}
 \item Disruption Requests
@@ -92,17 +92,14 @@ The REST server can receive GET or POST requests from the mobile client. The dif
   All these types of requests return all information of the disruptions and the cameras that are close to these events. There is also an option to return only the closest camera for each request.
 \item Tweet Requests
   \begin{itemize}
-  \item A GET request that returns all tweets that are around a disruption.
+  \item A GET request that returns all tweets that are around a disruption event.
   \item A GET request that returns all tweets in a area defined by a point (longitude and latitude) and a radius.
   \end{itemize}
   For both requests there is also an option to use the profanity filter for the tweets that are stored in the database.
 \item Camera Requests
   \begin{itemize}
-  \item A GET request that returns all cameras that are around a disruption.
+  \item A GET request that returns all cameras that are around a disruption event.
   \item A GET request that returns all cameras in a area defined by a point (longitude and latitude) and a radius.
   \end{itemize}
   These requests have an option to return only the closest camera.
 \end{itemize}
-
-
-
