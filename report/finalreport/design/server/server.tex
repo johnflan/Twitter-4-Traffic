@@ -80,7 +80,7 @@ cameras.
 
 The server is consisted of four different threads. Three of these threads are used to collect the data feeds from TfL and Twitter, as described in a previous section. The last thread is used by the REST server to receive and respond to mobile client requests. The reason for the implementation of the different threads is to achieve a fault resilient server. If one of them stops working because of an unexpected error, the remaining threads can continue to work unaffected. Furthermore, each thread uses a log file to store information about its actions and the errors it has encountered which makes debugging simpler.
 
-The REST server can receive GET or POST requests from the mobile client. If the request was not in the correct format then the server returns a bad request (Error 400). The response to these requests is a JSON file. The different types of requests are:
+The REST server can receive GET or POST requests from the mobile client. If the request was not in the correct format then the server returns a bad request (Error 400). The response to these requests is a JSON file. The different types of requests are the following:
 
 \begin{itemize}
 \item Disruption Requests
