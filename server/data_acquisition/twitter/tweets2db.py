@@ -34,34 +34,28 @@ addressRegex = r"(\b(in|at|on|\w,)\s((\d+|\w{2,})\s){1,3}(st(reet)?|r(oa)?d|brid
 GEOCODE_BASE_URL = "http://maps.googleapis.com/maps/api/geocode/json"
 
 ###############################################################################################
-###################### Create a new logger to store messages in a file ########################
+########### Create a new logger to store messages in a file and print them to screen ##########
 ###############################################################################################
 
 def createLogger():
     global logger
-    logger = logging.getLogger('TweetLogger')
+    logger = logging.getLogger('TwitterLogger')
     logger.setLevel(kwargs['verbosity'])
-    ch = logging.FileHandler(kwargs['twitterlog'])
+
+    # Create a file handler
+    fh = logging.FileHandler(kwargs['twitterlog'])
+    fh.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+
+    # Create a stream handler
+    ch = logging.StreamHandler()
     ch.setLevel(kwargs['verbosity'])
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
     logger.addHandler(ch)
-
-###############################################################################################
-################### Display an error message and store it in the log file #####################
-###############################################################################################
-
-def errorMessage(errorMsg):
-    logger.error(errorMsg)
-    print errorMsg
-
-###############################################################################################
-#################### Display an info message and store it in the log file #####################
-###############################################################################################
-
-def infoMessage(infoMsg):
-    logger.info(infoMsg)
-    print infoMsg
 
 ###############################################################################################
 ############################ Start the twitter collection feed ################################
@@ -118,7 +112,7 @@ def connect():
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script/thread and print an error telling what happened.
-        errorMessage("Database connection failed! -> %s" % (exceptionValue))
+        logger.error("Database connection failed! -> %s" % (exceptionValue))
         sys.exit()
     logger.debug('Connected to the database')
 
@@ -133,7 +127,7 @@ def loadSearchTerms():
         terms = f.read()
         kwargs['terms'] = terms.strip()
     except IOError:
-        errorMessage("Search terms file not found")
+        logger.error("Search terms file not found")
         sys.exit()
         
 ###############################################################################################
@@ -148,7 +142,7 @@ def loadBadWords():
         # Add all words but remove the last new line
         kwargs['badwords'] = badwords.split("\n")[:-1]
     except IOError:
-        errorMessage("Bad words file not found")
+        logger.error("Bad words file not found")
         sys.exit()
         
 ###############################################################################################
@@ -162,7 +156,7 @@ def loadBlacklist():
         blacklist = f.read()
         kwargs['blacklist'] = blacklist.split("\n")[:-1]
     except IOError:
-        errorMessage("Blacklist file not found")
+        logger.error("Blacklist file not found")
         sys.exit()
 
 ###############################################################################################
@@ -185,7 +179,7 @@ def updateDBBadWords():
             cursor.execute(query[:-4])
             conn.commit()
     except:
-        errorMessage("Bad words could not be updated, query=%s" % query[:-4])
+        logger.error("Bad words could not be updated, query=%s" % query[:-4])
         sys.exit()
         
 ###############################################################################################
@@ -204,7 +198,7 @@ def updateDBBlacklist():
             cursor.execute(query[:-4])
             conn.commit()
     except:
-        errorMessage("Blacklist could not be updated, query=%s" % query[:-4])
+        logger.error("Blacklist could not be updated, query=%s" % query[:-4])
         sys.exit()
 
 ###############################################################################################
@@ -218,7 +212,7 @@ def get_max_id():
         ((start_id,),) = cursor.fetchall()
         return start_id
     except:
-        errorMessage("Error selecting MAX(tid)")
+        logger.error("Error selecting MAX(tid)")
 
 ###############################################################################################
 ########################## Store the traffic tweets in the database ###########################
@@ -340,7 +334,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         except:
                             # Get the most recent exception
                             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                            errorMessage("Error storing tweet with geolocation -> %s, query=%s" % (exceptionValue,query))
+                            logger.error("Error storing tweet with geolocation -> %s, query=%s" % (exceptionValue,query))
                             continue
                     
                     # If the tweet does not have geolocation
@@ -354,16 +348,16 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                         except:
                             # Get the most recent exception
                             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                            errorMessage("Error storing tweet without geolocation -> %s, query=%s" % (exceptionValue,query%params))
+                            logger.error("Error storing tweet without geolocation -> %s, query=%s" % (exceptionValue,query%params))
                             continue
                     # Commit the changes to the database
                     conn.commit()
-                infoMessage("Tweets Stored until tid %s, page %s @%s" % (most_recent_id,page,updated_at))
+                logger.info("Tweets Stored until tid %s, page %s @%s" % (most_recent_id,page,updated_at))
             except TwitterError, e:
-                errorMessage("TwitterError: %s page: %s since_id %s" % (e,page,since_id))
+                logger.error("TwitterError: %s page: %s since_id %s" % (e,page,since_id))
                 results = []
             except URLError, e:
-                errorMessage("URLError: %s page: %s since_id %s" % (e,page,since_id))
+                logger.error("URLError: %s page: %s since_id %s" % (e,page,since_id))
                 results = []
 
         # Delete old tweets from the table
@@ -378,7 +372,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
         except:
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            errorMessage("Error in commit -> %s" % (exceptionValue))
+            logger.error("Error in commit -> %s" % (exceptionValue))
 
 ###############################################################################################
 ###################################### Delete old tweets ######################################
@@ -391,7 +385,7 @@ def deleteOldTweets():
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error in deleting old tweets -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error in deleting old tweets -> %s, query=%s" % (exceptionValue,query))
 
 ###############################################################################################
 ###################################### Update Metrics ######################################
@@ -409,7 +403,7 @@ def updateMetrics(total_tweets, traffic_tweets, rightturn_tweets, retweets, geot
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error in metrics -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error in metrics -> %s, query=%s" % (exceptionValue,query))
 
 ###############################################################################################
 ##################### Find the geolocation and update the geolookup table #####################
@@ -453,7 +447,7 @@ def findGeolocation(text,sdx):
             except:
                 # Get the most recent exception
                 exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                errorMessage("Error storing the geolocation found with Google Maps -> %s, query=%s" % (exceptionValue,query))
+                logger.error("Error storing the geolocation found with Google Maps -> %s, query=%s" % (exceptionValue,query))
         else:
             logger.debug('Could not find geolocation with Google Maps - text=%s' % (text))
             return(None, None)			
@@ -482,7 +476,7 @@ def geocode(address, sensor):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error founding the address with Google Maps -> %s, address=%s" % (exceptionValue,address))
+        logger.error("Error founding the address with Google Maps -> %s, address=%s" % (exceptionValue,address))
 
 ###############################################################################################
 ###### Get the lon and lat from the geolookup and match them with the addr if it exists #######

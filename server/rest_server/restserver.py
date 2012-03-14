@@ -35,7 +35,7 @@ def getResponse(endpoint):
     if not response == None:
         return response
     else:
-        errorMessage("Error requested data not found: %s" % endpoint)
+        logger.error("Error requested data not found: %s" % endpoint)
         return "Error no data found"
 
 ################################## Load responses from files ##################################    
@@ -47,7 +47,7 @@ def loadResponseData(respDir):
             f = open(respDir+'/'+fileName, 'r')
             response_data[fileName] = f.read()
         except:
-            errorMessage("Error unable to open: %s" % fileName)
+            logger.error("Error unable to open: %s" % fileName)
             
 ###############################################################################################
 ############################# VERSION 0.2 Requests for the server #############################
@@ -71,7 +71,7 @@ def disruptions02():
         longitude=is_number(request.args['longitude'])
         if (radius!=None and latitude!=None and longitude!=None):
             if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
-                infoMessage("Valid disruptions request")
+                logger.info("Valid disruptions request")
                 response=app.make_response(findDisruptionsRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius'], closestcam))
@@ -92,7 +92,7 @@ def disruptions02():
                     and abs(topleftlong)<=180
                     and abs(bottomrightlat)<=90
                     and abs(bottomrightlong)<=180):
-                infoMessage("Valid disruptions request")
+                logger.info("Valid disruptions request")
                 response=app.make_response(findDisruptionsRect(request.args['topleftlong'], 
                                request.args['topleftlat'],
                                request.args['bottomrightlong'],
@@ -100,20 +100,20 @@ def disruptions02():
                 response.mimetype='application/json'
                 return response
     
-    errorMessage("Invalid disruptions request: %s" % request.args)
+    logger.error("Invalid disruptions request: %s" % request.args)
     return "Invalid disruptions request", 400
 
 ################################ Get disruptions around a route ###############################
 @app.route("/t4t/0.2/disruptions/route/", methods=['PUT','POST'])
 def disruptionsRoute02():
     if request.mimetype == "application/json":
-        infoMessage("Recieved json body for route: %s" % request.json)
+        logger.info("Recieved json body for route: %s" % request.json)
         points = getPointsFromJson(str(request.json))
         response=app.make_response(findDisruptionsRoute(points,"n",300))
         response.mimetype='application/json'
         return response
 
-    errorMessage("Invalid route posted")
+    logger.error("Invalid route posted")
     return "Invalid request", 400
 
 ######################################### Get tweets ##########################################
@@ -130,7 +130,7 @@ def tweets02():
         disruptionID=is_int(request.args['disruptionID'])
         if (disruptionID!=None):
             if (disruptionID>=0):
-                infoMessage("Valid tweets request")
+                logger.info("Valid tweets request")
                 response=app.make_response(findTweetsDisruption(request.args['disruptionID'], proffilter))
                 response.mimetype='application/json'
                 return response
@@ -143,7 +143,7 @@ def tweets02():
         longitude=is_number(request.args['longitude'])
         if (radius!=None and latitude!=None and longitude!=None):
             if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
-                infoMessage("Valid tweets request")
+                logger.info("Valid tweets request")
                 response=app.make_response(findTweetsRadius(request.args['longitude'],
                                                     request.args['latitude'],
                                                     request.args['radius'],
@@ -151,7 +151,7 @@ def tweets02():
                 response.mimetype='application/json'
                 return response
 
-    errorMessage("Invalid tweets request: %s" % request.args)
+    logger.error("Invalid tweets request: %s" % request.args)
     return "Invalid tweets request", 400
 
 ################################## Get traffic cameras ########################################
@@ -162,7 +162,7 @@ def cameras02():
         disruptionID=is_int(request.args['disruptionID'])
         if (disruptionID!=None):
             if (disruptionID>=0):
-                infoMessage("Valid cameras request")
+                logger.info("Valid cameras request")
                 if ('closestcam' in request.args):
                     if request.args['closestcam']=="y":
                         response=app.make_response(findCamerasDisruptionClosest(request.args['disruptionID']))
@@ -181,23 +181,23 @@ def cameras02():
         longitude=is_number(request.args['longitude'])
         if (radius!=None and latitude!=None and longitude!=None):
             if (radius>=0 and abs(latitude)<=90 and abs(longitude)<=180):
-                infoMessage("Valid cameras request")
+                logger.info("Valid cameras request")
                 response=app.make_response(findCamerasRadius(request.args['longitude'], 
                                request.args['latitude'],
                                request.args['radius']))
                 response.mimetype='application/json'
                 return response
 
-    errorMessage("Invalid cameras request: %s" % request.args)
+    logger.error("Invalid cameras request: %s" % request.args)
     return "Invalid cameras request", 400
 
 ######################################## Report event #########################################
 app.route("/t4t/0.2/report", methods=['PUT', 'POST'])
 def report02():
     if (request.mimetype == "application/json"):
-        infoMessage("Received json body, %s" % request.json)
+        logger.info("Received json body, %s" % request.json)
         return "Success"
-    errorMessage("Invalid report posted")
+    logger.error("Invalid report posted")
     return "Invalid request", 400
 
 ################################## Check if float #############################################
@@ -232,34 +232,28 @@ def startServer():
     app.run(host=kwargs['server'],port=kwargs['port'])
 
 ###############################################################################################
-###################### Create a new logger to store messages in a file ########################
+########### Create a new logger to store messages in a file and print them to screen ##########
 ###############################################################################################
 
 def createLogger():
     global logger
     logger = logging.getLogger('RestServerLogger')
     logger.setLevel(kwargs['verbosity'])
-    ch = logging.FileHandler(kwargs['restserverlog'])
+
+    # Create a file handler
+    fh = logging.FileHandler(kwargs['restserverlog'])
+    fh.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+
+    # Create a stream handler
+    ch = logging.StreamHandler()
     ch.setLevel(kwargs['verbosity'])
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
     logger.addHandler(ch)
-
-###############################################################################################
-################### Display an error message and store it in the log file #####################
-###############################################################################################
-
-def errorMessage(errorMsg):
-    logger.error(errorMsg)
-    print errorMsg
-
-###############################################################################################
-#################### Display an info message and store it in the log file #####################
-###############################################################################################
-
-def infoMessage(infoMsg):
-    logger.info(infoMsg)
-    print infoMsg
 
 ###############################################################################################
 ############################ Creates a connection to the db ###################################
@@ -278,7 +272,7 @@ def connect():
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script/thread and print an error telling what happened.
-        errorMessage("Database connection failed! -> %s" % (exceptionValue))
+        logger.error("Database connection failed! -> %s" % (exceptionValue))
         sys.exit()
     logger.debug('Connected to the database')
 
@@ -322,7 +316,7 @@ def findDisruptionsRect(lonTL, latTL, lonBR, latBR, closestcam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid disruptions request", 400
 
 ###############################################################################################
@@ -364,7 +358,7 @@ def findDisruptionsRadius(lon, lat, radius, closestcam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid disruptions request", 400
 
 ###############################################################################################
@@ -419,7 +413,7 @@ def findDisruptionsRoute(points, closestcam, radius=300):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))      
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))      
         return "Invalid disruptions request", 400
 
 ###############################################################################################
@@ -503,7 +497,7 @@ def findTweetsRadius(lon, lat, radius, proffilter):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid tweets request", 400
 
         
@@ -538,7 +532,7 @@ def findTweetsDisruption(ltisid, proffilter, radius=1000):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid tweets request", 400
 
 ###############################################################################################
@@ -606,7 +600,7 @@ def findCamerasRadius(lon, lat, radius):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid cameras request", 400
 
         
@@ -631,7 +625,7 @@ def findCamerasDisruption(ltisid, radius=300):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid cameras request", 400
 
 
@@ -660,7 +654,7 @@ def findCamerasDisruptionClosest(ltisid, radius=300):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Error -> %s, query=%s" % (exceptionValue,query))
+        logger.error("Error -> %s, query=%s" % (exceptionValue,query))
         return "Invalid cameras request", 400
 
 

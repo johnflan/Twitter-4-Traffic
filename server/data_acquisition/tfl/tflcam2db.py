@@ -10,34 +10,28 @@ import thread
 import logging
 
 ###############################################################################################
-###################### Create a new logger to store messages in a file ########################
+########### Create a new logger to store messages in a file and print them to screen ##########
 ###############################################################################################
 
 def createLogger():
     global logger
     logger = logging.getLogger('CameraLogger')
     logger.setLevel(kwargs['verbosity'])
-    ch = logging.FileHandler(kwargs['tflcameraslog'])
+
+    # Create a file handler
+    fh = logging.FileHandler(kwargs['tflcameraslog'])
+    fh.setLevel(kwargs['verbosity'])
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+
+    # Create a stream handler
+    ch = logging.StreamHandler()
     ch.setLevel(kwargs['verbosity'])
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
     logger.addHandler(ch)
-
-###############################################################################################
-################### Display an error message and store it in the log file #####################
-###############################################################################################
-
-def errorMessage(errorMsg):
-    logger.error(errorMsg)
-    print errorMsg
-
-###############################################################################################
-#################### Display an info message and store it in the log file #####################
-###############################################################################################
-
-def infoMessage(infoMsg):
-    logger.info(infoMsg)
-    print infoMsg
 
 ###############################################################################################
 ############################ Creates a connection to the db ###################################
@@ -56,7 +50,7 @@ def connect():
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         # Exit the script/thread and print an error telling what happened.
-        errorMessage("Database connection failed! -> %s" % (exceptionValue))
+        logger.error("Database connection failed! -> %s" % (exceptionValue))
         sys.exit()
     logger.debug('Connected to the database')
 
@@ -92,13 +86,13 @@ def sampleFeed():
             tEnd = time.time()
             # Find the time that remains until the next update
             remain = refresh - ( tEnd - tStart )
-            infoMessage("TfL Camera Feed Stored @%s" % updated_at)
-            infoMessage("Sleeping For %s Seconds" % remain)
+            logger.info("TfL Camera Feed Stored @%s" % updated_at)
+            logger.info("Sleeping For %s Seconds" % remain)
             if remain > 0: time.sleep(remain)
         except:
             # Get the most recent exception
             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-            errorMessage("Error in sampleFeed -> %s" % (exceptionValue))
+            logger.error("Error in sampleFeed -> %s" % (exceptionValue))
             time.sleep(refresh)
 
 ###############################################################################################
@@ -114,7 +108,7 @@ def storeTflData(dom):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Delete failed in storeTfLData -> %s" % (exceptionValue))
+        logger.error("Delete failed in storeTfLData -> %s" % (exceptionValue))
 
     try:
         # For every tfl camera find each element
@@ -132,7 +126,7 @@ def storeTflData(dom):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Commit failed in storeTfLData -> %s" % (exceptionValue))
+        logger.error("Commit failed in storeTfLData -> %s" % (exceptionValue))
 
 ###############################################################################################
 ####################### Update the cameras table of the database ##############################
@@ -152,7 +146,7 @@ def updateCamera(**cam):
     except:
         # Get the most recent exception
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-        errorMessage("Insert failed in updateCamera -> %s, query=%s" % (exceptionValue,query_tfl%params))
+        logger.error("Insert failed in updateCamera -> %s, query=%s" % (exceptionValue,query_tfl%params))
 
 ###############################################################################################
 ######################### Executed if the script is run directly ##############################
