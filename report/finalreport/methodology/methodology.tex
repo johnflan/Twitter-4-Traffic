@@ -1,7 +1,8 @@
 \subsection{Development approach} 
 To begin identifying an appropriate development methodology, it was necessary to firstly understand 
 the project requirements. The project requirements and features were agreed over a number of 
-meetings with the primary stakeholders.\\ 
+meetings with the primary stakeholders.
+
 The two most preferred development methodologies were 
 Scrum and XP(Extreme Programming). Scrum is an agile project management technique that focuses more 
 on the management of software development projects. The product is completed in a series of one to 
@@ -10,10 +11,12 @@ to determine which features will be implemented during that sprint. Similarly, X
 methodology which is designed for small, co-located teams aiming to get quality and productivity as 
 high as possible. It does this through the use of rich, short, informal communication paths with 
 emphasis on skill, discipline and understanding at the personal level, minimizing all intermediate 
-work products.\\ 
+work products.
+
 It was decided amongst the group that combining characteristics form both methods 
 would be the most beneficial way, merely because Scrum focuses on the project management whereas XP 
-on the programming part.\\ 
+on the programming part.
+
 Managing efficiently the development lifecycle of the project was a very 
 important task for the team to work properly. Meetings with the supervisor took place each week 
 where the project progress was thoroughly discussed as well as more feasible features to be 
@@ -23,18 +26,21 @@ everyone has been doing for the last week. New tasks were also assigned to membe
 every meeting an agenda was stored in an online document containing information about the team 
 members absent, location, action items and topics to be discussed. In the end of the meetings tasks 
 were assigned, managed or archived using an online visual board, similar to Scrum Board, to 
-encourage a more agile development.\\ 
+encourage a more agile development.
+
 As regards to the XP approach, it was proved that adopting 
 some of its techniques would significantly improve the development process. More specifically, pair 
 programming was effectively put in use. Team members where working in pairs whenever possible to 
 develop a single feature. Additionally, XP promotes test-driven development. As mentioned in the 
 first report, testing would be rather difficult due to the nature of the project being partly 
 research based. However, essential tests were implemented in the server to validate the classifier 
-as well as blackbox tests for the correctness and responsiveness of the rest API server. \\ 
+as well as blackbox tests for the correctness and responsiveness of the rest API server. 
+
 Throughout the development, various technologies had to be used and implemented. According to each 
 members skills these elements were divided in such ways to effectively use the members previous 
 experience. The team was also split to different design aspects of the project; however, more on the 
-team structure will be discussed further on.\\ 
+team structure will be discussed further on.
+
 Lastly, for achieving parallel development between 
 the mobile client application and the server, a mock server API was created, as mentioned in earlier 
 reports that was accepting http requests and was returning static data sets to the client. 
@@ -42,7 +48,8 @@ reports that was accepting http requests and was returning static data sets to t
 \subsection{Testing} 
 \subsubsection{Classifier Evaluation} 
 Machine learning algorithms induce classifiers that depend on the training set, and there is a need for evaluation and statistical testing to assess the expected error rate of a classification algorithm, and even compare the expected error rates of two classification algorithms to be able to say which one is better. Evaluation can also be used as a guide for future improvements on the model. In order to evaluate the classifier several techniques have been used. The first technique is to generate a test set of tweets which their labels are already known. This test set has to be distinct from the train set which has been used to train the classifier. Afterward this test set is being classified by the classifier and the labels that it decides are being compared with their correct labels. The second technique is to calculate the accuracy of the classifier which measures the percentage of inputs in the test set that the classifier correctly labelled. To accomplish this, the build-in function of the package NLTK nltk.classify.accuracy() has been used. \\
-Additionally some more techniques have been implemented in order to get more accurate evaluations and avoid possible “overfitting”. Note that there is a chance the classifier will become more accurate in the train set and less accurate in the test set with some parameter changes. This is when we have reached an "overfitting" to the train set. The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To present the result of this method the Confusion Matrix, which is a visualization tool typically used to present the results attained by a learner, has been created. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class. Thus, the diagonal entries indicate labels that were correctly predicted, and the off-diagonal entries indicate errors. One benefit of a confusion matrix is that it is easy to see if the system is confusing two classes. \\
+Additionally some more techniques have been implemented in order to get more
+accurate evaluations and avoid possible `overfitting'. Note that there is a chance the classifier will become more accurate in the train set and less accurate in the test set with some parameter changes. This is when we have reached an "overfitting" to the train set. The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To present the result of this method the Confusion Matrix, which is a visualization tool typically used to present the results attained by a learner, has been created. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class. Thus, the diagonal entries indicate labels that were correctly predicted, and the off-diagonal entries indicate errors. One benefit of a confusion matrix is that it is easy to see if the system is confusing two classes. \\
 Finally, the Precision and Recall Rates can be calculated in order to ensure the results from the previous method. The recall and the precision can be derived from the confusion matrix by applying the following formulas:
 
 Precision\textsubscript{A} = tp\textsubscript{A}/(tp\textsubscript{A}+e\textsubscript{BA}+e\textsubscript{CA})
