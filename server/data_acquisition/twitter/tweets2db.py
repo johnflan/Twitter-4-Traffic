@@ -359,6 +359,9 @@ def tweets(rl, georadius="19.622mi", start_id=0):
             except URLError, e:
                 logger.error("URLError: %s page: %s since_id %s" % (e,page,since_id))
                 results = []
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                logger.error("Error: %s page: %s since_id %s" % (exceptionValue,page,since_id))
 
         # Delete old tweets from the table
         deleteOldTweets()
