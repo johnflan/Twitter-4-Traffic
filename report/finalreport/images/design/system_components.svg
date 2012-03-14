@@ -45,7 +45,7 @@
      showgrid="false"
      inkscape:zoom="0.69"
      inkscape:cx="643.51909"
-     inkscape:cy="418.16623"
+     inkscape:cy="370.98772"
      inkscape:window-x="0"
      inkscape:window-y="26"
      inkscape:window-maximized="1"
@@ -54,6 +54,20 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0" />
+  <rect
+     style="fill:#000000;fill-opacity:0.06392697;stroke:none"
+     id="rect3096-7"
+     width="13.956497"
+     height="12.69183"
+     x="29.804659"
+     y="9.7635508" />
+  <rect
+     style="fill:#000000;fill-opacity:0.06392697;stroke:none"
+     id="rect3096"
+     width="20.324995"
+     height="12.646663"
+     x="4.1500001"
+     y="9.7635517" />
   <path
      d="m 27.069,1.4642911 0,3.795 2.365,0 0,-3.795 -2.365,0"
      id="path3245"
@@ -157,13 +171,6 @@
      font-weight="700"
      id="text3283"
      style="font-size:0.89999998px;font-style:normal;font-weight:700;text-anchor:middle;fill:#000000;font-family:sans">Twitter.com</text>
-  <rect
-     x="4.2000003"
-     y="9.7372913"
-     width="20.25"
-     height="12.7"
-     id="rect3287"
-     style="fill:none;stroke:#000000;stroke-width:0.1" />
   <text
      x="4.1746597"
      y="23.287291"
@@ -172,13 +179,6 @@
      font-weight="700"
      id="text3289"
      style="font-size:0.80000001px;font-style:normal;font-weight:700;text-anchor:start;fill:#000000;font-family:sans">Server</text>
-  <rect
-     x="29.789999"
-     y="9.7372913"
-     width="14.01"
-     height="12.7"
-     id="rect3293"
-     style="fill:none;stroke:#000000;stroke-width:0.1" />
   <text
      x="41.203705"
      y="23.332291"
@@ -736,7 +736,7 @@
          height="142.85715"
          x="1052.8572"
          y="10.602417" /></flowRegion><flowPara
-       id="flowPara3493"></flowPara></flowRoot>  <text
+       id="flowPara3493" /></flowRoot>  <text
      x="32.401379"
      y="19.436701"
      font-size="0.80"
