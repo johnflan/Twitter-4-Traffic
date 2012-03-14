@@ -62,7 +62,7 @@ Where the values "tp" and "e" are the elements of the confusion matrix as it can
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.3\textwidth]{confusionMatrixCalc.pdf}
+    \includegraphics[width=0.3\textwidth]{images/methodology/confusionMatrixCalc.pdf}
     \caption{A simple confusion matrix}
     \label{fig:confisionMatixCalc}
 \end{figure}
@@ -85,15 +85,18 @@ Non-Traffic precision:        0.902173913043
 Non-Traffic recall:           0.83
 Non-Traffic F-measure:        0.864583333333
 
-\begin{tabular}{| l || c | c | }
+\begin{figure}[h]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
     \hline
           & Non-Traffic & Traffic \\ \hline \hline
-        Non-Traffic 41.5\% & 8.5\% \\ \hline
-        Traffic 4.5\% & 45.5\% \\ \hline
+         Non-Traffic & 41.5\% & 8.5\% \\ \hline
+         Traffic & 4.5\% & 45.5\% \\ \hline
     \end{tabular}
     \caption{Confusion Matrix with 1000 traffic and 1000 non-traffic tweets.}
     \label{fig:confusionMatrix1}
-	
+\end{center}
+\end{figure}	
 
 Secondly, the classifier was trained with 1000 traffic and 9670 non-traffic tweets. Then it was tested with 500 traffic and 4835 non-traffic tweets. The metrics for this training are the following. 
 
@@ -107,14 +110,18 @@ Non-Traffic precision:        0.993265993266
 Non-Traffic recall:           0.854188210962
 Non-Traffic F-measure:        0.918492160569
 
-\begin{tabular}{| l || c | c | }
+\begin{figure}[h]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
     \hline
           & Non-Traffic & Traffic \\ \hline \hline
-        Non-Traffic 77.4\% & 13.2\% \\ \hline
-        Traffic 0.5\% & 8.8\% \\ \hline
+        Non-Traffic & 77.4\% & 13.2\% \\ \hline
+        Traffic & 0.5\% & 8.8\% \\ \hline
     \end{tabular}
     \caption{Confusion Matrix with 1000 traffic and 9670 non-traffic tweets.}
     \label{fig:confusionMatrix1}
+\end{center}
+\end{figure}
 	
 As it can been observed from the confusion matrices, with the first training it has been achieved a rather bad accuracy since 19\% of the non-traffic tweets are being classified wrong and 9\% of the traffic tweets are being classified wrong. On the other hand, with the second training the traffic tweets error has been almost halved to 5\% resulting a more accurate classification for the traffic tweets even if the global accuracy dropped by 1\%. That means the classifier may classified some traffic tweets as non-traffic but it classified much less non-traffic tweets as traffic.
 
