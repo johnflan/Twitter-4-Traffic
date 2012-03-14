@@ -67,19 +67,19 @@ if __name__=='__main__':
             help='The directory where the mock server responses are saved')
     parser.add_option('--tfleventslog',
             dest='tfleventslog',
-            default='logs/tflevents.log',
+            default='/srv/t4t/logs/tflevents.log',
             help='The location for the log file')
     parser.add_option('--tflcameraslog',
             dest='tflcameraslog',
-            default='logs/tflcameras.log',
+            default='/srv/t4t/logs/tflcameras.log',
             help='The location for the log file')
     parser.add_option('--twitterlog',
             dest='twitterlog',
-            default='logs/twitter.log',
+            default='/srv/t4t/logs/twitter.log',
             help='The location for the log file')
     parser.add_option('--restserverlog',
             dest='restserverlog',
-            default='logs/restserver.log',
+            default='/srv/t4t/logs/restserver.log',
             help='The location for the log file')
     (options, args)=parser.parse_args()
     

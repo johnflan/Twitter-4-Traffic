@@ -263,9 +263,7 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     most_recent_id = max(r.id,most_recent_id)
                     (tid,uname,rname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.user.name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
-                    
-                    rname = rname.encode('ascii','ignore')
-                    text = text.encode('ascii','ignore')
+
                     probability = 1.0
                     isTraffic = True
                     isRetweet = False
@@ -319,22 +317,17 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     if geolat!=None and geolong!=None:
                         geotweets += 1
                         
-                        geoloc = "ST_GeographyFromText('SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")')"
+                        query = """INSERT INTO tweets(tid, uname, rname, created_at, location, text, probability, profanity, geolocation) VALUES
+                                    (%s,%s,%s,to_timestamp(%s, \'YYYY-MM-DD HH24:MI:SS\'),%s,%s,%s,%s,ST_GeographyFromText(%s))"""
+                        geography = "SRID=4326;POINT(" + str(geolong) + " " + str(geolat) + ")"
 
-                        text = text.replace("'", "")
-                        text = text.replace("%", "")
-                        query = "INSERT INTO tweets(tid, uname, rname, created_at,\
-                        location,text,geolocation,probability,profanity) VALUES (" + str(tid) +\
-                        ",'" + uname + "','" + rname + "', to_timestamp('" + str(created_at) + "','YYYY-MM-DD HH24:MI:SS'),'" +\
-                        str(location) + "',\'" + str(text) +\
-                        "\'," + geoloc + "," + str(probability) + ",'" + str(profanity) + "')"
-                        
+                        params = (tid, uname, rname, str(created_at), location, text, probability, profanity, str(geography))
                         try:
-                            cursor.execute( query )
+                            cursor.execute( query, params )
                         except:
                             # Get the most recent exception
                             exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                            logger.error("Error storing tweet with geolocation -> %s, query=%s" % (exceptionValue,query))
+                            logger.error("Error storing tweet with geolocation -> %s, query=%s" % (exceptionValue,query % params))
                             continue
                     
                     # If the tweet does not have geolocation
