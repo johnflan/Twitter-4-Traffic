@@ -58,5 +58,20 @@ the server due to poor cellular connectivity. Once fresh data becomes available
 the screen is populated with this data. 
 
 \subsubsection{Twitter interface}
+To utilise Twitter for the reporting functionality, the JTwitter library from
+Winterwell was used. This provided a simple interface to Twitter for our
+application, enabling the posting of tweets as the signed in user and attaching
+a geographical to the tweet.
+
+Using the library itself was trouble free, but Twitter recently moved
+authentication for applications to Oauth. The Oauth protocol enables users to
+authorise applications to access their account without providing the
+applications with the users login credentials, additionally it also enables
+access restrictions to be applied on a per application basis.
+
+The Oauth process for connecting a Twitter account uses the Oauth-Signpost
+library and the resulting authorisation keys are saved in the applications
+configuration. 
+
 \subsubsection{Home route functionality}
 \subsubsection{User interface}
