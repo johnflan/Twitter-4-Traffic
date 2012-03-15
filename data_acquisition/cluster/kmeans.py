@@ -2,19 +2,16 @@ from pg8000 import DBAPI
 import sys
 import optparse
 import ConfigParser
-import time
-from datetime import datetime, timedelta
 import math
+from datetime import datetime
 
-def main(clusters,maxTime):
+def main(clusters, from_hour, to_hour):
     date = datetime.now()
     updated_at = date.strftime("%d/%m/%y %H:%M:%S")
 
-    timeToSearch = date-timedelta(minutes=maxTime)
-    timeToSearch = timeToSearch.strftime("%d/%m/%y %H:%M:%S")
     deleteClusters()
     print "Old clusters deleted"
-    createClusters(clusters,timeToSearch);
+    createClusters(clusters, from_hour, to_hour);
 
     print "Calculate mean and variance"
     calculateMeanAndVariance()
@@ -113,10 +110,11 @@ def pointRow2vars(point):
     return tid, float(longitude), float(latitude)
 
 
-def createClusters(clusters,timeToSearch):
+def createClusters(clusters, from_hour, to_hour):
     try:
         query = """SELECT DISTINCT tid, ST_AsText(geolocation) FROM geolondon WHERE
-        geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
+        geolocation IS NOT NULL AND extract(hour from created_at) >= '%s' and
+        extract(hour from created_at) <= '%s'""" % (from_hour, to_hour)
 
         cursor.execute(query)
         pointRows = cursor.fetchall()
@@ -227,18 +225,22 @@ if __name__ == "__main__":
                     dest='clusters',
                     default='3',
                     help='Number of clusters')
-    parser.add_option('-T','--time',
-                    dest='time',
-                    default='10000000',
-                    help='Minutes to search for tweets')
+    parser.add_option('-f','--from_hour',
+                    dest='from_hour',
+                    default='9',
+                    help='From hour to search the tweets')
+    parser.add_option('-t','--to_hour',
+                    dest='to_hour',
+                    default='10',
+                    help='To hour to search the tweets')
 
     (options, args) = parser.parse_args()
 
     db = dict([k,v] for k,v in options.__dict__.iteritems() if not v is None
-            and k not in ('clusters','time'))
+            and k not in ('clusters','from_hour','to_hour'))
     kwds = dict([k,v] for k,v in options.__dict__.iteritems() if not v is None
             and k not in ('host','database','user','password'))
     
     cursor, conn = connect(**db)
     
-    sys.exit(main(int(kwds['clusters']),int(kwds['time'])))
+    sys.exit(main(int(kwds['clusters']),kwds['from_hour'],kwds['to_hour']))

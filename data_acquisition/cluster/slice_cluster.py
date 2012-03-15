@@ -5,16 +5,11 @@ import ConfigParser
 import datetime
 import math
 
-def main(clusters,maxTime):
+def main(clusters, to_date, from_date):
     #last entry in geolondon is 2012-03-03 02:17:18
-    d = datetime.date(2012,3,3)
-    t = datetime.time(2,17,18)
-    last_date = datetime.datetime.combine(d,t)
 
-    timeToSearch = last_date - datetime.timedelta(minutes=maxTime)
-    timeToSearch = timeToSearch.strftime("%d/%m/%y %H:%M:%S")
-    print "\nSearching from time: " + timeToSearch
-    centers, clusters = createClusters(clusters,timeToSearch)
+    print "\nSearching from time: " + from_date +" to time: "+to_date
+    centers, clusters = createClusters(clusters,from_date, to_date)
 
     try:
         query = """SELECT variancex, meanx,variancey, meany, eid FROM static_events"""
@@ -25,24 +20,34 @@ def main(clusters,maxTime):
         sys.exit("Select error! ->%s" % (exceptionValue))
 
     i = 0
+
+    f = open('clusters.txt','w')
+
     for key in clusters.keys():
         s2x = 0
         sx = 0
         s2y = 0
         sy = 0
+
+        f.write(str(key)+' ')
         for point in clusters[key]:
             s2x += (point.values()[0][0] - centers[i][0])**2
             s2y += (point.values()[0][1] - centers[i][1])**2
+
+            f.write(str(point.values()[0][0])+","+str(point.values()[0][1])+" ")
+
         vx = s2x/len(clusters[key])
         vy = s2y/len(clusters[key])
+        f.write('\n')
 
-        print "New cluster "+str(centers[i][0])+" "+str(centers[i][1])
+        print "New cluster "+str(centers[i][0])+" "+str(centers[i][1])+" with "+str(len(clusters[key]))+" data"
         for static_cluster in static_clusters:
             dif = kl(centers[i], [vx, vy], [static_cluster[1], static_cluster[3]],
                     [static_cluster[0], static_cluster[2]])
             print str(static_cluster[1])+" "+str(static_cluster[3])+": "+str(dif)
         print
         i += 1
+    f.close()
 
 
 def kl(m1, v1, m0, v0):
@@ -131,10 +136,11 @@ def pointRow2vars(point):
     return tid, float(longitude), float(latitude)
 
 
-def createClusters(clusters,timeToSearch):
+def createClusters(clusters, fromTime, toTime):
     #try:
         query = """SELECT DISTINCT tid, ST_AsText(geolocation) FROM geolondon WHERE
-        geolocation IS NOT NULL AND created_at >= '%s'""" % timeToSearch
+        geolocation IS NOT NULL AND created_at >= '%s' and created_at <=
+        '%s'""" % (fromTime, toTime)
 
         cursor.execute(query)
         pointRows = cursor.fetchall()
@@ -197,20 +203,24 @@ if __name__ == "__main__":
                     help='The password for the DB')
     parser.add_option('-n','--clusters',
                     dest='clusters',
-                    default='6',
+                    default='3',
                     help='Number of clusters')
-    parser.add_option('-T','--time',
-                    dest='time',
-                    default='5760',
-                    help='Minutes to search for tweets')
+    parser.add_option('-t','--to_time',
+                    dest='to_date',
+                    default="29/02/12 10:00:00",
+                    help='To date and time to search for tweets')
+    parser.add_option('-f','--from_time',
+                    dest='from_date',
+                    default="29/02/12 09:00:00",
+                    help='From date and time to search for tweets')
 
     (options, args) = parser.parse_args()
 
     db = dict([k,v] for k,v in options.__dict__.iteritems() if not v is None
-            and k not in ('clusters','time'))
+            and k not in ('clusters','to_date','from_date'))
     kwds = dict([k,v] for k,v in options.__dict__.iteritems() if not v is None
             and k not in ('host','database','user','password'))
     
     cursor, conn = connect(**db)
     
-    sys.exit(main(int(kwds['clusters']),int(kwds['time'])))
+    sys.exit(main(int(kwds['clusters']),kwds['to_date'],kwds['from_date']))
