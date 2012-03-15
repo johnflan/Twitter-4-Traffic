@@ -1,4 +1,25 @@
 \subsection{Clustering}
+The behaviour of users of social media in a specific timeframe of each day of
+the week tend to follow a pattern. Especially if one looks at results of social
+media usage considering the location from where social data were submitted,
+they can see that pattern. For this project, the interest is on traffic social
+data.
+Using that theory, traffic disruptions can be detected through the unusual use
+of social media. This way the detected data will be about unusual traffic, so
+it would be able to show an accident or a closed road etc. In this project and
+because people don't tend to use social media that much about traffic yet we
+tested that theory using general social data and not only about traffic.
+In order to do that, static clusters had to be created first. These clusters
+represent the "normal" behaviour of the social media users. For all clustering
+k-means was used due to its simplicity. The static data used in the project are
+from a time frame of every day. After that a timeslice data are computed for
+the same timeframe of a specific day.
+The static data and the timeslice data are then compared, because unusual
+behaviour is what is important. For the comparison, each cluster is considered
+to be a Gaussian distribution. The Kullback-Leibler divergence is then applied
+to the timeslice clusters comparing them to the static clusters. The value
+returned from that function is a real number larger or equals to zero. The
+closest this number is to zero, the more the distributions are alike.
 
 \subsection{Gamification}
 
