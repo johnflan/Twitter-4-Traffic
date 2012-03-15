@@ -47,7 +47,7 @@ reports that was accepting http requests and was returning static data sets to t
 
 \subsection{Testing} 
 \subsubsection{Classifier Evaluation} 
-Machine learning algorithms induce classifiers that depend on the training set, and there is a need for evaluation and statistical testing to assess the expected error rate of a classification algorithm, and even compare the expected error rates of two classification algorithms to be able to say which one is better. Evaluation can also be used as a guide for future improvements on the model. In order to evaluate the classifier several techniques have been used. The first technique is to generate a test set of tweets which their labels are already known. This test set has to be distinct from the train set which has been used to train the classifier. Afterward this test set is being classified by the classifier and the labels that it decides are being compared with their correct labels. The second technique is to calculate the accuracy of the classifier which measures the percentage of inputs in the test set that the classifier correctly labelled. To accomplish this, the build-in function of the package NLTK nltk.classify.accuracy() has been used.
+Machine learning algorithms induce classifiers that depend on the training set, and there is a need for evaluation and statistical testing to assess the expected error rate of a classification algorithm, and even compare the expected error rates of two classification algorithms to be able to say which one is better. Evaluation can also be used as a guide for future improvements on the model. In order to evaluate the classifier several techniques have been used. The first technique is to generate a test set of tweets which their labels are already known. This test set has to be distinct from the train set which has been used to train the classifier. Afterward this test set is being classified by the classifier and the labels that it decides are being compared with their correct labels. The second technique is to calculate the accuracy of the classifier which measures the percentage of inputs in the test set that the classifier correctly labelled. To accomplish this, the build-in function of the package NLTK \emph{nltk.classify.accuracy()} has been used.
 
 Additionally some more techniques have been implemented in order to get more
 accurate evaluations and avoid possible `overfitting'. Note that there is a chance the classifier will become more accurate in the train set and less accurate in the test set with some parameter changes. This is when we have reached an "overfitting" to the train set. The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To present the result of this method the Confusion Matrix, which is a visualization tool typically used to present the results attained by a learner, has been created. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class. Thus, the diagonal entries indicate labels that were correctly predicted, and the off-diagonal entries indicate errors. One benefit of a confusion matrix is that it is easy to see if the system is confusing two classes.
@@ -61,29 +61,36 @@ Finally, the Precision and Recall Rates can be calculated in order to ensure the
 Where the values "tp" and "e" are the elements of the confusion matrix as it can been seen on the figure~\ref{fig:confisionMatixCalc}.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.3\textwidth]{images/methodology/confusionMatrixCalc.pdf}
-    \caption{A simple confusion matrix}
+\begin{center}
+\begin{tabular}{| l || c | c | c | }
+    \hline
+        & A & B & C  \\ \hline \hline
+        A & tp\textsubscript{A} & e\textsubscript{AB} & e\textsubscript{AC} \\ \hline
+        B & e\textsubscript{BA }& tp\textsubscript{B} & e\textsubscript{BC} \\\hline
+        C & e\textsubscript{CA} & e\textsubscript{CB} & tp\textsubscript{C} \\\hline
+    \end{tabular}
+	\caption{A simple confusion matrix}
     \label{fig:confisionMatixCalc}
+\end{center}
 \end{figure}
 
 While recall and precision rates can be individually used to determine the quality of a classifier, it is often more convenient to have a single measure to do the same assessment. The F\textsubscript{1} measure combines the recall and precision rates in a single equation:
 
-\[ F\textsubscript{1} = 2\frac{precision*recall}{precision+recall} \]
+\[ F\textsubscript{1} = 2*\frac{precision*recall}{precision+recall} \]
 
 Because the labelled data was consisting of 1500 traffic tweets and 14505 non-traffic tweets two different training and evaluation have been integrated. 
 
 Firstly, the classifier was trained with 1000 traffic and 1000 non-traffic tweets. Then it was tested with 500 traffic and 500 non-traffic tweets. The metrics for this training are the following. 
 
-Accuracy of the classifier:   0.87
+Accuracy of the classifier:   0.87\\
 
-Traffic precision:            0.842592592593
-Traffic recall:               0.91
-Traffic F-measure:            0.875
+Traffic precision:\hspace{15.5 mm}              0.842592592593\\
+Traffic recall:\hspace{21.2 mm}                             0.91\\
+Traffic F-measure:\hspace{12.8 mm}             0.875\\
 
-Non-Traffic precision:        0.902173913043
-Non-Traffic recall:           0.83
-Non-Traffic F-measure:        0.864583333333
+Non-Traffic precision:\hspace{7.2 mm}        0.902173913043\\
+Non-Traffic recall:\hspace{13 mm}            0.83\\
+Non-Traffic F-measure:\hspace{4.6 mm}       0.864583333333\\
 
 \begin{figure}[h]
 \begin{center}
@@ -102,13 +109,13 @@ Secondly, the classifier was trained with 1000 traffic and 9670 non-traffic twee
 
 Accuracy of the classifier:   0.862605435801
 
-Traffic precision:            0.401019541206
-Traffic recall:               0.944
-Traffic F-measure:            0.562909958259
+Traffic precision:\hspace{15.5 mm}            0.401019541206\\
+Traffic recall:\hspace{21.2 mm}               0.944\\
+Traffic F-measure:\hspace{12.8 mm}         0.562909958259\\
 
-Non-Traffic precision:        0.993265993266
-Non-Traffic recall:           0.854188210962
-Non-Traffic F-measure:        0.918492160569
+Non-Traffic precision:\hspace{7.2 mm}         0.993265993266\\
+Non-Traffic recall:\hspace{13 mm}           0.854188210962\\
+Non-Traffic F-measure:\hspace{4.6 mm}         0.918492160569\\
 
 \begin{figure}[h]
 \begin{center}
