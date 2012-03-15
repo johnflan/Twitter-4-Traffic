@@ -78,7 +78,7 @@ While recall and precision rates can be individually used to determine the quali
 
 \[ F\textsubscript{1} = 2*\frac{precision*recall}{precision+recall} \]
 
-Because the labelled data was consisting of 1500 traffic tweets and 14505 non-traffic tweets two different training and evaluation have been integrated. 
+Because the labelled data was consisting of 1500 traffic tweets and 14505 non-traffic tweets, two different trainings and evaluations have been integrated. 
 
 Firstly, the classifier was trained with 1000 traffic and 1000 non-traffic tweets. Then it was tested with 500 traffic and 500 non-traffic tweets. The metrics for this training are the following. 
 
@@ -105,7 +105,7 @@ Non-Traffic F-measure:\hspace{4.6 mm}       0.864583333333\\
 \end{center}
 \end{figure}	
 
-Secondly, the classifier was trained with 1000 traffic and 9670 non-traffic tweets. Then it was tested with 500 traffic and 4835 non-traffic tweets. The metrics for this training are the following. 
+Secondly, the classifier was trained with 1000 traffic and 9670 non-traffic tweets. Afterward it was tested with 500 traffic and 4835 non-traffic tweets. The metrics for this training are the following. 
 
 Accuracy of the classifier:   0.862605435801
 
@@ -130,7 +130,51 @@ Non-Traffic F-measure:\hspace{4.6 mm}         0.918492160569\\
 \end{center}
 \end{figure}
 	
-As it can been observed from the confusion matrices, with the first training it has been achieved a rather bad accuracy since 19\% of the non-traffic tweets are being classified wrong and 9\% of the traffic tweets are being classified wrong. On the other hand, with the second training the traffic tweets error has been almost halved to 5\% resulting a more accurate classification for the traffic tweets even if the global accuracy dropped by 1\%. That means the classifier may classified some traffic tweets as non-traffic but it classified much less non-traffic tweets as traffic.
+It can been observed from the confusion matrices, with the first training the classifier has been achieved a rather bad accuracy since 19\% of the non-traffic tweets are being classified wrong and 9\% of the traffic tweets are being classified wrong. On the other hand, with the second training the traffic tweets error has been almost halved to 5\% resulting a more accurate classification for the traffic tweets even if the global accuracy dropped by 1\%. That means the classifier may classified some traffic tweets as non-traffic but it classified much less non-traffic tweets as traffic. Note that all the above results have been taken after the implementation of the normalization. During the first evaluation, before the pre-processing, the accuracy of the classifier was 77\%. However after the application of the normalization’s techniques the accuracy has been increased by 10\%!
+
+As it has been mentioned before, a strong motivation for the creation of this project was the previous work of Dr. Luke Dicken in the same field. Having that in mind, it has been considered necessary to compare the accuracy of the classifier and the efficient of the server with his work. So in addition to the previous evaluation results, several metrics have been calculated in order to find the efficient of the classifier and the server. Those metrics are being presented in the figures below.
+
+\begin{figure}[h]
+\begin{center}
+    \begin{tabular}{| c | c | c | }
+    \hline
+        Total Number of Tweets  & Non-Traffic & Traffic \\ \hline 
+        71036 & 68096(95.86\%) & 2940(4.14\%) \\ \hline
+    \end{tabular}
+    \caption{Comparison of Traffic and Non-Traffic Tweets.}
+    \label{fig:metrics1}
+\end{center}
+\end{figure}
+	
+\begin{figure}[h]
+\begin{center}
+    \begin{tabular}{| c | c | c | }
+    \hline
+        Geo-Tagged  & Geo-Tagged Genuine & Geo-Tagged from the 
+Geolocation Resolver \\ \hline 
+        314(10.68\%) & 136(4.63\%) & 178(6.05\%) \\ \hline
+    \end{tabular}
+    \caption{Tweets with geolocation from the 2940 traffic tweets.}
+    \label{fig:metrics2}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[h]
+Overall inferred rates:
+\begin{center}
+    \begin{tabular}{| l || c | c | c |}
+    \hline
+        & Filtered & Traffic & Geo-Tagged and Traffic\\ \hline \hline
+        each minute & 13.3 & 0.5 & 0.06 \\ \hline
+		each 5 mins & 66.7 &  2.7 & 0.3 \\ \hline
+		each hour & 800 & 32.7 & 3.5 \\ \hline
+    \end{tabular}
+    \caption{Averages are over total 5400 minutes (90 hours) of up-time.}
+    \label{fig:metrics3}
+\end{center}
+\end{figure}
+
 
 \subsubsection{Functional/Integration Testing}
 One of the most important parts of the project was the server API interface. A lot of requests will 
