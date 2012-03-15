@@ -42,17 +42,20 @@ public List<EventItem> requestRouteEvents(Route route);
 \subsubsection{Request caching}
 Modern mobile data networks have increased data-rates to an incredible level
 over the last number of years, it is not uncommon now to see providers offering
-speeds of 7.2 Mbps. But these types of networks also tend to incur large
+speeds of up to 7.2 Mbps. But these types of networks also tend to incur large
 latencies, for an initial TCP request from mobile handset round trip times of
 up to one second are not unheard of.
 
-As a mechanism to make the application feel more responsive to the user, the
-application caches the response from the previous request. This cached response
-is displayed if delays or issues occur but once fresh data becomes available
-the screen is populated with this data. Most typically delays occur in
-acquiring a geographical lock, as we require a current geographical location to
-make an event request. Or being unable to contact the server due to
-connectivity issues.
+As a mechanism to make the application feel more responsive to the user, a
+cache of the response from the previous request is stored.
+
+This cached response is displayed if the handset encounters one of two main
+classes of problem. Firstly, in order to make a request for events in the
+vicinity, we must request the current geographical location of the phone. If
+the phones location cache is old or empty this request can take some time to
+complete. Secondly, if the handset is experiencing difficulties connecting to
+the server due to poor cellular connectivity. Once fresh data becomes available
+the screen is populated with this data. 
 
 \subsubsection{Twitter interface}
 \subsubsection{Home route functionality}
