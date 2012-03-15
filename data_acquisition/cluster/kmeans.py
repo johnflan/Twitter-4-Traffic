@@ -132,6 +132,13 @@ def createClusters(clusters, from_hour, to_hour):
         while notEquals(centers, new_centers):
             centers = new_centers
             new_centers, data = findNewCenters(centers, pointRows)
+        f = open('static_clusters.txt','w')
+        for key in data.keys():
+            f.write(str(key)+' ')
+            for point in data[key]:
+                f.write(str(point.values()[0][0])+","+str(point.values()[0][1])+" ")
+            f.write('\n')
+        f.close()
         print "New centers:"
         print new_centers
         print
