@@ -1,6 +1,6 @@
 \subsection{Development approach} 
 To begin identifying an appropriate development methodology, it was necessary to firstly understand 
-the project requirements. The project requirements and features were agreed over a number of 
+the project requirements, timescale of the project and the team members experience. The project requirements and features were agreed over a number of 
 meetings with the primary stakeholders.
 
 The two most preferred development methodologies were 
@@ -13,16 +13,16 @@ high as possible. It does this through the use of rich, short, informal communic
 emphasis on skill, discipline and understanding at the personal level, minimizing all intermediate 
 work products. 
 
-It was decided amongst the group that combining characteristics form both methods 
-would be the most beneficial way, merely because they are complementary. Scrum focuses on the project management 
-whereas XP on the programming part.\cite{ScrumXP}
+It was decided amongst the group that combining characteristics from both methods 
+would be most beneficial, merely because they are complementary. Scrum focuses on the project management 
+whereas XP focuses on programming.\cite{ScrumXP}
 
 Managing efficiently the development lifecycle of the project was a very 
-important task for the team to work properly. Meetings with the supervisor took place each week 
-where the project progress was thoroughly discussed as well as more feasible features to be 
-implemented. In addition, various issues were constantly being brought up in order to provide solutions. Except from 
-the meetings with the supervisor, the team had its own weekly meeting for keeping up with what 
-everyone has been doing for the last week. New tasks were also assigned to members of the team. For 
+important task for the team to work effectively. Meetings with the supervisor took place each week, 
+the project progress was discussed as well as other possible features that could be implemented. 
+In addition, various issues were constantly being brought up in order to provide solutions. Apart from 
+the meetings with the supervisor, the team had its own weekly meeting for keeping up with 
+everyone's progress for the previous week. New tasks were also assigned to members of the team. For 
 every meeting an agenda was stored in an online document containing information about the team 
 members absent, location, action items and topics to be discussed. In the end of the meeting tasks 
 were assigned, managed or archived using an online visual board, similar to the Scrum Board, to 
@@ -30,15 +30,17 @@ encourage a more agile development.
 
 As regards to the XP approach, it was proved that adopting 
 some of its techniques would significantly improve the development process. More specifically, pair 
-programming was effectively put in use. Team members where working in pairs whenever possible to 
-develop a single feature. Additionally, XP promotes test-driven development. As mentioned in the 
+programming was effectively put in use. Team members were working in pairs whenever possible to 
+develop a single feature that seemed to be difficult. As a result, any time the two find a section of code 
+that appears hard to understand or overly complex, they are to revise it, constantly simplifying and improving it. 
+Additionally, XP promotes test-driven development. As mentioned in the 
 first report, testing would be rather difficult due to the nature of the project being partly 
 research based. However, essential tests were implemented in the server to validate the classifier 
 as well as blackbox tests for the correctness and responsiveness of the rest API server. 
 
 Throughout the development, various technologies had to be used and implemented. According to each 
-members skills these elements were divided in such ways to effectively use the members previous 
-experience. The team was also distributed to different design aspects of the project; however, more on the 
+members skills these elements were divided in such a way to effectively use the members previous 
+experience. The team was split to concentrate on different design aspects of the project; however, more on the 
 team structure will be discussed further on.
 
 Lastly, for achieving parallel development between the mobile client application and the server, 
@@ -209,21 +211,36 @@ It can be clearly seen that comparing to Dr. Luke's classifier; the Naive Bayes 
 \end{figure}
 
 \subsubsection{Functional/Integration Testing}
-One of the most important parts of the project was the server API interface. A lot of requests will 
-be coming from the mobile application and it must be confirmed that the server interface can handle 
-them but also return the expected results using the expected format. In order to test the server 
-interface the Apache JMeter desktop application was used. This software is designed to load test 
+To test boundaries between systems, functional testing is being applied. This enables us to test that the inputs and outputs 
+of the system as a whole conform to the expected responses. The biggest of these boundaries is between the mobile application and the back
+end service, where communication occurs over a REST API.
+
+Many requests will be coming from the mobile application and it must be confirmed that the server interface can handle 
+them but also return the expected results using the expected format. Initially the functional testing of this interface was performed by the command line tool `cURL'. 
+But as development progressed the team was investigating moving to new tools to provide a better testing platform.
+
+After researching, the Apache JMeter application was used \cite{ApacheJmeter}. This software is designed to load test 
 functional behaviour and measure the performance of static and dynamic recourses. Using JMeter 
 proved to be a very effective way to test the servers interface. Various test plans where created 
-testing every GET or POST request available to use through the API. These plans where created for 
+testing every REST endpoint request available to use through the API. These plans where created for 
 both the server and the mock server that are running on ports 55004 and 55003 accordingly. More 
 tests were implemented to ensure that the server was returning the correct messages and response 
 codes when it was encountering an error. In addition, invalid requests to the server had also been 
 checked for error handling and if the error messages were displayed correctly into the screen. For 
-each request, the content-type was also checked if it evaluates as JSON. This process was really 
+each request, the content-type was also checked if it evaluates as mimetype of `application/json'. This process was really 
 helpful because it was very easy later on to check whether new features implemented or code 
 refactoring were actually breaking the API. All the test plan configuration settings have been saved 
-in the project repository as a .jmx file. 
+in the project repository. 
 
 \subsubsection{Unit Testing} 
+Unit testing is a valued technique as it not only provides a mechanism for
+exercising software modules through its interfaces, but importantly encourages
+good software design principles such as modularity and low coupling. The
+components of this project which are expected to have the largest percentage of
+code coverage are the tweet processing pipeline, REST API server and mobile
+application.
 
+Separate test suites are under concurrent development for the Python and Java
+portions of the project. Currently we are striving to create these tests in a
+test driven manor, but this practice can be difficult to uphold - particularly
+with pending deadlines.
