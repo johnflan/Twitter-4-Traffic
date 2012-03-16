@@ -234,14 +234,15 @@ refactoring were actually breaking the API. All the test plan configuration sett
 in the project repository. 
 
 \subsubsection{Unit Testing} 
-Unit testing is a valued technique as it not only provides a mechanism for
-exercising software modules through its interfaces, but importantly encourages
-good software design principles such as modularity and low coupling. The
-components of this project which are expected to have the largest percentage of
-code coverage are the tweet processing pipeline, REST API server and mobile
-application.
+Unit testing in the project became an issue as the project developed. This was
+due to a number of reasons which largely stemmed from the project's research
+oriented nature.
 
-Separate test suites are under concurrent development for the Python and Java
-portions of the project. Currently we are striving to create these tests in a
-test driven manor, but this practice can be difficult to uphold - particularly
-with pending deadlines.
+Much of the data analysis code on the server side was written experimentally
+initially and as it developed was included in the production server. With this
+type of code it is very difficult to define the requirements in terms of test
+driven design before a method or class is initially developed.
+
+Time during this project was a major issue, near the end of the project a team
+decision was taken to concentrate on implementing the requirements over
+spending time writing unit tests.
