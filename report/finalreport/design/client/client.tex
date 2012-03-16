@@ -21,7 +21,7 @@ communications are described in Figure~\ref{fig:client_design}.
 
 
 \subsubsection{Server interface}
-As previously discussed in this document, a ‘mock’ server was created to
+As previously discussed in this document, a `mock' server was created to
 parallelise efforts and to verify the REST endpoints. This tool proved very
 useful in the development of the client application, particularly with verbose
 logging on the server side when debugging connection issues.
@@ -41,7 +41,7 @@ public List<EventItem> requestRouteEvents(Route route);
 
 \subsubsection{Request caching}
 Modern mobile data networks have increased data-rates to an incredible level
-over the last number of years, it is not uncommon now to see providers offering
+over the last number of years, it is not uncommon to see providers offering
 speeds of up to 7.2 Mbps. But these types of networks also tend to incur large
 latencies, for an initial TCP request from mobile handset round trip times of
 up to one second are not unheard of.
@@ -52,8 +52,8 @@ cache of the response from the previous request is stored.
 This cached response is displayed if the handset encounters one of two main
 classes of problem. Firstly, in order to make a request for events in the
 vicinity, we must request the current geographical location of the phone. If
-the phones location cache is old or empty this request can take some time to
-complete. Secondly, if the handset is experiencing difficulties connecting to
+the phone's location cache is old or empty this request can take some time to
+complete. Or, if the handset is experiencing difficulties connecting to
 the server due to poor cellular connectivity. Once fresh data becomes available
 the screen is populated with this data. 
 
