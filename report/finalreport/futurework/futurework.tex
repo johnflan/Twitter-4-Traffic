@@ -2,7 +2,7 @@
 
 For identifying events from social media we investigated geographic clusters.
 Empirically, the clusters in a specific timeframe of each day of
-the week tends to follow the same pattern. For this project, the interest is on
+the week tend to follow the same pattern. For this project, the interest is on
 traffic social data.
 
 What should be detected is if there is extra usage of the social media and the users talk about
@@ -18,10 +18,10 @@ about disruptions through the social media. The group
 tested that theory using general social data and not only about traffic.
 
 In order to do that, static clusters had to be created first.
-They represent the "normal" behaviour of the social media users. For all clustering
-k-means\cite{website:k-means} was used due to its simplicity. The static data used in the project are
+They represent the `normal' behaviour of the social media users. For all clustering
+k-means\cite{website:k-means} was used due to its simplicity. The static data used in the project is
 from a time frame of every day of the week (e.g. 9:00 - 10:00am for all the
-days recorded). After that a timeslice data are computed for the same timeframe
+days recorded). After that, a timeslice data is computed for the same timeframe
 of a specific day.
 
 The static data and the timeslice data are then compared, because unusual
@@ -29,9 +29,9 @@ behaviour is what is important. For the comparison, each cluster is considered
 to be a Gaussian distribution\cite{website:gaussian}. The Kullback-Leibler
 divergence\cite{Kullback} is then applied to the timeslice clusters comparing
 them to the static clusters. The value returned from that function is a real
-number larger or equals to zero. This number shows how close are the
+number larger or equal to zero. This number shows how close are the
 distributions in terms of center and variance. The closest this number is to
-zero, the more the distributions are alike.
+zero, the more alike are the distributions.
 
 In the \ref{fig:clusters}, we can see a representation of the static clusters and the
 timeslice clusters created from tweets. The static clusters were created for
