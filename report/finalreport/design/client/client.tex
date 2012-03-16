@@ -1,13 +1,13 @@
 The Google Android operating system was chosen as the client platform. This
-decision was based primarily on two factors, firstly that the teams mobile
+decision was based primarily on two factors. Firstly, the team's mobile
 development experience was mainly with Android and additionally the
 availability of development hardware for the duration of the project.
 
 As a part of our white-boarding meetings, we developed a high level idea of the
-functionality required by the client interface this can be seen in
+functionality required for the client interface as shown in
 Figure~\ref{fig:system_components}.
 
-To create a structure for the client the team explored a number of low fidelity
+To create a structure for the client, the team explored a number of low fidelity
 user interface options. The agreed upon interface was used as a basis to create
 an architecture for the project. The identified components and their
 communications are described in Figure~\ref{fig:client_design}.
@@ -50,27 +50,27 @@ As a mechanism to make the application feel more responsive to the user, a
 cache of the response from the previous request is stored.
 
 This cached response is displayed if the handset encounters one of two main
-classes of problem. Firstly, in order to make a request for events in the
+classes of problems. Firstly, in order to make a request for events in the
 vicinity, we must request the current geographical location of the phone. If
 the phone's location cache is old or empty this request can take some time to
 complete. Or, if the handset is experiencing difficulties connecting to
 the server due to poor cellular connectivity. Once fresh data becomes available
-the screen is populated with this data. 
+the screen is populated with them. 
 
 \subsubsection{Twitter interface}
 To utilise Twitter for the reporting functionality, the JTwitter library from
 Winterwell was used. This provided a simple interface to Twitter for our
 application, enabling the posting of tweets as the signed in user and attaching
-a geographical to the tweet.
+a geographical location to the tweet.
 
 Using the library itself was trouble free, but Twitter recently moved
 authentication for applications to Oauth. The Oauth protocol enables users to
 authorise applications to access their account without providing the
-applications with the users login credentials, additionally it also enables
+applications with the users' login credentials, additionally it also enables
 access restrictions to be applied on a per application basis.
 
 The Oauth process for connecting a Twitter account uses the Oauth-Signpost
-library and the resulting authorisation keys are saved in the applications
+library and the resulting authorisation keys are saved in the application's
 configuration. 
 
 \subsubsection{Home route functionality}
@@ -78,7 +78,7 @@ A feature the team uncovered during the white boarding, was giving the user the
 ability to store their typical route home from work. With this knowledge the
 application could present the reported events that are relevant to the user.
 
-The user configures the feature from the configuration screen, where they must
+The users configure the feature from the configuration screen, where they must
 enter a postal address for their `home' and `work' locations. When the feature
 is enabled and configured correctly, the map and list interfaces of the
 application only display events within 300 meters of the route.
@@ -86,7 +86,7 @@ application only display events within 300 meters of the route.
 The feature relies on two features provided by Google, reverse geocoding
 (address to geographical location) and requesting a driving route between two
 geographical points. We start by requesting the best geographical point for the
-`home' and `work' addresses. Following a successful response we request a
+`home' and `work' addresses. Following a successful response, we request a
 driving route between those points. With this data we are able to draw the
 route on the map and make a request to the server with the points on the route
 for the relevant traffic events. The feature is illustrated in Figure~\ref{fig:home_route}.
