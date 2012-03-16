@@ -43,3 +43,166 @@ classification. The results of this algorithm did not show much improvement
 compared to Naive Bayes classification. Also the library seems to be at an
 early stage which makes it more difficult to use. Since the accuracy does not
 change, the use of Naive Bayes was decided by the group.
+
+\subsection{Classifier Evaluation} 
+Machine learning algorithms induce classifiers that depend on the training set. So there is a need for evaluation and statistical testing to assess the expected error rate of a classification algorithm. Additionally evaluation is crucial to compare the expected error rates of two classification algorithms to be able to say which one is better. Evaluation can also be used as a guide for future improvements on the model. In order to evaluate the classifier several techniques have been used. The first technique is to generate a test set of tweets which their labels are already known. This test set has to be distinct from the train set which has been used to train the classifier. It is then being labelled by the classifier and the labels that it decides are being compared with their correct labels. The second technique is to calculate the accuracy of the classifier which measures the percentage of inputs in the test set that the classifier correctly labelled. To accomplish this, the build-in function of the package NLTK \emph{nltk.classify.accuracy()} has been used.
+
+Additionally techniques have been implemented in order to get moreaccurate evaluations and avoid possible `overfitting'. There is a chance the classifier will become more accurate in the train set and less accurate in the test set with some parameter changes. This is when an "over-fitting" is occurs to the train set. 
+
+The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To present the result of this method the Confusion Matrix, which is a visualization tool typically used to present the results attained by a learner, has been created. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class. Thus, the diagonal entries indicate labels that were correctly predicted, and the off-diagonal entries indicate errors. One benefit of a confusion matrix is that it is easy to see if the system is confusing two classes.
+
+The Precision and Recall Rates can be calculated in order to ensure the results from the previous method. Recall describes the completeness of the classification. It is defined as the portion of the traffic tweets versus retrieved by the classifier the number of existing traffic tweets. Precision defines the actual accuracy of the classification. It is defined as the portion of the traffic tweets exist in the total number of tweets classified. The recall and the precision can be derived from the confusion matrix by applying the following formulas:
+
+\[ Precision\textsubscript{A} = tp\textsubscript{A}/(tp\textsubscript{A}+e\textsubscript{BA}+e\textsubscript{CA}) \]
+
+\[ Recall\textsubscript{A} = tp\textsubscript{A}/(tp\textsubscript{A}+e\textsubscript{AB}+e\textsubscript{AC}) \]
+
+Where the values "tp" and "e" are the elements of the confusion matrix as it can been seen on the figure~\ref{fig:confisionMatixCalc}.
+
+\begin{figure}[h!]
+\begin{center}
+\begin{tabular}{| l || c | c | c | }
+    \hline
+        & A & B & C  \\ \hline \hline
+        A & tp\textsubscript{A} & e\textsubscript{AB} & e\textsubscript{AC} \\ \hline
+        B & e\textsubscript{BA }& tp\textsubscript{B} & e\textsubscript{BC} \\\hline
+        C & e\textsubscript{CA} & e\textsubscript{CB} & tp\textsubscript{C} \\\hline
+    \end{tabular}
+	\caption{A simple confusion matrix}
+    \label{fig:confisionMatixCalc}
+\end{center}
+\end{figure}
+
+While recall and precision rates can be individually used to determine the quality of a classifier, it is often more convenient to have a single measure to do the same assessment. The F\textsubscript{1} measure combines the recall and precision rates in a single equation:
+
+\[ F\textsubscript{1} = 2*\frac{precision*recall}{precision+recall} \]
+
+The labelled data was consisting of an unbalance data, 1500 traffic tweets and 14505 non-traffic tweets, two different trainings have been executed and tested. 
+
+Firstly, the classifier was trained with 1000 traffic and 1000 non-traffic tweets. Then it was tested with 500 traffic and 500 non-traffic tweets. The metrics for this training are the following. 
+
+Accuracy of the classifier:   0.870000
+
+Traffic precision:\hspace{15.5 mm}              0.842592592593\\
+Traffic recall:\hspace{21.2 mm}                             0.91\\
+Traffic F-measure:\hspace{12.8 mm}             0.875\\
+
+Non-Traffic precision:\hspace{7.2 mm}        0.902173913043\\
+Non-Traffic recall:\hspace{13 mm}            0.83\\
+Non-Traffic F-measure:\hspace{4.6 mm}       0.864583333333\\
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
+    \hline
+          & Non-Traffic & Traffic \\ \hline \hline
+         Non-Traffic & 83.0\% & 17.0\% \\ \hline
+         Traffic & 9.0\% & 91.0\% \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix with 1000 traffic and 1000 non-traffic tweets.}
+    \label{fig:confusionMatrix1}
+\end{center}
+\end{figure}	
+
+Secondly, the classifier was trained with 1000 traffic and 9670 non-traffic tweets. Afterward it was tested with 500 traffic and 4835 non-traffic tweets. The metrics for this training are the following. 
+
+Accuracy of the classifier:   0.862605
+
+Traffic precision:\hspace{15.5 mm}            0.401019541206\\
+Traffic recall:\hspace{21.2 mm}               0.944\\
+Traffic F-measure:\hspace{12.8 mm}         0.562909958259\\
+
+Non-Traffic precision:\hspace{7.2 mm}         0.993265993266\\
+Non-Traffic recall:\hspace{13 mm}           0.854188210962\\
+Non-Traffic F-measure:\hspace{4.6 mm}         0.918492160569\\
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
+    \hline
+          & Non-Traffic & Traffic \\ \hline \hline
+        Non-Traffic & 85.4\% & 14.6\% \\ \hline
+        Traffic & 5.4\% & 94.6\% \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix with 1000 traffic and 9670 non-traffic tweets.}
+    \label{fig:confusionMatrix1}
+\end{center}
+\end{figure}
+	
+It can been observed from the confusion matrices, with the first training the classifier has been achieved a rather bad accuracy since 19\% of the non-traffic tweets are being classified wrong and 9\% of the traffic tweets are being classified wrong. On the other hand, with the second training the traffic tweets error has been almost halved to 5\% resulting a more accurate classification for the traffic tweets even if the global accuracy dropped by 1\%. That means the classifier may classified some traffic tweets as non-traffic but it classified much less non-traffic tweets as traffic.So ita has been decide from the team to train the Naive Bayes classifier with all the labelled data. Note that all the above results have been taken after the implementation of the normalization. During the first evaluation, before the pre-processing, the accuracy of the classifier was 77\%. However after the application of the normalization techniques the accuracy has been increased by 10\%!
+
+A strong motivation for the creation of this project was the previous work of Dr.Luke Dicken in the same field. Having that in mind, is important to compare the accuracy of our classifier and the efficient of our server with his work. So in addition to the previous evaluation results, several metrics have been calculated in order to find the efficient of the classifier and the server. Those metrics are being presented in the figures below.
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| c | c | c | }
+    \hline
+        Total Number of Tweets  & Non-Traffic & Traffic \\ \hline 
+        71036 & 68096(95.86\%) & 2940(4.14\%) \\ \hline
+    \end{tabular}
+    \caption{Comparison of Traffic and Non-Traffic Tweets.}
+    \label{fig:metrics1}
+\end{center}
+\end{figure}
+	
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| c | c | c | }
+    \hline
+        Geo-Tagged  & Geo-Tagged Genuine & Geo-Tagged from the 
+Geolocation Resolver \\ \hline 
+        314(10.68\%) & 136(4.63\%) & 178(6.05\%) \\ \hline
+    \end{tabular}
+    \caption{Tweets with geolocation from the 2940 traffic tweets.}
+    \label{fig:metrics2}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[h!]
+Overall inferred rates:
+\begin{center}
+    \begin{tabular}{| l || c | c | c |}
+    \hline
+        & Filtered & Traffic & Geo-Tagged and Traffic\\ \hline \hline
+        each minute & 13.3 & 0.5 & 0.06 \\ \hline
+		each 5 mins & 66.7 &  2.7 & 0.3 \\ \hline
+		each hour & 800 & 32.7 & 3.5 \\ \hline
+    \end{tabular}
+    \caption{Averages are over total 5400 minutes (90 hours) of up-time.}
+    \label{fig:metrics3}
+\end{center}
+\end{figure}
+
+The corresponding metrics from Dr. Luke Dicken are being presented below.
+
+Accuracy of the classifier:   0.818750
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
+    \hline
+          & Non-Traffic & Traffic \\ \hline \hline
+        Non-Traffic & 85.8\% & 14.2\% \\ \hline
+        Traffic & 22.3\% & 77.7\% \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix of Dr. Luke Dicken SVM classifier.}
+    \label{fig:confusionMatrixLuke}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+Overall inferred rates:
+\begin{center}
+    \begin{tabular}{| l || c | c | c |}
+    \hline
+        & Filtered & Traffic & Geo-Tagged and Traffic\\ \hline \hline
+        each minute & 6.3 & 3.6 & 0.11 \\ \hline
+		each 5 mins & 32 &  18 & 0.5 \\ \hline
+		each hour & 380 & 220 & 6.5 \\ \hline
+    \end{tabular}
+    \caption{Averages are over total 160000 minutes (111 days) of up-time.}
+    \label{fig:metricsLuke}
+\end{center}
+It can be clearly seen that comparing to Dr. Luke's classifier; the Naive Bayes classifier sacrificed the quantity to achieve the quality. Our classifier labelled less tweets as traffic, but those tweets are rather accurate. That’s important because the application’s user prefer to have less tweets for each disruption, but these tweets have to be about traffic. 
+\end{figure}
