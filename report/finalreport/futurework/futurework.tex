@@ -1,25 +1,24 @@
 \subsection{Clustering}
-Empirically, the behaviour of users of social media in a specific timeframe of each day of
-the week tend to follow a pattern. Especially if one looks at results of social
-media usage considering the location from where social data were submitted,
-they can see that pattern. For this project, the interest is on traffic social
-data.
 
-Traffic disruptions can be detected using that theory. What should be detected
-is if there is extra usage of the social media and the users talk about
+For identifying events from social media we investigated geographic clusters.
+Empirically, the clusters in a specific timeframe of each day of
+the week tends to follow the same pattern. For this project, the interest is on
+traffic social data.
+
+What should be detected is if there is extra usage of the social media and the users talk about
 traffic disruptions in a specific area. This would suggest there is a traffic
 disruption that would not occur normally. For example, normally there is traffic during
 the rush hour in a specific part of London, but it is expected. That means that
-there is no need to inform a driver about that.
+there is no need to inform a driver about that. It also shows how a specific
+timeframe of the days is important as well.
 
 Due to the fact that people don't tend to use social media that much about
 traffic yet, this project could not use this in real time to create events
 about disruptions through the social media. The group
 tested that theory using general social data and not only about traffic.
 
-In order to do that, static clusters had to be created first. These clusters
-were created for latitude and longitude from which the social data where
-coming. They represent the "normal" behaviour of the social media users. For all clustering
+In order to do that, static clusters had to be created first.
+They represent the "normal" behaviour of the social media users. For all clustering
 k-means\cite{website:k-means} was used due to its simplicity. The static data used in the project are
 from a time frame of every day of the week (e.g. 9:00 - 10:00am for all the
 days recorded). After that a timeslice data are computed for the same timeframe
@@ -36,7 +35,7 @@ zero, the more the distributions are alike.
 
 \begin{figure}
 \centering
-\includegraphics{images/futurework/map_london.jpg}
+\includegraphics[width=0.9\textwidth]{images/futurework/map_london.jpg}
 \caption{Results for clusters at timeslice 9:00 - 10:00am.}
 \label{fig:clusters}
 \end{figure}
