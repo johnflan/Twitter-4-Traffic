@@ -74,9 +74,9 @@ In project, a 'geolookup' table which stores street address is created for looki
 
 
 \subsubsection{Storage}
-For the storage of data we use a PostgreSQL database. Because of the high amount of database queries we needed to use an efficient way to store and analyze the information we acquired from the tfl feeds and twitter. For this reason, we decided to use a Geographic Information System called PostGIS. This allowed us to store geolocations (longitude and latitude) as points.
+For the storage of data we use a PostgreSQL database. This decision was made because PostgreSQL is one of the most stable open source database management systems. Due to the large amount of database queries, we needed to use an efficient way to store and analyze the information we acquired from the TfL feeds and Twitter. For this reason, we decided to use a Geographic Information System called PostGIS, which is a spatial database extension for PostgreSQL. This allowed us to store geolocations (longitude and latitude) as points.
 
-With the use of PostGIS queries to the database became easier and more efficient. The use of functions provided by PostGIS, such as ST\_DWithin to find all points around a route or a point within a radius, or ST\_Distance to find the distance between two points, made all queries simpler. In addition, the main advantage of PostGIS is that it uses generalized search trees (GiST) to index the geometries. 
+With the use of PostGIS, queries to the database became easier and more efficient. The use of functions provided by PostGIS, such as \emph{ST\_DWithin} to find all points around a route or a point within a radius, or \emph{ST\_Distance} to find the distance between two points, made all queries simpler. In addition, the main advantage of PostGIS is that it uses generalized search trees (GiST) to index the geometries. 
 
 A GiST like a B-tree uses key-pointer pairs. The difference with B-trees is that a GiST key is a user-defined data type. This allows different types of operations, rather than simple comparisons, such as nearest-neighbor searches and statistical approximations over large data sets. In PostGIS, the GiST is used for spatial indexing by allowing the index to use a bounding box for each geometry (e.g. line) instead of storing the whole geometry in it. Therefore, with bounding box comparison, instead of comparing geometries, functions such as ST\_DWithin are made more efficient. \cite{website:postgis_stdwithin}
 
@@ -84,56 +84,61 @@ For the project we used the following tables:
 \begin{itemize}
 \item Tables used by the final application
   \begin{itemize}
-  \item tfl: The current tfl disruption events
-  \item archive: To store old tfl disruption events for further analysis
-  \item tflcameras: The current camera pictures' url
-  \item tweets: To store the traffic tweets acquired from twitter
-  \item geolookup: Used to store addresses with their SoundEX value and their geolocation which is acquired from Google Maps
-  \item tweets\_metrics: Used to store different types of metrics for the tweets
+  \item \emph{tfl}: The current tfl disruption events
+  \item \emph{archive}: To store old tfl disruption events for further analysis
+  \item \emph{tflcameras}: The current camera pictures' url
+  \item \emph{tweets}: To store the traffic tweets acquired from twitter
+  \item \emph{geolookup}: Used to store addresses with their Soundex value and their geolocation which is acquired from Google Maps
+  \item \emph{tweets\_metrics}: Used to store different types of metrics for the tweets
   \end{itemize}
 \item Tables used to train the classifier
   \begin{itemize}
-  \item labelled\_tweets: To store manually labelled tweets as traffic or non-traffic
-  \item stop\_words: Words that can be removed before data analysis
+  \item \emph{labelled\_tweets}: To store manually labelled tweets as traffic or non-traffic
+  \item \emph{stop\_words}: Words that can be removed before data analysis
   \end{itemize}
 \item Tables used by PostGIS
   \begin{itemize}
-  \item geography\_columns: This is a view that shows all the columns of the database that use geography points
-  \item spatial\_ref\_sys: A list of spatial reference systems and details to transform between them
+  \item \emph{geography\_columns}: This is a view that shows all the columns of the database that use geography points
+  \item \emph{spatial\_ref\_sys}: A list of spatial reference systems and details to transform between them
   \end{itemize}
 \end{itemize}
 
 \subsubsection{Interface}
 
-Before the actual server was implemented, the creation of a mock server api was essential. This 
+Before the server implementation, the creation of a mock server api was essential. This 
 provided us with the ability to seperate the work on the application and server design from the very 
 beginning of the project. At this stage, the rest endpoints had to be defined in order to agree on the 
 data format that was transferred between the server and the client. The next thing was creating mocked 
 JSON data for responding to the requests. Such data included fixed sets of disruptions, tweets and 
-cameras. 
+cameras.
 
-The server is consisted of four different threads. Three of these threads are used to collect the data feeds from TfL and Twitter, as described in a previous section. The last thread is used by the REST server to receive and respond to mobile client requests. The reason for the implementation of the different threads is to achieve a fault resilient server. If one of them stops working because of an unexpected error, the remaining threads can continue to work unaffected. Furthermore, each thread uses a log file to store information about its actions and the errors it has encountered which makes debugging simpler.
+The server consists of several threads. Three of these threads are used to collect the data feeds from TfL and messages from Twitter, as described in a previous section. Another thread is used by the Representational State Transfer (REST) server to receive and respond to mobile client requests. The reason for the implementation of the different threads is to achieve a fault resilient server. If one of these threads stops working because of an unexpected error, the remaining threads can continue to work unaffected. Furthermore, each thread stores a log to a file about its actions and errors it has encountered, which makes debugging simpler.
 
-The REST server can receive GET or POST requests from the mobile client. If the request was not in the correct format then the server returns a bad request (Error 400). The response to these requests is a JSON file. The different types of requests are the following:
+The REST server can receive GET or POST requests from the mobile client. If the request was not in the correct format then the server returns a bad request (Error 400). The response to these requests is a JSON file. 
 
+The server and the mock server can run at the same time on different ports. Each request uses a URL that has the version written in it. This achieves old version compatibility, as the server can continue to support previous client versions. In the following requests the version is named 0.2:
 \begin{itemize}
-\item Disruption Requests
-  \begin{itemize}
-  \item A GET request that returns all current disruptions in an area defined by a point (longitude and latitude) and a radius.
-  \item A GET request that returns all current disruptions in an area defined by 2 points that are the 2 opposite corners of a rectangle.
-  \item A POST request that posts a json file of points on a route that will return all disruptions around it.
-  \end{itemize}
-  All these types of requests return all information of the disruptions and the cameras that are close to these events. There is also an option to return only the closest camera for each request.
-\item Tweet Requests
-  \begin{itemize}
-  \item A GET request that returns all tweets that are around a disruption event.
-  \item A GET request that returns all tweets in a area defined by a point (longitude and latitude) and a radius.
-  \end{itemize}
-  For both requests there is also an option to use the profanity filter for the tweets that are stored in the database.
-\item Camera Requests
-  \begin{itemize}
-  \item A GET request that returns all cameras that are around a disruption event.
-  \item A GET request that returns all cameras in a area defined by a point (longitude and latitude) and a radius.
-  \end{itemize}
-  These requests have an option to return only the closest camera.
+\item URL: /t4t/0.2/disruptions?longitude=???\&latitude=???\&radius=???\&closestcam=??? \\
+Parameters: longitute, latitude, radius, closestcam (optional) \\
+Description: A request that returns all current disruptions in an area defined by a point (longitude and latitude) and a radius. There is also an option to return only the closest camera for each request.
+\item URL: /t4t/0.2/disruptions?topleftlat=???\&topleftlong=???\&bottomrightlat=???\\\&bottomrightlong=???\&closestcam=??? \\
+Parameters: topleftlat, topleftlong, bottomrightlat, bottomrightlong, closestcam (optional) \\
+Description: A request that returns all current disruptions in an area defined by 2 points that are the 2 opposite corners of a rectangle. There is also an option to return only the closest camera for each request.
+\item URL: /t4t/0.2/disruptions/route/ \\
+Parameters: A JSON file that describes points on a route \\
+Description: A request that posts a json file of points on a route that will return all disruptions around it.
+
+\item URL: /t4t/0.2/tweets?disruptionID=???\&filter=??? \\
+Parameters: disruptionID, filter (optional) \\
+Description: A request that returns all tweets that are around a disruption event. There is also an option to use the profanity filter for the tweets that are returned.
+\item URL: /t4t/0.2/tweets?longitude=???\&latitude=???\&radius=???\&filter=??? \\
+Parameters: longitute, latitude, radius, filter (optional) \\
+Description: A request that returns all tweets in a area defined by a point (longitude and latitude) and a radius. There is also an option to use the profanity filter for the tweets that are returned.
+
+\item URL: /t4t/0.2/cameras?disruptionID=???\&closestcam=??? \\
+Parameters: disruptionID, closestcam (optional) \\
+Description: A request that returns all cameras that are around a disruption event. These requests have an option to return only the closest camera.
+\item URL: /t4t/0.2/cameras?longitude=???\&latitude=???\&radius=???\&closestcam=??? \\
+Parameters: longitute, latitude, radius, closestcam (optional) \\
+Description: A request that returns all cameras in a area defined by a point (longitude and latitude) and a radius. These requests have an option to return only the closest camera.
 \end{itemize}

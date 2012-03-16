@@ -213,10 +213,12 @@ It can be clearly seen that comparing to Dr. Luke's classifier; the Naive Bayes 
 \subsubsection{Functional/Integration Testing}
 To test boundaries between systems, functional testing is being applied. This enables us to test that the inputs and outputs 
 of the system as a whole conform to the expected responses. The biggest of these boundaries is between the mobile application and the back
-end service, where communication occurs over a REST API. \\
+end service, where communication occurs over a REST API.
+
 Many requests will be coming from the mobile application and it must be confirmed that the server interface can handle 
 them but also return the expected results using the expected format. Initially the functional testing of this interface was performed by the command line tool `cURL'. 
-But as development progressed the team was investigating moving to new tools to provide a better testing platform.\\ 
+But as development progressed the team was investigating moving to new tools to provide a better testing platform.
+
 After researching, the Apache JMeter application was used \cite{ApacheJmeter}. This software is designed to load test 
 functional behaviour and measure the performance of static and dynamic recourses. Using JMeter 
 proved to be a very effective way to test the servers interface. Various test plans where created 
@@ -236,7 +238,8 @@ exercising software modules through its interfaces, but importantly encourages
 good software design principles such as modularity and low coupling. The
 components of this project which are expected to have the largest percentage of
 code coverage are the tweet processing pipeline, REST API server and mobile
-application.\\
+application.
+
 Separate test suites are under concurrent development for the Python and Java
 portions of the project. Currently we are striving to create these tests in a
 test driven manor, but this practice can be difficult to uphold - particularly
