@@ -79,14 +79,14 @@ ability to store their typical route home from work. With this knowledge the
 application could present the reported events that are relevant to the user.
 
 The user configures the feature from the configuration screen, where they must
-enter a postal address for their ‘home’ and ‘work’ locations. When the feature
+enter a postal address for their `home' and `work' locations. When the feature
 is enabled and configured correctly, the map and list interfaces of the
-application only display events with in 300 meters of the route.
+application only display events within 300 meters of the route.
 
-The feature relies of the two features provided by Google, reverse geocoding
+The feature relies on two features provided by Google, reverse geocoding
 (address to geographical location) and requesting a driving route between two
 geographical points. We start by requesting the best geographical point for the
-‘home’ and ‘work’ addresses. Following a successful response we request a
+`home' and `work' addresses. Following a successful response we request a
 driving route between those points. With this data we are able to draw the
 route on the map and make a request to the server with the points on the route
 for the relevant traffic events. The feature is illustrated in Figure~\ref{fig:home_route}.
