@@ -1,8 +1,24 @@
 \subsection{Achieved goals and difficulties}
 The specifications and which of them were implemented or not is described in
-Section 2. The reasons some features were not included in the final project is
-that there were some difficulties that could not be overcome.
-The difficulties that were met are described below:
+Section 2. All the features from the minimum specifications were imlemented
+fully. Also, there were features that were not in the specifications and were
+implemented nonetheless.
+
+A profanity checker was included, as stated in Section 4.2.1, to check if the social data included any
+cursing words. Every time a tweet is processed before entering the database
+there is a profanity check and it is marked accordingly. By default the
+application does not use the profanity checker, but the user can enable it from
+the settings.
+
+Soundex algorithm was implemented as well, as stated in Section 4.2.2, in order to enhance the possibility to identify
+a location just from the text of a tweet. This algorithm understands
+misspelled words, and so gives the ability to search for street names that may
+be mistyped.
+
+The reasons some features were not included in the final project is
+that there were some difficulties that could not be overcome, or the priorities
+changed.
+The reasons they were not implemented are described below:
 
 \emph{Identify traffic disruptions from Twitter}
 
@@ -21,5 +37,3 @@ could not implement clustering to work in real time, as described in the
 previous feature that was not implemented.
 
 \emph{Present tweets on the map}
-
-\emph{Other difficulties}
