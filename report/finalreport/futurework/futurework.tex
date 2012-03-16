@@ -68,6 +68,13 @@ If our data were only about traffic could suggest a traffic accident for
 example, and this is how it can be used in the future.
 
 \subsection{Gamification}
+Gamification is the integration of game design techniques and game thinking to non-game applications.
+This technique is applied to applications that require the users feedback and participation. One issue that was confronted during our project
+was in fact that lack of traffic disruption tweets. This is the reason why users are 
+required to report traffic disruptions whenever they can. However in most cases, people might not be bothered with it and 
+neglect to report a disruption that they hold information of. A solution to this problem is gamification, where users are motivated to engage the application in the desired behaviour. This can be achieved using techniques like rewards, achievement levels, leaderboards, introducing visual currency and more. One method that could be 
+applied in this project is a rewarding system. Users could receive positive votes for every disruption they report and therefore increase their ranking. 
+Additionally, features could be created that are visible only to users above a certain rank. Lastly, a leaderboard could be displayed with the top contributors.
 
 \subsection{Further enhanced on the classification}
 There are multiple ways that can improve the classifier. However, because of the strictly deadline of the project the time wasn’t enough to test all the possible improvements. Therefore the team decided to focus on the other parts of the project. One way to improve classification performance is to combine several classifiers. This can be easily be done by letting the multiple classifiers to use voting, and choose whichever label gets the most votes. For this style of voting, it's best to have an odd number of classifiers so that there are no ties. The individual classifiers should also use different algorithms. For example the Naïve Bayes, the SVM and another classifier e.g a Decision Tree classifier can vote for a tweet and an algorithm can be used in order to classify the tweet accordingly.  Another way to enhance the classifier is to manually label more data and train the classifier from the beginning. Finally, the inclusion of trigrams collocations could increase the accuracy of the classification.  
