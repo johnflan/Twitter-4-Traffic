@@ -118,27 +118,31 @@ The REST server can receive GET or POST requests from the mobile client. If the 
 
 The server and the mock server can run at the same time on different ports. Each request uses a URL that has the version written in it. This achieves old version compatibility, as the server can continue to support previous client versions. In the following requests the version is named 0.2:
 \begin{itemize}
-\item URL: /t4t/0.2/disruptions?longitude=???\&latitude=???\&radius=???\&closestcam=??? \\
-Parameters: longitute, latitude, radius, closestcam (optional) \\
+\item \emph{GET} \url{/t4t/0.2/disruptions} \\
+Parameters: \emph{longitute, latitude, radius, closestcam (optional)} \\
 Description: A request that returns all current disruptions in an area defined by a point (longitude and latitude) and a radius. There is also an option to return only the closest camera for each request.
-\item URL: /t4t/0.2/disruptions?topleftlat=???\&topleftlong=???\&bottomrightlat=???\\\&bottomrightlong=???\&closestcam=??? \\
-Parameters: topleftlat, topleftlong, bottomrightlat, bottomrightlong, closestcam (optional) \\
+
+\item \emph{GET} \url{/t4t/0.2/disruptions} \\
+Parameters: \emph{topleftlat, topleftlong, bottomrightlat, bottomrightlong, closestcam (optional)} \\
 Description: A request that returns all current disruptions in an area defined by 2 points that are the 2 opposite corners of a rectangle. There is also an option to return only the closest camera for each request.
-\item URL: /t4t/0.2/disruptions/route/ \\
-Parameters: A JSON file that describes points on a route \\
+
+\item \emph{GET} \url{/t4t/0.2/disruptions/route} \\
+Parameters: \emph{JSON encoded list points on a route} \\
 Description: A request that posts a json file of points on a route that will return all disruptions around it.
 
-\item URL: /t4t/0.2/tweets?disruptionID=???\&filter=??? \\
-Parameters: disruptionID, filter (optional) \\
+\item \emph{GET} \url{/t4t/0.2/tweets} \\
+Parameters: \emph{disruptionID, filter (optional)} \\
 Description: A request that returns all tweets that are around a disruption event. There is also an option to use the profanity filter for the tweets that are returned.
-\item URL: /t4t/0.2/tweets?longitude=???\&latitude=???\&radius=???\&filter=??? \\
-Parameters: longitute, latitude, radius, filter (optional) \\
+
+\item \emph{GET} \url{/t4t/0.2/tweets} \\
+Parameters: \emph{longitute, latitude, radius, filter (optional)} \\
 Description: A request that returns all tweets in a area defined by a point (longitude and latitude) and a radius. There is also an option to use the profanity filter for the tweets that are returned.
 
-\item URL: /t4t/0.2/cameras?disruptionID=???\&closestcam=??? \\
-Parameters: disruptionID, closestcam (optional) \\
+\item \emph{GET} \url{/t4t/0.2/cameras} \\
+Parameters: \emph{disruptionID, closestcam (optional)} \\
 Description: A request that returns all cameras that are around a disruption event. These requests have an option to return only the closest camera.
-\item URL: /t4t/0.2/cameras?longitude=???\&latitude=???\&radius=???\&closestcam=??? \\
-Parameters: longitute, latitude, radius, closestcam (optional) \\
+\item \emph{GET} \url{/t4t/0.2/cameras} \\
+Parameters: \emph{longitute, latitude, radius, closestcam (optional)} \\
 Description: A request that returns all cameras in a area defined by a point (longitude and latitude) and a radius. These requests have an option to return only the closest camera.
+
 \end{itemize}
