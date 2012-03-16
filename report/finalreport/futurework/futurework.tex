@@ -11,15 +11,16 @@ because people don't tend to use social media that much about traffic yet we
 tested that theory using general social data and not only about traffic.
 In order to do that, static clusters had to be created first. These clusters
 represent the "normal" behaviour of the social media users. For all clustering
-k-means was used due to its simplicity. The static data used in the project are
+k-means\cite{website:k-means} was used due to its simplicity. The static data used in the project are
 from a time frame of every day. After that a timeslice data are computed for
 the same timeframe of a specific day.
 The static data and the timeslice data are then compared, because unusual
 behaviour is what is important. For the comparison, each cluster is considered
-to be a Gaussian distribution. The Kullback-Leibler divergence is then applied
-to the timeslice clusters comparing them to the static clusters. The value
-returned from that function is a real number larger or equals to zero. The
-closest this number is to zero, the more the distributions are alike.
+to be a Gaussian distribution\cite{website:gaussian}. The Kullback-Leibler
+divergence\cite{Kullback} is then applied to the timeslice clusters comparing
+them to the static clusters. The value returned from that function is a real
+number larger or equals to zero. The closest this number is to zero, the more
+the distributions are alike.
 
 \subsection{Gamification}
 
