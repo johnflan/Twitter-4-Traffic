@@ -168,18 +168,19 @@ def updateDBBadWords():
         query = "UPDATE tweets SET profanity='n'"
         
         cursor.execute(query)
-        
+        conn.commit()
+
         query = "UPDATE tweets SET profanity='y' WHERE "
         
         for word in kwargs['badwords']:
             if word!=None and len(word)>0:
-                query += "text ~* '[[:<:]]" + word + "[[:>:]]' OR "
-        
-        if len(kwargs['badwords'][0]) > 0:
-            cursor.execute(query[:-4])
-            conn.commit()
+                queryWord = query+"text ~* '[[:<:]]" + word + "[[:>:]]'"
+                cursor.execute(queryWord)
+                conn.commit()
     except:
-        logger.error("Bad words could not be updated, query=%s" % query[:-4])
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        logger.error("Bad words could not be updated, %s" % exceptionValue)
         sys.exit()
         
 ###############################################################################################
@@ -198,7 +199,9 @@ def updateDBBlacklist():
             cursor.execute(query[:-4])
             conn.commit()
     except:
-        logger.error("Blacklist could not be updated, query=%s" % query[:-4])
+        # Get the most recent exception
+        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+        logger.error("Blacklist could not be updated, %s, query=%s" % (exceptionValue, query[:-4]))
         sys.exit()
 
 ###############################################################################################
@@ -263,6 +266,15 @@ def tweets(rl, georadius="19.622mi", start_id=0):
                     most_recent_id = max(r.id,most_recent_id)
                     (tid,uname,rname,created_at_str,location,text,geo) = r.id,r.user.screen_name,r.user.name,r.created_at,r.location,r.text,r.GetGeo()
                     created_at = datetime.strptime(created_at_str, DATETIME_STRING_FORMAT)
+
+                    if uname!=None:
+                        uname = uname.encode('ascii','ignore')
+                    if rname!=None:
+                        rname = rname.encode('ascii','ignore')
+                    if location!=None:
+                        location = location.encode('ascii','ignore')
+                    if text!=None:
+                        text = text.encode('ascii','ignore')
 
                     probability = 1.0
                     isTraffic = True

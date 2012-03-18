@@ -548,6 +548,20 @@ def tweetRows2JSON(tweetRows, radius):
         longitude = lonlatArray[0]
         latitude = lonlatArray[1]
 
+        uname = ""
+        rname = ""
+        location = ""
+        text = ""
+
+        if row[1]!=None:
+            uname = row[1].encode('ascii','ignore')
+        if row[2]!=None:
+            rname = row[2].encode('ascii','ignore')
+        if row[4]!=None:
+            location = (row[4].encode('ascii','ignore')).replace('"',"'")
+        if row[5]!=None:
+            text = (row[5].encode('ascii','ignore')).replace('"',"'")
+
         jsonRow += """    {
         \"tid\": \"%s\",
         \"uname\": \"%s\",
@@ -558,7 +572,7 @@ def tweetRows2JSON(tweetRows, radius):
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
         \"ranking\": \"%s\"
-    },\n""" % (row[0],row[1],row[2],row[3],row[4].replace('"',"'"),row[5].replace('"',"'"),longitude,latitude,ranking)
+    },\n""" % (row[0],uname,rname,row[3],location,text,longitude,latitude,ranking)
     
     jsonText = "{\"tweets\":[\n%s\n]}" % jsonRow[:-2]
     return jsonText.encode()
