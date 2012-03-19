@@ -427,6 +427,14 @@ def disruptionRows2JSON(disruptionRows, closestcam):
         lonlatArray = coordinates.split(" ")
         longitude = lonlatArray[0]
         latitude = lonlatArray[1]
+
+        description = ""
+        remark = ""
+        if row[11]!=None:
+            description = row[11].replace('"',"\'\'")
+	if row[18]!=None:
+            remark = row[18].replace('"',"\'\'")
+
         jsonRow += """    {
         \"updated_at\": \"%s\",
         \"ltisid\": \"%s\",
@@ -450,7 +458,7 @@ def disruptionRows2JSON(disruptionRows, closestcam):
         \"longitude\": \"%s\",
         \"latitude\": \"%s\",
         """ % (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
-                row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],
+                row[10],description,row[12],row[13],row[14],row[15],row[16],row[17],remark,
                 longitude, latitude)
         
         if closestcam=="y":
