@@ -114,9 +114,9 @@ def storeTflData(dom, updated_at):
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         logger.error("Delete failed in storeTfLData -> %s" % (exceptionValue))
 
-    try:
-        # For every tfl event find each element
-        for event in events:
+    # For every tfl event find each element
+    for event in events:
+        try:
             rrevent = {}
             rrevent['updated_at'] = updated_at
             rrevent['ltisid'] = event.getElementsByTagName("ltisid")[0].firstChild.data
@@ -141,7 +141,11 @@ def storeTflData(dom, updated_at):
             rrevent['gridNorthing'] = event.getElementsByTagName("gridNorthing")[0].firstChild.data
             # Insert the tfl event in the database
             updateEvent(**rrevent)
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            logger.error("Error in xml fields -> %s" % (exceptionValue))
 
+    try:
         # Commit all database changes after all events have been stored
         conn.commit()
     except:

@@ -110,9 +110,9 @@ def storeTflData(dom):
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         logger.error("Delete failed in storeTfLData -> %s" % (exceptionValue))
 
-    try:
-        # For every tfl camera find each element
-        for camera in cameras:
+    # For every tfl camera find each element
+    for camera in cameras:
+        try:
             cam = {}
             cam['title'] = camera.getElementsByTagName("title")[0].firstChild.data
             cam['link'] = camera.getElementsByTagName("link")[0].firstChild.data
@@ -120,7 +120,11 @@ def storeTflData(dom):
             cam['geolocation'] = camera.getElementsByTagName("georss:point")[0].firstChild.data
             # Insert the tfl camera in the database
             updateCamera(**cam)
+        except:
+            exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+            logger.error("Error in xmls elements -> %s" % (exceptionValue))
 
+    try:
         # Commit all database changes after all cameras have been stored
         conn.commit()
     except:
