@@ -1,0 +1,209 @@
+Document classification is a way to categorize documents or pieces of text. By examining the words in a piece of text, classifiers can decide, after the training what class label to assign to it. A binary classifier decides between two labels, such as traffic or non-traffic. The text can either be one label or the other, but not both, whereas a multi-label classifier can assign one or more labels to a piece of text. For the particular project, because it was only required to label the tweets as traffic or as non-traffic, the binary classifier has been chosen.
+
+Two approaches for the automatic document classification exist: supervised document classification and unsupervised classification (clustering) \cite{Liu}.  The supervised classification requires training data in order to be able to classify the data. This classification works by learning from labelled feature sets, or training data, to later classify an unlabelled text, or a feature set. A feature set is basically a key-value mapping of feature names to feature values. In the case of text classification, the feature names are usually words or blocks of words, and the values are all True. As the texts may have unknown words, and the number of possible words may be very large, words that do not occur in the text are omitted, instead of being included in a feature set with the value False.
+
+On the other hand, unsupervised classification instead of training data uses several algorithms, mainly clustering algorithms, to classify text. The unsupervised classification starts from a certain point and its algorithms try in iterative ways to reach a stable configuration that makes sense. Therefore, it may require a large amount of time to reach this configuration and the time was of the essence because of the strict project time restrictions. Additionally, the results of the unsupervised classification vary widely and may be completely off if the first steps are wrong.
+
+The team decided to adopt the supervised classification because it is a more stable technique and it can be used as soon as the classifier is trained. It is only needed to gather the training data, train the classifier and then the classifier is ready to start classifying. After the decision of the classifier, it was necessary to apply several text normalizations on the data. 
+
+\subsection{Text Normalization}
+Text normalization is the way to eliminate the low information features, the words that don't offer useful information to the classifier. The elimination of those low information features provides to the model clarity by removing noisy data. Additionally it reduces the possibility of over-fitting by training the classifier with unnecessary data. By using the higher information features, the performance is being increased while the size of the model is being decreased, which results in less memory usage along with faster training and classification. This normalization was being applied on the labelled tweets before the classifier training and is continue being applied on the newly fetched tweets as well. Using this pre-processing on the tweets the accuracy of the classifier has been increased. 
+
+The below text normalazation techniques are being applied on the tweets before the classification.
+\begin{itemize}
+\item Convert URL links to a more redable way.\\ 
+This has been done by using a regular expression to recognize the link. After that the domain is being extracted from the URL and it replaces the link itself. 
+\item Convert emoticons into words.\\ 
+The next step is to replace the emoticons with a global name so they will not be deleted during the punctuation removal. That is important because the emoticons offer useful information during the classification. For this reason, the team has integrated a script which is responsible on finding those emoticons, assign them to a group of emoticons and replace them with the name of the group. Four groups of emoticons have been created:Very Happy, Happy, Sad, Very Sad. 
+\item Remove the punctuations.\\
+The team has accomplished that by creating a regular expression which represents all the possible punctuations. 
+\item Convert all letters to lower case.
+\item Tokenise the tweet into words.
+\item Group together the different inflected forms of a word into a single item.\\
+This has been done by applying lemmanization on the tokenised text. Lemmanization removes and replaces word suffixes to arrive at a common root form of the word in order to group up the common words. This method has been chosen over the stemming, because lemma is a canonical set of words, instead of the stem which in many cases is not a real world. 
+\item Find the bigrams collocations.\\
+Bigrams are less common than most individual words, so including them in training data increases the classifier accuracy. 
+\end{itemize}
+
+\subsection{Classifiers}
+The next step was to investigate several supervised classification algorithms. The methods Support Vector Machines and Naive Bayes have been chosen for this purpose. Those two algorithms have been selected because of a number of factors. Firstly, Naive Bayes train very quickly since it requires only a single pass on the data to compute the normal probability density function. It also requires little storage space during the training and classification stages: the strict minimum is the memory needed to store the prior and conditional probabilities. Additionally Naive Bayes is very transparent, as it is easily grasped by users and it provides a discrete probability for each tweet helping the ranking of the tweets. Naive Bayes is considered to have high bias, because it assumes that the dataset under consideration can be summarized by a single probability distribution and that Naive Bayes model is sufficient to discriminate between classes. This high bias usually generates simple, highly constrained models. On the other hand, SVM is considered to be one of the most accurate classifier. However for the SVM, a large sample size is required in order to achieve its maximum prediction accuracy whereas Naive Bayes may need a relatively small dataset.
+
+\subsubsection{Naive Bayes}
+Given a set of objects, each of which belongs to a known class, and each of which has a known vector of variables, the aim is to construct a rule which will allow the assigning of future objects to a class, given only the vectors of variables describing the future objects. Problems of this kind, called problems of supervised classification, are ubiquitous, and many methods for constructing such rules have been developed. One method is the Naive Bayes Reasoning. This is a well-established Bayesian method primarily formulated for performing classification tasks. Given its simplicity Naive Bayes models are effective classification tools that are easy to use and interpret. Naive Bayes is particularly appropriate when the dimensionality of the independent space. For the reasons given above, Naive Bayes can often outperform other more sophisticated classification methods. A variety of methods exist for modelling the conditional distributions of the inputs including normal, lognormal, gamma, and Poisson \cite{Barber}. 
+
+This classifier has been created using the "Bag of Words" model and the NLTK suites of libraries. NLTK is the Natural Language Toolkit, a comprehensive Python library for natural language processing and text analytics. It was decided to use the Natural Language Toolkit because of its simplicity, consistency, extensibility and its modularity. Additionally some of the members had already experience with it and they were aware of its accuracy. Furthermore, it was decided the usage of the "Bag of Words" feature extraction because it's a very accurate method, especially for binary classification. Text feature extraction is the process of transforming what is essentially a list of words into a feature set that is usable by a classifier. The NLTK Naive Bayes classifier expects dictionary style feature sets, so the text should be transformed into a dictionary. The "Bag of Words" model is a well-known method for representing documents, which ignores the word orders \cite{Bird}\cite{Perkins}. It constructs a word dictionary from all the words of an instance where every word gets the value True. An instance is a single feature set. It represents a single occurrence of a combination of features. A labelled feature set is in fact an instance with a known class label that we can use for training or evaluation.
+
+As it has discussed previously, for the training of the classifier it's required a labelled data. To accomplish that, a simple script for manually labelling was created. This script was being executed on a temporary table on the database which was containing raw, unlabelled, tweets. During the execution it was presenting random tweets from this table and the user was able to press four buttons in order to label the tweets as traffic (personalized tweets about traffic), non-traffic, unclear and bot (tweets about traffic from official sites). After the gathering of one and a half thousand of traffic-about tweets, the table in which the labelled tweets were being stored was used to train the classifier.
+
+\subsubsection{Support Vector Machines}
+The second supervised learning method that it was fully integrated and tested is the Support Vector Machines (SVM). This is a method that performs regression and classification tasks by constructing nonlinear decision boundaries. Because of the nature of the feature space in which these boundaries are found, Support Vector Machines can exhibit a large degree of flexibility in handling classification and regression tasks of varied complexities.
+
+In this project PyML\cite{website:pyml} was used to implement SVM
+classification. The results of this algorithm did not show much improvement
+compared to Naive Bayes classification. Also the library seems to be at an
+early stage and still buggy which makes it more difficult to use. This makes it
+unstable and is not good to have it in the product. Also since the accuracy does not
+change, the use of Naive Bayes was decided by the group.
+
+\subsection{Classifier Evaluation} 
+Machine learning algorithms induce classifiers that depend on the training set. So there is a need for evaluation and statistical testing to assess the expected error rate of a classification algorithm. Additionally evaluation is crucial to compare the expected error rates of two classification algorithms to be able to say which one is better. Evaluation can also be used as a guide for future improvements on the model. In order to evaluate the classifier several techniques have been used. The first technique is to generate a test set of tweets which their labels are already known. This test set has to be distinct from the train set which has been used to train the classifier. It is then being labelled by the classifier and the labels that it decides are being compared with their correct labels. The second technique is to calculate the accuracy of the classifier which measures the percentage of inputs in the test set that the classifier correctly labelled. To accomplish this, the build-in function of the package NLTK \emph{nltk.classify.accuracy()} has been used.
+
+Additionally techniques have been implemented in order to get moreaccurate evaluations and avoid possible `overfitting'. There is a chance the classifier will become more accurate in the train set and less accurate in the test set with some parameter changes. This is when an "over-fitting" is occurs to the train set. 
+
+The first of these methods is the K-Fold Cross Validation. The dataset is split each time into K equally sized subsets, training and testing datasets, and then in n-th iteration (n=1..k) the n-th subset(testing set) is used for testing the classifier that has been built on all other remaining subsets. To present the result of this method the Confusion Matrix, which is a visualization tool typically used to present the results attained by a learner, has been created. Each column of the matrix represents the instances in a predicted class, while each row represents the instances in an actual class. Thus, the diagonal entries indicate labels that were correctly predicted, and the off-diagonal entries indicate errors. One benefit of a confusion matrix is that it is easy to see if the system is confusing two classes.
+
+The Precision and Recall Rates can be calculated in order to ensure the results from the previous method. Recall describes the completeness of the classification. It is defined as the portion of the traffic tweets versus retrieved by the classifier the number of existing traffic tweets. Precision defines the actual accuracy of the classification. It is defined as the portion of the traffic tweets exist in the total number of tweets classified. The recall and the precision can be derived from the confusion matrix by applying the following formulas:
+
+\[ Precision\textsubscript{A} = tp\textsubscript{A}/(tp\textsubscript{A}+e\textsubscript{BA}+e\textsubscript{CA}) \]
+
+\[ Recall\textsubscript{A} = tp\textsubscript{A}/(tp\textsubscript{A}+e\textsubscript{AB}+e\textsubscript{AC}) \]
+
+Where the values "tp" and "e" are the elements of the confusion matrix as it can been seen on the figure~\ref{fig:confisionMatixCalc}.
+
+\begin{figure}[h!]
+\begin{center}
+\begin{tabular}{| l || c | c | c | }
+    \hline
+        & A & B & C  \\ \hline \hline
+        A & tp\textsubscript{A} & e\textsubscript{AB} & e\textsubscript{AC} \\ \hline
+        B & e\textsubscript{BA }& tp\textsubscript{B} & e\textsubscript{BC} \\\hline
+        C & e\textsubscript{CA} & e\textsubscript{CB} & tp\textsubscript{C} \\\hline
+    \end{tabular}
+	\caption{A simple confusion matrix}
+    \label{fig:confisionMatixCalc}
+\end{center}
+\end{figure}
+
+While recall and precision rates can be individually used to determine the quality of a classifier, it is often more convenient to have a single measure to do the same assessment. The F\textsubscript{1} measure combines the recall and precision rates in a single equation:
+
+\[ F\textsubscript{1} = 2*\frac{precision*recall}{precision+recall} \]
+
+The labelled data was consisting of an unbalance data, 1500 traffic tweets and 14505 non-traffic tweets, two different trainings have been executed and tested. 
+
+Firstly, the classifier was trained with 1000 traffic and 1000 non-traffic tweets. Then it was tested with 500 traffic and 500 non-traffic tweets. The metrics for this training are the following. 
+
+Accuracy of the classifier:   0.870000
+
+Traffic precision:\hspace{15.5 mm}              0.842592592593\\
+Traffic recall:\hspace{21.2 mm}                             0.91\\
+Traffic F-measure:\hspace{12.8 mm}             0.875\\
+
+Non-Traffic precision:\hspace{7.2 mm}        0.902173913043\\
+Non-Traffic recall:\hspace{13 mm}            0.83\\
+Non-Traffic F-measure:\hspace{4.6 mm}       0.864583333333\\
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
+    \hline
+          & Non-Traffic & Traffic \\ \hline \hline
+         Non-Traffic & 83.0\% & 17.0\% \\ \hline
+         Traffic & 9.0\% & 91.0\% \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix with 1000 traffic and 1000 non-traffic tweets.}
+    \label{fig:confusionMatrix1}
+\end{center}
+\end{figure}	
+
+Secondly, the classifier was trained with 1000 traffic and 9670 non-traffic tweets. Afterward it was tested with 500 traffic and 4835 non-traffic tweets. The metrics for this training are the following. 
+
+Accuracy of the classifier:   0.862605
+
+Traffic precision:\hspace{15.5 mm}            0.401019541206\\
+Traffic recall:\hspace{21.2 mm}               0.944\\
+Traffic F-measure:\hspace{12.8 mm}         0.562909958259\\
+
+Non-Traffic precision:\hspace{7.2 mm}         0.993265993266\\
+Non-Traffic recall:\hspace{13 mm}           0.854188210962\\
+Non-Traffic F-measure:\hspace{4.6 mm}         0.918492160569\\
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
+    \hline
+          & Non-Traffic & Traffic \\ \hline \hline
+        Non-Traffic & 85.4\% & 14.6\% \\ \hline
+        Traffic & 5.4\% & 94.6\% \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix with 1000 traffic and 9670 non-traffic tweets.}
+    \label{fig:confusionMatrix1}
+\end{center}
+\end{figure}
+	
+It can been observed from the confusion matrices, with the first training the classifier has been achieved a rather bad accuracy since 19\% of the non-traffic tweets are being classified wrong and 9\% of the traffic tweets are being classified wrong. On the other hand, with the second training the traffic tweets error has been almost halved to 5\% resulting a more accurate classification for the traffic tweets even if the global accuracy dropped by 1\%. That means the classifier may classified some traffic tweets as non-traffic but it classified much less non-traffic tweets as traffic.So ita has been decide from the team to train the Naive Bayes classifier with all the labelled data. Note that all the above results have been taken after the implementation of the normalization. During the first evaluation, before the pre-processing, the accuracy of the classifier was 77\%. However after the application of the normalization techniques the accuracy has been increased by 10\%!
+
+A strong motivation for the creation of this project was the previous work of Dr.Luke Dicken in the same field. Having that in mind, is important to compare the accuracy of our classifier and the efficient of our server with his work. So in addition to the previous evaluation results, several metrics have been calculated in order to find the efficient of the classifier and the server. Those metrics are being presented in the figures below.
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| c | c | c | }
+    \hline
+        Total Number of Tweets  & Non-Traffic & Traffic \\ \hline 
+        71036 & 68096(95.86\%) & 2940(4.14\%) \\ \hline
+    \end{tabular}
+    \caption{Comparison of Traffic and Non-Traffic Tweets.}
+    \label{fig:metrics1}
+\end{center}
+\end{figure}
+	
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| c | c | c | }
+    \hline
+        Geo-Tagged  & Geo-Tagged Genuine & Geo-Tagged from the 
+Geolocation Resolver \\ \hline 
+        314(10.68\%) & 136(4.63\%) & 178(6.05\%) \\ \hline
+    \end{tabular}
+    \caption{Tweets with geolocation from the 2940 traffic tweets.}
+    \label{fig:metrics2}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[h!]
+Overall inferred rates:
+\begin{center}
+    \begin{tabular}{| l || c | c | c |}
+    \hline
+        & Filtered & Traffic & Geo-Tagged and Traffic\\ \hline \hline
+        each minute & 13.3 & 0.5 & 0.06 \\ \hline
+		each 5 mins & 66.7 &  2.7 & 0.3 \\ \hline
+		each hour & 800 & 32.7 & 3.5 \\ \hline
+    \end{tabular}
+    \caption{Averages are over total 5400 minutes (90 hours) of up-time.}
+    \label{fig:metrics3}
+\end{center}
+\end{figure}
+
+The corresponding metrics from Dr. Luke Dicken are being presented below.
+
+Accuracy of the classifier:   0.818750
+
+\begin{figure}[h!]
+\begin{center}
+    \begin{tabular}{| l || c | c | }
+    \hline
+          & Non-Traffic & Traffic \\ \hline \hline
+        Non-Traffic & 85.8\% & 14.2\% \\ \hline
+        Traffic & 22.3\% & 77.7\% \\ \hline
+    \end{tabular}
+    \caption{Confusion Matrix of Dr. Luke Dicken SVM classifier.}
+    \label{fig:confusionMatrixLuke}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+Overall inferred rates:
+\begin{center}
+    \begin{tabular}{| l || c | c | c |}
+    \hline
+        & Filtered & Traffic & Geo-Tagged and Traffic\\ \hline \hline
+        each minute & 6.3 & 3.6 & 0.11 \\ \hline
+		each 5 mins & 32 &  18 & 0.5 \\ \hline
+		each hour & 380 & 220 & 6.5 \\ \hline
+    \end{tabular}
+    \caption{Averages are over total 160000 minutes (111 days) of up-time.}
+    \label{fig:metricsLuke}
+\end{center}
+It can be clearly seen that comparing to Dr. Luke's classifier; the Naive Bayes classifier sacrificed the quantity to achieve the quality. Our classifier labelled less tweets as traffic, but those tweets are rather accurate. That's important because the application's user prefer to have less tweets for each disruption, but these tweets have to be about traffic. 
+\end{figure}

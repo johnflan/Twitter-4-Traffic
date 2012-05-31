@@ -1,0 +1,44 @@
+\subsection{Achieved goals and difficulties}
+The specifications and which of them were implemented or not is described in
+Section 2. All the features from the minimum specifications were imlemented
+fully. Also, there were features that were not in the specifications and were
+implemented nonetheless.
+
+A profanity checker was included, as stated in Section 4.2.1, to check if the social data included any
+cursing words. Every time a tweet is processed before entering the database
+there is a profanity check and it is marked accordingly. By default the
+application does not use the profanity checker, but the user can enable it from
+the settings.
+
+Soundex algorithm was implemented as well, as stated in Section 4.2.2, in order to enhance the possibility to identify
+a location just from the text of a tweet. This algorithm understands
+misspelled words, and so gives the ability to search for street names that may
+be mistyped.
+
+The reasons some features were not included in the final project is
+that there were some difficulties that could not be overcome, or the priorities
+changed.
+The reasons they were not implemented are described below:
+
+\emph{Identify traffic disruptions from Twitter}
+
+The reason that this feature could not be included is that the traffic tweets
+for a small timeslice are too few to get results from the clustering described
+in Section 7.1. The feature is still implemented, but the data used to test
+were in a timeslice of an hour and using data that were not specifically about
+traffic. This means that a new cluster we may find might also indicate an
+event that is irrelevant to traffic. Nonetheless, this should prove very useful
+in the future.
+
+\emph{Enhance clustering algorithm}
+
+This feature could not be included in the product of this project because we
+could not implement clustering to work in real time, as described in the
+previous feature that was not implemented.
+
+\emph{Present tweets on the map}
+
+This feature was not implemented, because the map would get too crowded if all
+the tweets about traffic were visible. It would only help the user if there
+were clustered tweets and there was one event generated from the specific
+cluster, but as stated above clustering was not implemented.
